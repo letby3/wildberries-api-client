@@ -1,5 +1,6 @@
 [tool.poetry]
 name = "wildberries-api-client"
+url = "https://github.com/letby3/wildberries-api-client/"
 version = "0.1.6"
 description = ""
 authors = ["letby <fvahit2@gmail.com>"]
