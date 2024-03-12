@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "wildberries-api-client"
+version = "0.1.6"
+description = ""
+authors = ["letby <fvahit2@gmail.com>"]
+readme = "README.md"
+license = "MIT"
+packages = [{include = "wildberries_api_client"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+ruamel-yaml = "^0.18.6"
+transliterate = "^1.10.2"
+urllib3 = "2.2.1"
+six = "1.10"
+certifi = "^2024.2.2"
+python-dateutil = "^2.9.0.post0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+

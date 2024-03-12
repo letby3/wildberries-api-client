@@ -1,0 +1,3400 @@
+openapi: 3.0.1
+info:
+  title: Opisanie API Marketplace
+  version: '2.18'
+security:
+  - HeaderApiKey: []
+x-tagGroups:
+  - name: Marketplace
+    tags:
+      - Sborohnye zadania
+      - Postavki
+      - Ostatki
+      - Sklady
+      - Propuska
+tags:
+  - name: Sborohnye zadania
+    description: "Publihnoe API Marketplace sozdano dla sinhronizacii dannyh mehdu\
+      \ serverami Wildberries i serverami prodavcov. <br>Vy zagruhaete dannye na svoi\
+      \ nositeli, rabotaete s nimi na svoih mohnostah i sinhroniziruetes s nahimi\
+      \ serverami po mere neobhodimosti. <br> <br>Ogranihenia po zaprosam: <br>Metod\
+      \ <b>PATCH</b> `api/v3/supplies/{supplyId}/orders/{orderId}` \"Dobavit sborohnoe\
+      \ zadanie k postavke\" - 1 000 zaprosov v minutu. <br>Metody <br><b>PUT</b>\
+      \ `/api/v3/orders/{orderId}/meta/uin` \"Zakrepit za sborohnym zadaniem UIN\"\
+      \ <br><b>PUT</b> `/api/v3/orders/{orderId}/meta/imei` \"Zakrepit za sborohnym\
+      \ zadaniem IMEI\" <br><b>PUT</b> `/api/v3/orders/{orderId}/meta/gtin` \"Zakrepit\
+      \ za sborohnym zadaniem GTIN\" <br><b>PUT</b> `/api/v3/orders/{orderId}/meta/sgtin`\
+      \ \"Zakrepit za sborohnym zadaniem KiZ (markirovku hestnogo znaka)\" <br> -\
+      \ summarno 1 000 zaprosov v minutu. <br>Ostalnye metody - 300 zaprosov v minutu,\
+      \ v celom. <br>`Ne dopuskaetsa ispolzovanie API Marketplace v kahestve vnehnei\
+      \ bazy dannyh.`\n<dl> <dt>Slovar sokrahenii:</dt> <dd>PVZ - punkt vydahi zakazov</dd>\
+      \ <dd>KIZ - kontrolnyi identifikacionnyi znak</dd> <dd>IS \"MDLP\" - informacionnaa\
+      \ sistema monitoringa dvihenia lekarstvennyh preparatov</dd> <dd>Sc - sortirovohnyi\
+      \ centr</dd> </dl>\n\nOpisanie osnovnyh ohibok v Marketplace: <table>\n  <tr>\n\
+      \    <td>Kod</td>\n    <td>Opisanie</td>\n  </tr>\n  <tr>\n    <td>InternalServerError</td>\n\
+      \    <td>Vnutrennaa ohibka servera</td>\n  </tr>\n  <tr>\n    <td>Unauthorized</td>\n\
+      \    <td>Polzovatel ne avtorizovan</td>\n  </tr>\n  <tr>\n    <td>AccessDenied</td>\n\
+      \    <td>Dostup zaprehen</td>\n  </tr>\n  <tr>\n    <td>IncorrectRequestBody</td>\n\
+      \    <td>Nekorrektnoe telo zaprosa</td>\n  </tr>\n  <tr>\n    <td>IncorrectRequest</td>\n\
+      \    <td>Peredany nekorrektnye dannye</td>\n  </tr>\n  <tr>\n    <td>NotFound</td>\n\
+      \    <td>Ne naideno</td>\n  </tr>\n  <tr>\n    <td>UploadDataLimit</td>\n  \
+      \  <td>Prevyhen limit zagruhaemyh dannyh</td>\n  </tr>\n  <tr>\n    <td>SubjectDBSRestriction</td>\n\
+      \    <td>Kategoria tovara nedostupna dla prodahi po sheme 'Vezu na sklad Wildberries'</td>\n\
+      \  </tr>\n  <tr>\n    <td>SubjectFBSRestriction</td>\n    <td>Kategoria tovara\
+      \ nedostupna dla prodahi po sheme 'Vezu samostoatelno do pokupatela'</td>\n\
+      \  </tr>\n  <tr>\n    <td>CargoWarehouseRestriction</td>\n    <td>Vybrannyi\
+      \ sklad ne prednaznahen dla krupnogabaritnyh tovarov. Dobavte ih na sootvetstvuuhii\
+      \ sklad</td>\n  </tr>\n  <tr>\n    <td>IncorrectParameter</td>\n    <td>Peredan\
+      \ nekorrektnyi parametr</td>\n  </tr>\n  <tr>\n    <td>SupplyHasOrders</td>\n\
+      \    <td>Ne udalos obrabotat postavku. Ubedites, hto za nei ne ostalos zakreplennyh\
+      \ sborohnyh zadanii</td>\n  </tr>\n  <tr>\n    <td>SupplyHasZeroOrders</td>\n\
+      \    <td>Ne udalos obrabotat postavku. Ubedites, hto za nei zakrepleno hota\
+      \ by odno sborohnoe zadanie</td>\n  </tr>\n  <tr>\n    <td>SupplyHasEmptyTrbx</td>\n\
+      \    <td>V postavke est pustye koroba. Udalite ih ili vernites k raspredeleniu\
+      \ tovarov</td>\n  </tr>\n  <tr>\n    <td>FailedToAddSupplyOrder</td>\n    <td>Ne\
+      \ udalos zakrepit sborohnoe zadanie za postavkoi. Ubedites, hto sborohnoe\
+      \ zadanie i postavka udovletvoraut vsem neobhodimym trebovaniam</td>\n  </tr>\n\
+      \  <tr>\n    <td>StatusChangeNotAllowed</td>\n    <td>Zadanie pereidet v zaverhennye\
+      \ posle skanirovania na PVZ</td>\n  </tr>\n  <tr>\n    <td>StatusMismatch</td>\n\
+      \    <td>Nesootvetstvie statusov, proverte ih pravilnost</td>\n  </tr>\n\
+      \  <tr>\n    <td>SupplyNotClosed</td>\n    <td>Postavka ne peredana v dostavku</td>\n\
+      \  </tr>\n  <tr>\n    <td>PassValidationError</td>\n    <td>*prihina*</td>\n\
+      \  </tr>\n  <tr>\n    <td>SupplierBanned</td>\n    <td>Polzovatel zablokirovan:\
+      \ *prihina*</td>\n  </tr>\n</table>\n"
+  - name: Ostatki
+    description: Dopuskaetsa <b>maksimum 300 zaprosov v minutu</b> na metody Marketplace
+      v celom
+  - name: Sklady
+    description: Dopuskaetsa <b>maksimum 300 zaprosov v minutu</b> na metody Marketplace
+      v celom
+  - name: Propuska
+    description: Dopuskaetsa <b>maksimum 300 zaprosov v minutu</b> na metody Marketplace
+      v celom
+  - name: Postavki
+    description: '<b>Poradok raboty</b>:
+
+      <br>1. Sozdaite novuu postavku s pomohu metoda **POST** */api/v3/supplies*.
+      V otvet vernetsa identifikator sozdannoi postavki v formate "WB-GI-1234567".
+      <br>2. V tekuhuu novuu postavku nuhno dobavit sborohnye zadania, kotorye vy
+      povezete na sklad ili PVZ, metodom **PATCH** */api/v3/supplies/{supplyId}/orders/{orderId}*.
+      Obratite vnimanie, hto pri dobavlenii sborohnyh zadanii k postavke oni budut
+      perevedeny v status confirm ("Na sborke"). <br>`Primehanie`: punkty 3 - 8 obazatelny
+      k vypolneniu pri dostavke postavki na PVZ. <br>3. V postavke sozdaite korob
+      metodom **POST** */api/v3/supplies/{supplyId}/trbx*. <br>4. Dobavte zakazy
+      v korob metodom **PATCH** */api/v3/supplies/{supplyId}/trbx/{trbxId}*. <br>5.
+      Spisok korobov s zakazami mohno poluhit metodom **GET** */api/v3/supplies/{supplyId}/trbx*.
+      <br>6. Poluhite stikery korobov metodom **POST** */api/v3/supplies/{supplyId}/trbx/stickers*,
+      raspehataite i nakleite stikery na koroba soglasno raspredelennym v nih zakazam.
+      <br>7. Vy mohete udalit koroba iz postavki metodom **DELETE** */api/v3/supplies/{supplyId}/trbx*.
+      Obratite vnimanie, hto udalit koroba iz postavki mohno, tolko poka postavka
+      nahoditsa na sborke. <br>8. Vy mohete udalit zakazy iz koroba metodom **DELETE**
+      */api/v3/supplies/{supplyId}/trbx/{trbxId}/orders/{orderId}*. Obratite vnimanie,
+      hto udalit zakazy iz koroba mohno, tolko poka postavka nahoditsa na sborke.
+      <br>9. Posle togo kak postavka budet ukomplektovana nuhnymi sborohnymi zadaniami,
+      neobhodimo ee peredat v dostavku s pomohu metoda **PATCH** */api/v3/supplies/{supplyId}/deliver*.
+      Obratite vnimanie, hto pri peredahe sborohnyh zadanii v dostavku oni budut avtomatiheski
+      sobrany, t.e. perevedeny v status complete ("V dostavke"). <br>10. Spisok sborohnyh
+      zadanii, dobavlennyh k postavke, mohno poluhit metodom **GET** */api/v3/supplies/{supplyId}/orders*.
+      <br>11. Vse postavki, imeuhiesa u prodavca, mohno poluhit metodom **GET** */api/v3/supplies*.
+      <br>12. Detalizaciu konkretnoi postavki mohno poluhit metodom **GET** */api/v3/supplies/{supplyId}*.
+      <br>13. S pomohu metoda **DELETE** */api/v3/supplies/{supplyId}* mohno udalit
+      postavku pri uslovii, hto ona aktivna i za nei ne zakrepleno ni odno sborohnoe
+      zadanie. <br>14. Esli postavka byla otskanirovana v punkte priemki, no pri etom
+      v nei imeutsa ehe neotskanirovannye tovary, to spusta opredelennoe vrema neobhodimo
+      dostavit ih povtorno. Vse sborohnye zadania, trebuuhie povtornoi otgruzki na
+      dannyi moment, mohno poluhit s pomohu metoda <b>GET</b> /api/v3/supplies/orders/reshipment.
+      Pri pomohi metoda <b>PATCH</b> /api/v3/supplies/{id postavki}/orders/{id sborohnogo
+      zadania} dannye sborohnye zadania mohno perevesti v druguu aktivnuu postavku
+      (sborohnoe zadanie takhe budet perevedeno v status confirm ("Na sborke")).  <br>15.
+      Metod **PATCH** */api/v3/supplies/{supplyId}/orders/{orderId}* takhe pozvolaet
+      peremehat sborohnye zadania mehdu aktivnymi postavkami. Obratite vnimanie,
+      hto nelza peremehat sborohnoe zadanie iz uhe zakrytoi postavki, tolko esli
+      ono ne trebuet povtornoi otgruzki. <br>16. QR-kod postavki mohno poluhit metodom
+      **GET** */api/v3/supplies/{supplyId}/barcode* v formate svg, zpl ili png. Dostupno
+      tolko posle peredahi postavki v dostavku.
+
+      '
+components:
+  securitySchemes:
+    HeaderApiKey:
+      type: apiKey
+      name: Authorization
+      in: header
+  parameters:
+    Warehouse:
+      name: warehouseId
+      in: path
+      required: true
+      description: ID sklada prodavca
+      schema:
+        type: integer
+        format: int64
+        example: 1
+    Supply:
+      name: supplyId
+      in: path
+      required: true
+      description: ID postavki
+      schema:
+        type: string
+        example: WB-GI-1234567
+    Trbx:
+      name: trbxId
+      in: path
+      required: true
+      description: ID koroba
+      schema:
+        type: string
+        example: WB-TRBX-1234567
+    Order:
+      name: orderId
+      in: path
+      required: true
+      description: ID sborohnogo zadania
+      schema:
+        type: integer
+        format: int64
+        example: 5632423
+    Pass:
+      name: passId
+      in: path
+      required: true
+      description: ID propuska
+      schema:
+        type: integer
+        format: int64
+        example: 45
+    Next:
+      name: next
+      in: query
+      required: true
+      schema:
+        type: integer
+        format: int64
+      description: Parametr paginacii. Ustanavlivaet znahenie, s kotorogo nado poluhit
+        sleduuhii paket dannyh. Dla poluhenia polnogo spiska dannyh dolhen byt raven
+        0 v pervom zaprose. Dla sleduuhih zaprosov neobhodimo brat znahenia iz odnoimennogo
+        pola v otvete.
+    Limit:
+      name: limit
+      in: query
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+      description: Parametr paginacii. Ustanavlivaet predelnoe kolihestvo vozvrahaemyh
+        dannyh.
+  examples:
+    TokenMissing:
+      description: Token otsutstvuet
+      value: 'proxy: unauthorized'
+    TokenInvalid:
+      description: Token nedeistvitelen
+      value: 'proxy: invalid token'
+    TokenNotFound:
+      description: Token udalen
+      value: 'proxy: not found'
+    IncorrectRequestBody:
+      value:
+        code: IncorrectRequestBody
+        message: Nekorrektnoe telo zaprosa
+    IncorrectRequest:
+      value:
+        code: IncorrectRequest
+        message: Peredany nekorrektnye dannye
+    IncorrectParameter:
+      value:
+        code: IncorrectParameter
+        message: Peredan nekorrektnyi parametr
+    FailedToUpdateMeta:
+      value:
+        code: FailedToUpdateMeta
+        message: Ne udalos obnovit metadannye sborohnogo zadania. Ubedites, hto
+          sborohnoe zadanie udovletvoraet vsem neobhodimym trebovaniam (sborohnoe
+          zadanie suhestvuet, nahoditsa v statuse "Na sborke", sborohnomu zadaniu
+          dostupny metadannye sm. opisanie metoda **Poluhit metadannye sborohnogo
+          zadania**)
+    SupplyHasOrders:
+      value:
+        code: SupplyHasOrders
+        message: Ne udalos obrabotat postavku. Ubedites, hto za nei ne ostalos
+          zakreplennyh sborohnyh zadanii.
+    SupplyHasZeroOrders:
+      value:
+        code: SupplyHasZeroOrders
+        message: Ne udalos obrabotat postavku. Ubedites, hto za nei zakreplen hota
+          by odno sborohnoe zadanie.
+    SupplyNotClosed:
+      value:
+        code: SupplyNotClosed
+        message: Postavka ne peredana v dostavku
+    FailedToAddSupplyOrder:
+      value:
+        code: FailedToAddSupplyOrder
+        message: Ne udalos zakrepit sborohnoe zadanie za postavkoi. Ubedites, hto
+          sborohnoe zadanie i postavka udovletvoraut vsem neobhodimym trebovaniam.
+    StatusMismatch:
+      value:
+        code: StatusMismatch
+        message: Nesootvetstvie statusov, proverte ih pravilnost
+    StatusChangeNotAllowed:
+      value:
+        code: StatusChangeNotAllowed
+        message: Zadanie pereidet v zaverhennye posle skanirovania na PVZ
+    PassValidationError:
+      value:
+        code: PassValidationError
+        message: Nedopustimoe ima sklada
+    UploadDataLimit:
+      value:
+        code: UploadDataLimit
+        message: Prevyhen limit zagruhaemyh dannyh
+    FailedToAddSupplyTrbx:
+      value:
+        code: FailedToAddSupplyTrbx
+        message: Ne udalos dobavit korobku. Ubedites, hto postavka udovletvoraet
+          vsem neobhodimym trebovaniam.
+  responses:
+    NotFound:
+      description: Zaprahivaemyi resurs ne naiden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: NotFound
+            message: Ne naideno
+    Unauthorized:
+      description: Polzovatel ne avtorizovan
+      content:
+        application/json:
+          schema:
+            type: string
+          examples:
+            TokenMissing:
+              $ref: '#/components/examples/TokenMissing'
+            TokenInvalid:
+              $ref: '#/components/examples/TokenInvalid'
+            TokenNotFound:
+              $ref: '#/components/examples/TokenNotFound'
+    ExceededLimitRequests:
+      description: Prevyhen limit po zaprosam
+    AccessDenied:
+      description: Dostup zaprehen
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: AccessDenied
+            message: Dostup zaprehen
+    InternalServerError:
+      description: Vnutrennaa ohibka servisa
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: InternalServerError
+            message: Vnutrennaa ohibka servisa
+  schemas:
+    Error:
+      type: object
+      nullable: false
+      properties:
+        code:
+          type: string
+          description: Kod ohibki
+          nullable: false
+        message:
+          type: string
+          description: Opisanie ohibki
+          nullable: false
+        data:
+          type: object
+          description: Dopolnitelnye dannye, obogahauhie ohibku
+          nullable: true
+    Next:
+      type: integer
+      format: int64
+      nullable: false
+      description: Parametr paginacii. Soderhit znahenie, kotoroe neobhodimo ukazat
+        v zaprose dla poluhenia sleduuhego paketa dannyh
+    Supply:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: false
+          description: Identifikator postavki
+          example: WB-GI-1234567
+        done:
+          type: boolean
+          nullable: false
+          description: Flag zakrytia postavki
+        createdAt:
+          type: string
+          format: date-time
+          nullable: false
+          description: Data sozdania postavki (RFC3339)
+          example: '2022-05-04T07:56:29Z'
+        closedAt:
+          type: string
+          format: date-time
+          nullable: false
+          description: Data zakrytia postavki (RFC3339)
+          example: '2022-05-04T07:56:29Z'
+        scanDt:
+          type: string
+          nullable: false
+          format: date-time
+          description: Data skana postavki (RFC3339)
+          example: '2022-05-04T07:56:29Z'
+        name:
+          type: string
+          nullable: false
+          description: Naimenovanie postavki
+          example: Testovaa postavka
+        cargoType:
+          type: integer
+          nullable: false
+          description: '<dl> <dt>Tip postavki:</dt> <dd>0 - priznak otsutstvuet</dd>
+            <dd>1 - obyhnaa</dd> <dd>2 - SGT (Soderhit sverhgabaritnye tovary)</dd>
+            <dd>3 - KGT (Soderhit krupnogabaritnye tovary). Ne ispolzuetsa na dannyi
+            moment.</dd> </dl>
+
+            '
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          nullable: false
+          description: Identifikator sborohnogo zadania v Marketpleise
+          example: 13833711
+        rid:
+          type: string
+          nullable: false
+          description: Identifikator sborohnogo zadania v sisteme Wildberries
+          example: f884001e44e511edb8780242ac120002
+        createdAt:
+          type: string
+          format: date-time
+          nullable: false
+          description: Data sozdania sborohnogo zadania (RFC3339)
+          example: '2022-05-04T07:56:29Z'
+        warehouseId:
+          type: integer
+          nullable: false
+          description: Identifikator sklada prodavca, na kotoryi postupilo sborohnoe
+            zadanie
+          example: 658434
+        supplyId:
+          type: string
+          description: Identifikator postavki. Vozvrahaetsa, esli zakaz zakreplen
+            za postavkoi
+        offices:
+          type: array
+          nullable: true
+          description: Spisok ofisov, kuda sleduet privezti tovar
+          items:
+            type: string
+            example: Kaluga
+        address:
+          type: object
+          nullable: true
+          description: Detalizovannyi adres pokupatela dla dostavki (esli primenimo).
+            Nekotorye iz polei mogut priiti pustymi iz-za specifiki adresa
+          properties:
+            fullAddress:
+              description: Adres dostavki.
+              type: string
+              example: helabinskaa oblast, g. helabinsk, 51-a ulica Arabkira, d.
+                10A, kv. 42
+            province:
+              type: string
+              nullable: false
+              description: Oblast
+              example: helabinskaa oblast
+              deprecated: true
+            area:
+              type: string
+              nullable: false
+              description: Raion
+              example: helabinsk
+              deprecated: true
+            city:
+              type: string
+              nullable: false
+              description: Gorod
+              example: Gorod
+              deprecated: true
+            street:
+              type: string
+              nullable: false
+              description: Ulica
+              example: 51-a ulica Arabkira
+              deprecated: true
+            home:
+              type: string
+              nullable: false
+              description: Nomer doma
+              example: 10A
+              deprecated: true
+            flat:
+              type: string
+              nullable: false
+              description: Nomer kvartiry
+              example: '42'
+              deprecated: true
+            entrance:
+              type: string
+              nullable: false
+              description: Podezd
+              example: '3'
+              deprecated: true
+            longitude:
+              type: number
+              format: float64
+              nullable: false
+              description: Koordinata dolgoty
+              example: 44.519068
+            latitude:
+              type: number
+              format: float64
+              nullable: false
+              description: Koordinaty hiroty
+              example: 40.20192
+        user:
+          type: object
+          nullable: true
+          description: Informacia o pokupatele (tolko dla dostavki silami prodavca)
+          properties:
+            fio:
+              type: string
+              nullable: false
+              description: FIO
+            phone:
+              type: string
+              nullable: false
+              description: Nomer telefona
+        skus:
+          type: array
+          nullable: false
+          description: Massiv barkodov tovara
+          items:
+            type: string
+            example: '6665956397512'
+        price:
+          type: integer
+          nullable: false
+          description: cena v valute prodahi s uhetom vseh skidok, umnohennaa na 100.
+            Kod valuty prodahi v pole currencyCode.
+        convertedPrice:
+          type: integer
+          nullable: false
+          description: cena v valute prodahi s uhetom vseh skidok, skonvertirovannaa
+            po kursu na moment prodahi v rossiiskie kopeiki. Predostavlaetsa v informacionnyh
+            celah.
+        currencyCode:
+          type: integer
+          nullable: false
+          description: Kod valuty prodahi (ISO 4217)
+        convertedCurrencyCode:
+          type: integer
+          nullable: false
+          description: Kod valuty strany prodavca (ISO 4217)
+        orderUid:
+          type: string
+          description: Identifikator tranzakcii dla gruppirovki sborohnyh zadanii.
+            Sborohnye zadania v odnoi korzine pokupatela budut imet odinakovyi orderUID
+        deliveryType:
+          type: string
+          nullable: false
+          description: '<dl>
+
+            <dt>Tip dostavki:</dt>
+
+            <dd>fbs - dostavka na sklad Wildberries</dd>
+
+            <dd>dbs - dostavka silami prodavca</dd>
+
+            <dd>wbgo - dostavka kurerom WB</dd>
+
+            </dl>
+
+            '
+          enum:
+            - dbs
+            - fbs
+            - wbgo
+        nmId:
+          type: integer
+          nullable: false
+          description: Artikul WB
+        chrtId:
+          type: integer
+          nullable: false
+          description: Identifikator razmera tovara v sisteme Wildberries
+        article:
+          type: string
+          nullable: false
+          description: Artikul prodavca
+          example: one-ring-7548
+        cargoType:
+          type: integer
+          nullable: false
+          description: '<dl> <dt>Tip tovara:</dt> <dd>1 - obyhnyi</dd> <dd>2 - SGT
+            (Sverhgabaritnyi tovar)</dd> <dd>3 - KGT (Krupnogabaritnyi tovar). Ne
+            ispolzuetsa na dannyi moment.</dd> </dl>
+
+            '
+          enum:
+            - 1
+            - 2
+            - 3
+    OrderNew:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          nullable: false
+          description: Identifikator sborohnogo zadania v Marketpleise
+          example: 13833711
+        rid:
+          type: string
+          nullable: false
+          description: Identifikator sborohnogo zadania v sisteme Wildberries
+          example: f884001e44e511edb8780242ac120002
+        createdAt:
+          type: string
+          format: date-time
+          nullable: false
+          description: Data sozdania sborohnogo zadania (RFC3339)
+          example: '2022-05-04T07:56:29Z'
+        warehouseId:
+          type: integer
+          nullable: false
+          description: Identifikator sklada prodavca, na kotoryi postupilo sborohnoe
+            zadanie
+          example: 658434
+        offices:
+          type: array
+          nullable: true
+          description: Spisok ofisov, kuda sleduet privezti tovar
+          items:
+            type: string
+            example: Kaluga
+        address:
+          type: object
+          nullable: true
+          description: Detalizovannyi adres pokupatela dla dostavki (esli primenimo).
+            Nekotorye iz polei mogut priiti pustymi iz-za specifiki adresa
+          properties:
+            fullAddress:
+              description: Adres dostavki.
+              type: string
+              example: helabinskaa oblast, g. helabinsk, 51-a ulica Arabkira, d.
+                10A, kv. 42
+            province:
+              type: string
+              nullable: false
+              description: Oblast
+              example: helabinskaa oblast
+              deprecated: true
+            area:
+              type: string
+              nullable: false
+              description: Raion
+              example: helabinsk
+              deprecated: true
+            city:
+              type: string
+              nullable: false
+              description: Gorod
+              example: Gorod
+              deprecated: true
+            street:
+              type: string
+              nullable: false
+              description: Ulica
+              example: 51-a ulica Arabkira
+              deprecated: true
+            home:
+              type: string
+              nullable: false
+              description: Nomer doma
+              example: 10A
+              deprecated: true
+            flat:
+              type: string
+              nullable: false
+              description: Nomer kvartiry
+              example: '42'
+              deprecated: true
+            entrance:
+              type: string
+              nullable: false
+              description: Podezd
+              example: '3'
+              deprecated: true
+            longitude:
+              type: number
+              format: float64
+              nullable: false
+              description: Koordinata dolgoty
+              example: 44.519068
+            latitude:
+              type: number
+              format: float64
+              nullable: false
+              description: Koordinaty hiroty
+              example: 40.20192
+        requiredMeta:
+          description: "Perehen metadannyh, kotorye neobhodimo dobavit v sborohnoe\
+            \ zadanie.  <br> Na dannyi moment obazatelnym k dobavleniu avlaetsa tolko\
+            \ UIN, pri ego nalihii v perehne.             \n"
+          type: array
+          items:
+            type: string
+          example:
+            - uin
+        user:
+          type: object
+          nullable: true
+          description: Informacia o pokupatele (tolko dla dostavki silami prodavca)
+          properties:
+            fio:
+              type: string
+              nullable: false
+              description: FIO
+            phone:
+              type: string
+              nullable: false
+              description: Nomer telefona
+        skus:
+          type: array
+          nullable: false
+          description: Massiv barkodov tovara
+          items:
+            type: string
+            example: '6665956397512'
+        price:
+          type: integer
+          nullable: false
+          description: cena v valute prodahi s uhetom vseh skidok, umnohennaa na 100.
+            Kod valuty prodahi v pole currencyCode.
+        convertedPrice:
+          type: integer
+          nullable: false
+          description: cena v valute prodahi s uhetom vseh skidok, skonvertirovannaa
+            po kursu na moment prodahi v rossiiskie kopeiki. Predostavlaetsa v informacionnyh
+            celah.
+        currencyCode:
+          type: integer
+          nullable: false
+          description: Kod valuty prodahi (ISO 4217)
+        convertedCurrencyCode:
+          type: integer
+          nullable: false
+          description: Kod valuty strany prodavca (ISO 4217)
+        orderUid:
+          type: string
+          description: Identifikator tranzakcii dla gruppirovki sborohnyh zadanii.
+            Sborohnye zadania v odnoi korzine pokupatela budut imet odinakovyi orderUID
+        deliveryType:
+          type: string
+          nullable: false
+          description: '<dl>
+
+            <dt>Tip dostavki:</dt>
+
+            <dd>fbs - dostavka na sklad Wildberries</dd>
+
+            <dd>dbs - dostavka silami prodavca</dd>
+
+            <dd>wbgo - dostavka kurerom WB</dd>
+
+            </dl>
+
+            '
+          enum:
+            - dbs
+            - fbs
+            - wbgo
+        nmId:
+          type: integer
+          nullable: false
+          description: Artikul WB
+        chrtId:
+          type: integer
+          nullable: false
+          description: Identifikator razmera tovara v sisteme Wildberries
+        article:
+          type: string
+          nullable: false
+          description: Artikul prodavca
+          example: one-ring-7548
+        cargoType:
+          type: integer
+          nullable: false
+          description: '<dl> <dt>Tip tovara:</dt> <dd>1 - obyhnyi</dd> <dd>2 - SGT
+            (Sverhgabaritnyi tovar)</dd> <dd>3 - KGT (Krupnogabaritnyi tovar). Ne
+            ispolzuetsa na dannyi moment.</dd> </dl>
+
+            '
+          enum:
+            - 1
+            - 2
+            - 3
+    SupplyOrder:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          nullable: false
+          description: Identifikator sborohnogo zadania v Marketpleise
+          example: 13833711
+        rid:
+          type: string
+          nullable: false
+          description: Identifikator sborohnogo zadania v sisteme Wildberries
+          example: f884001e44e511edb8780242ac120002
+        createdAt:
+          type: string
+          format: date-time
+          nullable: false
+          description: Data sozdania sborohnogo zadania (RFC3339)
+          example: '2022-05-04T07:56:29Z'
+        warehouseId:
+          type: integer
+          nullable: false
+          description: Identifikator sklada prodavca, na kotoryi postupilo sborohnoe
+            zadanie
+          example: 658434
+        offices:
+          type: array
+          nullable: true
+          description: Spisok ofisov, kuda sleduet privezti tovar
+          items:
+            type: string
+            example: Kaluga
+        user:
+          type: object
+          nullable: true
+          description: Informacia o pokupatele (tolko dla dostavki silami prodavca)
+          properties:
+            fio:
+              type: string
+              nullable: false
+              description: FIO
+            phone:
+              type: string
+              nullable: false
+              description: Nomer telefona
+        skus:
+          type: array
+          nullable: false
+          description: Massiv barkodov tovara
+          items:
+            type: string
+            example: '6665956397512'
+        price:
+          type: integer
+          nullable: false
+          description: cena v valute prodahi s uhetom vseh skidok, umnohennaa na 100.
+            Kod valuty prodahi v pole currencyCode.
+        convertedPrice:
+          type: integer
+          nullable: false
+          description: cena prodahi s uhetom skidok v kopeikah, skonvertirovannaa
+            v rubli po kursu na moment sozdania sborohnogo zadania. Predostavlaetsa
+            v informacionnyh celah
+        currencyCode:
+          type: integer
+          nullable: false
+          description: Kod valuty prodahi (ISO 4217)
+        convertedCurrencyCode:
+          type: integer
+          nullable: false
+          description: Kod valuty strany prodavca (ISO 4217)
+        orderUid:
+          type: string
+          description: Identifikator tranzakcii dla gruppirovki sborohnyh zadanii.
+            Sborohnye zadania v odnoi korzine pokupatela budut imet odinakovyi orderUID
+        nmId:
+          type: integer
+          nullable: false
+          description: AArtikul WB
+        chrtId:
+          type: integer
+          nullable: false
+          description: Identifikator razmera tovara v sisteme Wildberries
+        article:
+          type: string
+          nullable: false
+          description: Artikul prodavca
+          example: one-ring-7548
+        cargoType:
+          type: integer
+          nullable: false
+          description: '<dl> <dt>Tip tovara:</dt> <dd>1 - obyhnyi</dd> <dd>2 - SGT
+            (Sverhgabaritnyi tovar)</dd> <dd>3 - KGT (Krupnogabaritnyi tovar). Ne
+            ispolzuetsa na dannyi moment.</dd> </dl>
+
+            '
+          enum:
+            - 1
+            - 2
+            - 3
+    SupplyTrbx:
+      type: object
+      properties:
+        id:
+          description: ID koroba.
+          type: string
+          example: WB-TRBX-1234567
+        orders:
+          type: array
+          nullable: false
+          description: Massiv identifikatorov zakaza.
+          items:
+            type: integer
+            example: 1234567
+    TrbxStickers:
+      type: object
+      properties:
+        barcode:
+          type: string
+          minLength: 1
+          description: Zakodirovannoe znahenie etiketki.
+          example: $WBMP:1:123:1234567
+        file:
+          type: string
+          format: byte
+          minLength: 1
+          description: Polnoe predstavlenie etiketki v zadannom formate. (kodirovka
+            base64)
+          example: U3dhZ2dlciByb2Nrcw==
+    Office:
+      type: object
+      description: Dannye o sklade WB
+      properties:
+        address:
+          type: string
+          nullable: false
+          description: Adres
+          example: ul. Troickaa, Podolsk, Moskovskaa obl.
+        name:
+          type: string
+          nullable: false
+          description: Nazvanie
+          example: Moskva (Koledino)
+        city:
+          type: string
+          nullable: false
+          description: Gorod
+          example: Moskva
+        id:
+          type: integer
+          format: int64
+          nullable: false
+          description: ID
+          example: 15
+        longitude:
+          type: number
+          format: float64
+          nullable: false
+          description: Dolgota
+          example: 55.386871
+        latitude:
+          type: number
+          format: float64
+          nullable: false
+          description: hirota
+          example: 37.588898
+        selected:
+          type: boolean
+          nullable: false
+          description: Priznak togo, hto sklad uhe vybran prodavcom
+    Warehouse:
+      type: object
+      description: Dannye o sklade prodavca
+      properties:
+        name:
+          type: string
+          nullable: false
+          description: Nazvanie sklada prodavca
+          example: ul. Troickaa, Podolsk, Moskovskaa obl.
+        officeId:
+          type: integer
+          format: int64
+          nullable: false
+          description: ID sklada WB
+          example: 15
+        id:
+          type: integer
+          format: int64
+          nullable: false
+          description: ID sklada prodavca
+          example: 1
+    PassOffice:
+      type: object
+      description: Dannye o sklade, dla kotorogo trebuetsa propusk
+      properties:
+        name:
+          type: string
+          nullable: false
+          description: Nazvanie
+          example: Koledino
+        address:
+          type: string
+          nullable: false
+          description: Adres
+          example: g. Podolsk, d. Koledino, ul. Troickaa
+        id:
+          type: integer
+          format: int64
+          nullable: false
+          description: ID
+          example: 1
+    Meta:
+      type: object
+      description: Metadannye zakaza
+      properties:
+        imei:
+          type: string
+          nullable: true
+          required: false
+          description: IMEI
+          example: 123456789012345
+        uin:
+          type: string
+          nullable: true
+          required: false
+          description: UIN
+          example: 1234567890123456
+        gtin:
+          type: string
+          nullable: true
+          required: false
+          description: GTIN
+          example: 1234567890123
+        sgtin:
+          type: string
+          nullable: true
+          required: false
+          description: KiZ (Markirovka hestnogo znaka)
+          example: 1234567890123456
+    Pass:
+      type: object
+      description: Dannye o propuske prodavca
+      properties:
+        firstName:
+          type: string
+          nullable: false
+          description: Ima voditela
+          example: Aleksandr
+        dateEnd:
+          type: string
+          nullable: false
+          description: Data okonhania deistvia propuska
+          example: 2022-07-31 17:53:13+00:00
+        lastName:
+          type: string
+          nullable: false
+          description: Familia voditela
+          example: Petrov
+        carModel:
+          type: string
+          nullable: false
+          description: Marka mahiny
+          example: Lamborghini
+        carNumber:
+          type: string
+          nullable: false
+          description: Nomer mahiny
+          example: A456BC123
+        officeName:
+          type: string
+          nullable: false
+          description: Nazvanie sklada
+          example: Koledino
+        officeAddress:
+          type: string
+          nullable: false
+          description: Adres sklada
+          example: g. Podolsk, d. Koledino, ul. Troickaa
+        officeId:
+          type: integer
+          format: int64
+          nullable: false
+          description: ID sklada
+          example: 15
+        id:
+          type: integer
+          format: int64
+          nullable: false
+          description: ID propuska
+          example: 1
+paths:
+  /api/v3/stocks/{warehouseId}:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    put:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Ostatki
+      summary: Obnovit ostatki tovarov
+      description: 'Obnovlaet ostatki tovarov. <br> `Vahno!` Imena parametrov zaprosa
+        ne validiruutsa. Pri otpravke nekorrektnyh imen Vy poluhite uspehnyi otvet(204),
+        no ostatki ne obnovatsa.<br> Thatelnee proveraite dannye pered otpravkoi.
+
+        '
+      parameters:
+        - $ref: '#/components/parameters/Warehouse'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - stocks
+              properties:
+                stocks:
+                  type: array
+                  minItems: 1
+                  maxItems: 1000
+                  description: Massiv barkodov tovarov i ih ostatkov
+                  items:
+                    type: object
+                    properties:
+                      sku:
+                        type: string
+                        description: Barkod
+                        example: BarcodeTest123
+                      amount:
+                        type: integer
+                        maximum: 100000
+                        description: Ostatok
+                        example: 10
+      responses:
+        204:
+          description: Obnovleno
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectRequestBody:
+                  $ref: '#/components/examples/IncorrectRequestBody'
+                IncorrectRequest:
+                  $ref: '#/components/examples/IncorrectRequest'
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        409:
+          description: Ohibka obnovlenia ostatkov
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Error'
+                example:
+                  - code: SubjectDBSRestriction
+                    message: Kategoria tovara nedostupna dla prodahi po sheme 'Vezu
+                      na sklad Wildberries'.
+                    data:
+                      - sku: skuTest1
+                        stock: 0
+                  - code: SubjectFBSRestriction
+                    message: Kategoria tovara nedostupna dla prodahi po sheme 'Vezu
+                      samostoatelno do pokupatela'.
+                    data:
+                      - sku: skuTest2
+                        stock: 1
+                  - code: UploadDataLimit
+                    message: Prevyhen limit zagruhaemyh dannyh
+                    data:
+                      - sku: skuTest2
+                        stock: 100001
+                  - code: CargoWarehouseRestriction
+                    message: Vybrannyi sklad ne prednaznahen dla krupnogabaritnyh
+                      tovarov. Dobavte ih na sootvetstvuuhii sklad
+                    data:
+                      - sku: skuTest3
+                        stock: 10
+                  - code: NotFound
+                    message: Ne naideno
+                    data:
+                      - sku: skuTest4
+                        stock: 10
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Ostatki
+      summary: Udalit ostatki tovarov
+      description: Udalaet ostatki tovarov. **Vnimanie! Deistvie neobratimo**. Udalennyi
+        ostatok budet neobhodimo zagruzit povtorno dla vozobnovlenia prodah.
+      parameters:
+        - $ref: '#/components/parameters/Warehouse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                skus:
+                  type: array
+                  nullable: false
+                  minItems: 1
+                  maxItems: 1000
+                  description: Massiv barkodov
+                  items:
+                    type: string
+                    nullable: false
+                    example: BarcodeTest123
+      responses:
+        204:
+          description: Udaleno
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectRequestBody:
+                  $ref: '#/components/examples/IncorrectRequestBody'
+                IncorrectRequest:
+                  $ref: '#/components/examples/IncorrectRequest'
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          description: Ne naideny zaprahivaemye dannye
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: NotFound
+                message: Ne naideno
+                data:
+                  - skuTest1
+                  - skuTest2
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Ostatki
+      summary: Poluhit ostatki tovarov
+      description: Vozvrahaet ostatki tovarov.
+      parameters:
+        - $ref: '#/components/parameters/Warehouse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              nullable: false
+              minItems: 1
+              maxItems: 1000
+              properties:
+                skus:
+                  type: array
+                  description: Massiv barkodov
+                  items:
+                    type: string
+                    example: BarcodeTest123
+      responses:
+        200:
+          description: Spisok ostatkov
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stocks:
+                    type: array
+                    nullable: false
+                    items:
+                      type: object
+                      properties:
+                        sku:
+                          type: string
+                          nullable: false
+                          description: Barkod
+                          example: BarcodeTest123
+                        amount:
+                          type: integer
+                          nullable: false
+                          description: Ostatok
+                          example: 10
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectRequestBody:
+                  $ref: '#/components/examples/IncorrectRequestBody'
+                IncorrectRequest:
+                  $ref: '#/components/examples/IncorrectRequest'
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/orders/new:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sborohnye zadania
+      summary: Poluhit spisok novyh sborohnyh zadanii
+      description: 'Vozvrahaet spisok vseh novyh sborohnyh zadanii u prodavca na dannyi
+        moment.
+
+        '
+      responses:
+        200:
+          description: Spisok sborohnyh zadanii
+          content:
+            application/json:
+              schema:
+                type: object
+                nullable: false
+                properties:
+                  orders:
+                    type: array
+                    nullable: false
+                    description: Spisok novyh sborohnyh zadanii
+                    items:
+                      $ref: '#/components/schemas/OrderNew'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/orders:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sborohnye zadania
+      summary: Poluhit informaciu po sborohnym zadaniam
+      description: 'Vozvrahaet informaciu po sborohnym zadaniam bez ih aktualnogo
+        statusa. <br> Dannye po sborohnomu zadaniu, vozvrahauhiesa v dannom metode,
+        ne menautsa. <br> Rekomenduetsa ispolzovat dla poluhenia istoriheskih dannyh.
+
+        '
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Next'
+        - name: dateFrom
+          in: query
+          schema:
+            type: integer
+          description: Data nahala perioda v formate Unix timestamp. Neobazatelnyi
+            parametr.
+        - name: dateTo
+          in: query
+          schema:
+            type: integer
+          description: Data konca perioda v formate Unix timestamp. Neobazatelnyi
+            parametr.
+      responses:
+        200:
+          description: Spisok sborohnyh zadanii
+          content:
+            application/json:
+              schema:
+                type: object
+                nullable: false
+                properties:
+                  next:
+                    $ref: '#/components/schemas/Next'
+                  orders:
+                    type: array
+                    nullable: false
+                    items:
+                      $ref: '#/components/schemas/Order'
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/orders/status:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sborohnye zadania
+      summary: Poluhit statusy sborohnyh zadanii
+      description: "Vozvrahaet statusy sborohnyh zadanii po peredannomu spisku identifikatorov\
+        \ sborohnyh zadanii.\n\n**supplierStatus** - status sborohnogo zadania, triggerom\
+        \ izmenenia kotorogo avlaetsa sam prodavec.<br>\nVozmohny sleduuhie znahenia\
+        \ dannogo pola:\n| Status   | Opisanie            | Kak perevesti sborohnoe\
+        \ zadanie v dannyi status |\n| -------  | ---------           | --------------------------------------|\n\
+        | new      | Novoe sborohnoe zadanie |          \n| confirm  | Na sborke \
+        \           | Pri dobavlenii sborohnogo zadania k postavke **PATCH** */api/v3/supplies/{supplyId}/orders/{orderId}*\n\
+        | complete | V dostavke           | Pri perevode v dostavku sootvetstvuuhei\
+        \ postavki **PATCH** */api/v3/supplies/{supplyId}/deliver*\n| cancel   | Otmeneno\
+        \ prodavcom   | **PATCH** */api/v3/orders/{orderId}/cancel*\n\n\n**wbStatus**\
+        \ - status sborohnogo zadania v sisteme Wildberries.<br>\nVozmohny sleduuhie\
+        \ znahenia dannogo pola:\n- **waiting** - sborohnoe zadanie v rabote\n- **sorted**\
+        \ - sborohnoe zadanie otsortirovano\n- **sold** - sborohnoe zadanie poluheno\
+        \ pokupatelem\n- **canceled** - otmena sborohnogo zadania\n- **canceled_by_client**\
+        \ - pokupatel otmenil zakaz pri poluhenii\n- **declined_by_client** - pokupatel\
+        \ otmenil zakaz v pervyi hac <span class=\"newM\">new</span> <br> Otmena dostupna\
+        \ pokupatelu v pervyi has s momenta zakaza, esli zakaz ne pereveden na sborku\n\
+        - **defect** - otmena sborohnogo zadania po prihine braka\n- **ready_for_pickup**\
+        \ - sborohnoe zadanie pribylo na PVZ\n"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orders:
+                  type: array
+                  required: true
+                  minItems: 1
+                  maxItems: 1000
+                  description: Spisok identifikatorov sborohnyh zadanii
+                  items:
+                    type: integer
+                    format: int64
+                    example: 5632423
+      responses:
+        200:
+          description: Spisok statusov sborohnyh zadanii
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orders:
+                    type: array
+                    nullable: false
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          format: int64
+                          nullable: false
+                          description: Identifikator sborohnogo zadania
+                          example: 5632423
+                        supplierStatus:
+                          type: string
+                          nullable: false
+                          description: Status sborohnogo zadania prodavca (ustanavlivaetsa
+                            prodavcom)
+                          enum:
+                            - new
+                            - confirm
+                            - complete
+                            - cancel
+                          example: new
+                        wbStatus:
+                          type: string
+                          nullable: false
+                          description: Status sborohnogo zadania v sisteme Wildberries
+                          enum:
+                            - waiting
+                            - sorted
+                            - sold
+                            - canceled
+                            - canceled_by_client
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+                IncorrectRequestBody:
+                  $ref: '#/components/examples/IncorrectRequestBody'
+                IncorrectRequest:
+                  $ref: '#/components/examples/IncorrectRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/supplies/orders/reshipment:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sborohnye zadania
+      summary: Poluhit vse sborohnye zadania na povtornuu otgruzku
+      description: Vozvrahaet vse sborohnye zadania, trebuuhie povtornoi otgruzki.
+        <span class="newM">new</span>
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orders:
+                    description: Spisok zakazov
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        supplyID:
+                          description: Identifikator postavki
+                        orderID:
+                          description: Identifikator sborohnogo zadania
+              example:
+                orders:
+                  - supplyID: WB-GI-1234567
+                    orderID: 5632423
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/orders/{orderId}/cancel:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    patch:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sborohnye zadania
+      summary: Otmenit sborohnoe zadanie
+      description: Perevodit sborohnoe zadanie v status **cancel** ("Otmeneno prodavcom").
+      parameters:
+        - $ref: '#/components/parameters/Order'
+      responses:
+        204:
+          description: Otmeneno
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        409:
+          description: Ohibka obnovlenia statusa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                StatusMismatch:
+                  $ref: '#/components/examples/StatusMismatch'
+                StatusChangeNotAllowed:
+                  $ref: '#/components/examples/StatusChangeNotAllowed'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/orders/{orderId}/meta/sgtin:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    put:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sborohnye zadania
+      summary: Zakrepit za sborohnym zadaniem KiZ (markirovku hestnogo znaka)
+      description: 'Metod pozvolaet zakrepit za sborohnym zadaniem KiZ (markirovku
+        hestnogo znaka). <span class="newM">new</span> <br>  Zakreplenie KiZ za sborohnym
+        zadaniem vozmohno tolko v sluhae, esli eto pole vozvrahaetsa v otvete metoda
+        **Poluhit metadannye sborohnogo zadania**, a sborohnoe zadanie nahoditsa
+        v statuse `confirm`. <br> <br> Poluhit zagruhennye KiZ mohno metodom <b>Poluhit
+        metadannye sborohnogo zadania</b> <br> S pravilami raboty s KiZ mohno oznakomitsa
+        tut: https://hestnyiznak.rf <br> <br>
+
+        '
+      parameters:
+        - $ref: '#/components/parameters/Order'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sgtins:
+                  type: array
+                  description: Massiv KiZov. Dopuskaetsa ot 16 do 135 simvolov dla
+                    koda odnoi markirovki.
+                  minItems: 1
+                  maxItems: 24
+                  items:
+                    type: string
+                    description: Kod markirovki na upakovke. Ot 16 do 135 simvolov.
+                    example: '1234567890123456'
+      responses:
+        204:
+          description: Otpravleno
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectRequestBody:
+                  $ref: '#/components/examples/IncorrectRequestBody'
+                IncorrectRequest:
+                  $ref: '#/components/examples/IncorrectRequest'
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+                FailedToUpdateMeta:
+                  $ref: '#/components/examples/FailedToUpdateMeta'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        409:
+          description: Ohibka dobavlenia markirovki.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/orders/stickers:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sborohnye zadania
+      summary: Poluhit etiketki dla sborohnyh zadanii
+      description: 'Vozvrahaet spisok etiketok po peredannomu massivu sborohnyh zadanii.
+
+        Mohno zaprosit etiketku v formate svg, zplv (vertikalnyi), zplh (gorizontalnyi),
+        png.
+
+
+        **Ogranihenia pri rabote s metodom**:
+
+        - Nelza zaprosit bolhe 100 etiketok za raz (ne bolee 100 identifikatorov
+        sborohnyh zadanii v zaprose).
+
+        - Metod vozvrahaet etiketki tolko dla sborohnyh zadanii, nahodahihsa na sborke
+        (v statuse **confirm**).
+
+        - Dostupnye razmery:
+
+        <dd>580x400 pikselei, pri parametrah width = 58, height = 40</dd>
+
+        <dd>400x300 pikselei, pri parametrah width = 40, height = 30</dd>
+
+        '
+      parameters:
+        - name: type
+          in: query
+          required: true
+          description: Tip etiketki
+          schema:
+            type: string
+            enum:
+              - svg
+              - zplv
+              - zplh
+              - png
+        - name: width
+          in: query
+          required: true
+          description: hirina etiketki
+          schema:
+            type: integer
+            enum:
+              - 58
+              - 40
+        - name: height
+          in: query
+          required: true
+          description: Vysota etiketki
+          schema:
+            type: integer
+            enum:
+              - 40
+              - 30
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orders:
+                  type: array
+                  minItems: 1
+                  maxItems: 100
+                  description: Massiv identifikatorov sborohnyh zadanii
+                  items:
+                    type: integer
+                    format: int64
+                    example: 5346346
+      responses:
+        200:
+          description: Spisok etiketok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stickers:
+                    type: array
+                    nullable: false
+                    items:
+                      type: object
+                      properties:
+                        orderId:
+                          type: integer
+                          format: int64
+                          nullable: false
+                          description: Identifikator sborohnogo zadania
+                          example: 5346346
+                        partA:
+                          type: integer
+                          nullable: false
+                          description: Pervaa hast identifikatora etiketki (dla pehati
+                            podpisi)
+                          example: 231648
+                        partB:
+                          type: integer
+                          nullable: false
+                          description: Vtoraa hast identifikatora etiketki
+                          example: 9753
+                        barcode:
+                          type: string
+                          nullable: false
+                          description: Zakodirovannoe znahenie etiketki
+                          example: '!uKEtQZVx'
+                        file:
+                          type: string
+                          format: byte
+                          nullable: false
+                          description: Polnoe predstavlenie etiketki v zadannom formate.
+                            (kodirovka base64)
+                          example: PD94bWwgdmVyc2lvbj0iMS4wIj8+CjwhLS0gR2VuZXJhdGVkIGJ5IFNWR28gLS0+Cjxzdmcgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiCiAgICAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogICAgIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj4KPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjQwMCIgaGVpZQiIGhlaWdodD0iMTcwIiBzdHlsZT0iZmlsbDpibGFjayIgLz4KPHJlY3QgeD0iMzE4IiB5PSIyMCIgd2lkdGg9IjYiIGhlaWdodD0iMTcwIiBzdHlsZT0iZmlsbDpibGFjayIgLz4KPHJlY3QgeD0iMzI2IiB5PSIyMCIgd2lkdGg9IjIiIGhlaWdodD0iMTcwIiBzdHlsZT0iZmlsbDpibGFjayIgLz4KPHJlY3QgeD0iMzMwIiB5PSIyMCIgd2lkdGg9IjQiIGhlaWdodD0iMTcwIiBzdHlsZT0iZmlsbDpibGFjayIgLz4KPHJlY3QgeD0iMjAiIHk9IjIwMCIgd2lkdGg9IjM1MCIgaGVpZ2h0PSI5MCIgc3R5bGU9ImZpbGw6YmxhY2siIC8+Cjx0ZXh0IHg9IjMwIiB5PSIyNDAiIHN0eWxlPSJmaWxsOndoaXRlO2ZvbnQtc2l6ZTozMHB0O3RleHQtYW5jaG9yOnN0YXJ0IiA+MjMxNjQ4PC90ZXh0Pgo8dGV4dCB4PSIzNTAiIHk9IjI3MCIgc3R5bGU9ImZpbGw6d2hpdGU7Zm9udC1zaXplOjUwcHQ7dGV4dC1hbmNob3I6ZW5kIiA+OTc1MzwvdGV4dD4KPC9zdmc+Cg==
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectRequestBody:
+                  $ref: '#/components/examples/IncorrectRequestBody'
+                IncorrectRequest:
+                  $ref: '#/components/examples/IncorrectRequest'
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/orders/{orderId}/meta:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sborohnye zadania
+      summary: Poluhit metadannye sborohnogo zadania
+      description: "Vozvrahaet metadannye zakaza. <br> Vozmohnye metadannye: <br>\
+        \ **imei** <br> **uin** <br> **gtin** <br> **sgtin**   <br> V otvete metoda\
+        \ vozvrahautsa metadannye, dostupnye dla sborohnogo zadania. Esli otvet vernulsa\
+        \ s pustoi strukturoi **meta**, znahit u sborohnogo zadania net metadannyh,\
+        \ i dobavlenie ih ne dostupno.  \n"
+      parameters:
+        - $ref: '#/components/parameters/Order'
+      responses:
+        200:
+          description: Metadannye zakaza
+          content:
+            application/json:
+              schema:
+                type: object
+                nullable: false
+                properties:
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sborohnye zadania
+      summary: Udalit metadannye sborohnogo zadania
+      description: "Udalaet znahenie metadannyh zakaza dla peredannogo kluha.  <br>\
+        \ Vozmohnye metadannye: <br> **imei** <br> **uin** <br> **gtin** <br> **sgtin**\
+        \ <span class=\"newM\">new</span><br> Peredaetsa tolko odno znahenie. \n"
+      parameters:
+        - $ref: '#/components/parameters/Order'
+        - name: key
+          in: query
+          schema:
+            type: string
+          description: Nazvanie metadannyh dla udalenia (**imei**, **uin**, **gtin**,
+            **sgtin**). Peredaetsa tolko odno znahenie.
+      responses:
+        204:
+          description: Udaleno
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectRequest:
+                  $ref: '#/components/examples/IncorrectRequest'
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        409:
+          description: Ohibka udalenia metadannyh
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/orders/{orderId}/meta/uin:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    put:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sborohnye zadania
+      summary: Zakrepit za sborohnym zadaniem UIN (unikalnyi identifikacionnyi nomer)
+      description: Obnovlaet UIN sborohnogo zadania. U odnogo sborohnogo zadania mohet
+        byt tolko odin UIN. Dobavlat markirovku mohno tolko dla zakazov v statuse
+        `confirm` i dostavka kotoryh osuhestvlaetsa silami Wildberries.
+      parameters:
+        - $ref: '#/components/parameters/Order'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uin:
+                  type: string
+                  minLength: 16
+                  maxLength: 16
+                  description: UIN
+                  example: '1234567890123456'
+              required:
+                - uin
+      responses:
+        204:
+          description: Obnovleno
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectRequestBody:
+                  $ref: '#/components/examples/IncorrectRequestBody'
+                IncorrectRequest:
+                  $ref: '#/components/examples/IncorrectRequest'
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+                FailedToUpdateMeta:
+                  $ref: '#/components/examples/FailedToUpdateMeta'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        409:
+          description: Ohibka obnovlenia metadannyh.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/orders/{orderId}/meta/imei:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    put:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sborohnye zadania
+      summary: Zakrepit za sborohnym zadaniem IMEI
+      description: Obnovlaet IMEI sborohnogo zadania. U odnogo sborohnogo zadania
+        mohet byt tolko odin IMEI. DDobavlat markirovku mohno tolko dla zakazov
+        v statuse `confirm` i dostavka kotoryh osuhestvlaetsa silami Wildberries.
+      parameters:
+        - $ref: '#/components/parameters/Order'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                imei:
+                  type: string
+                  minLength: 15
+                  maxLength: 15
+                  description: IMEI
+                  example: '123456789012345'
+              required:
+                - imei
+      responses:
+        204:
+          description: Obnovleno
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectRequestBody:
+                  $ref: '#/components/examples/IncorrectRequestBody'
+                IncorrectRequest:
+                  $ref: '#/components/examples/IncorrectRequest'
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+                FailedToUpdateMeta:
+                  $ref: '#/components/examples/FailedToUpdateMeta'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        409:
+          description: Ohibka obnovlenia metadannyh.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/orders/{orderId}/meta/gtin:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    put:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sborohnye zadania
+      summary: Zakrepit za sborohnym zadaniem GTIN
+      description: Obnovlaet GTIN sborohnogo zadania. U odnogo sborohnogo zadania
+        mohet byt tolko odin GTIN. Dobavlat markirovku mohno tolko dla zakazov
+        v statuse `confirm` i dostavka kotoryh osuhestvlaetsa silami Wildberries.
+      parameters:
+        - $ref: '#/components/parameters/Order'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gtin:
+                  type: string
+                  minLength: 13
+                  maxLength: 13
+                  description: GTIN
+                  example: '1234567890123'
+              required:
+                - gtin
+      responses:
+        204:
+          description: Obnovleno
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectRequestBody:
+                  $ref: '#/components/examples/IncorrectRequestBody'
+                IncorrectRequest:
+                  $ref: '#/components/examples/IncorrectRequest'
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+                FailedToUpdateMeta:
+                  $ref: '#/components/examples/FailedToUpdateMeta'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        409:
+          description: Ohibka obnovlenia metadannyh.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/files/orders/external-stickers:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sborohnye zadania
+      summary: Poluhit spisok ssylok na etiketki dla sborohnyh zadanii, kotorye trebuutsa
+        pri krossbordere
+      description: 'Vozvrahaet spisok ssylok na etiketki dla sborohnyh zadanii, kotorye
+        trebuutsa pri krossbordere.
+
+
+        **Ogranihenia pri rabote s metodom**:
+
+        - Nelza zaprosit bolhe 100 etiketok za raz (ne bolee 100 identifikatorov
+        sborohnyh zadanii v zaprose).
+
+        - Metod vozvrahaet etiketki tolko dla sborohnyh zadanii, nahodahihsa na sborke
+        (v statuse **confirm**).
+
+        '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orders:
+                  type: array
+                  minItems: 1
+                  maxItems: 100
+                  description: Massiv identifikatorov sborohnyh zadanii
+                  items:
+                    type: integer
+                    format: int64
+                    example: 5346346
+      responses:
+        200:
+          description: Spisok ssylok na etiketki
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stickers:
+                    type: array
+                    nullable: false
+                    items:
+                      type: object
+                      properties:
+                        orderID:
+                          type: integer
+                          format: int64
+                          nullable: false
+                          description: Identifikator sborohnogo zadania
+                          example: 5346346
+                        url:
+                          type: string
+                          nullable: false
+                          description: Ssylka, po kotoroi mohno poluhit etiketku
+                            dla sborohnogo zadania
+                          example: http://.../some-sticker
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectRequestBody:
+                  $ref: '#/components/examples/IncorrectRequestBody'
+                IncorrectRequest:
+                  $ref: '#/components/examples/IncorrectRequest'
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/supplies:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Postavki
+      summary: Sozdat novuu postavku
+      description: '**Ogranihenia raboty s postavkami**:
+
+
+        - Tolko dla sborohnyh zadanii po sheme "Vezu na sklad WB"
+
+        - Pri dobavlenii v postavku vse peredavaemye sborohnye zadania v statuse **new**
+        ("Novoe") budut avtomatiheski perevedeny v status **confirm** ("Na sborke").
+
+        - Obratite vnimanie, hto esli vy perevedete sborohnoe zadanie v status **cancel**
+        ("Otmena prodavcom"), to sborohnoe zadanie avtomatiheski udalitsa iz postavki,
+        esli bylo prikrepleno k nei.
+
+        - Postavku mohno sobrat tolko iz sborohnyh zadanii (zakazov) odnogo gabaritnogo
+        tipa (cargoType). Novaa postavka ne obladaet gabaritnym priznakom. Pri dobavlenii
+        pervogo zakaza v postavku ona priobretaet gabaritnyi priznak etogo zakaza.
+
+        '
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 128
+                  description: Naimenovanie postavki
+                  example: Testovaa postavka
+      responses:
+        201:
+          description: Sozdano
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    nullable: false
+                    description: Identifikator postavki
+                    example: WB-GI-1234567
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectRequestBody:
+                  $ref: '#/components/examples/IncorrectRequestBody'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Postavki
+      summary: Poluhit spisok postavok
+      description: 'Vozvrahaet spisok postavok.
+
+        '
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Next'
+      responses:
+        200:
+          description: Spisok postavok
+          content:
+            application/json:
+              schema:
+                type: object
+                nullable: false
+                properties:
+                  next:
+                    $ref: '#/components/schemas/Next'
+                  supplies:
+                    type: array
+                    nullable: false
+                    description: Spisok postavok
+                    items:
+                      $ref: '#/components/schemas/Supply'
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/supplies/{supplyId}/orders/{orderId}:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    patch:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Postavki
+      summary: Dobavit k postavke sborohnoe zadanie
+      description: 'Dobavlaet k postavke sborohnoe zadanie i perevodit ego v status
+        **confirm** ("Na sborke").  <br> Takhe mohet peremehat sborohnoe zadanie
+        mehdu aktivnymi postavkami, libo iz zakrytoi v aktivnuu pri uslovii, hto sborohnoe
+        zadanie trebuet povtornoi otgruzki. <br> <br> `Vahno!` <br> V pustuu postavku
+        mohno dobavit sborohnoe zadanie lubogo gabaritnogo tipa. <br> Posle dobavlenia
+        pervogo zadania postavka priobretaet gabaritnyi tip etogo zadania, sm. znahenie
+        pola `cargoType` v otvete metoda <b>"Poluhit informaciu o postavke"</b>.
+        <br> Posle etogo dobavit v postavku mohno tolko te zadania, gabaritnyi tip
+        kotoryh sootvetstvuet takovomu u postavki.
+
+        '
+      parameters:
+        - $ref: '#/components/parameters/Supply'
+        - $ref: '#/components/parameters/Order'
+      responses:
+        204:
+          description: Zadanie zakrepleno za postavkoi
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        409:
+          description: Ohibka dobavlenia sborohnogo zadania k postavke
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                FailedToAddSupplyOrder:
+                  $ref: '#/components/examples/FailedToAddSupplyOrder'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/supplies/{supplyId}:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Postavki
+      summary: Poluhit informaciu o postavke
+      description: 'Vozvrahaet informaciu o postavke.
+
+        '
+      parameters:
+        - $ref: '#/components/parameters/Supply'
+      responses:
+        200:
+          description: Informacia o postavke
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supply'
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Postavki
+      summary: Udalit postavku
+      description: Udalaet postavku, esli ona aktivna i za nei ne zakrepleno ni odno
+        sborohnoe zadanie.
+      parameters:
+        - $ref: '#/components/parameters/Supply'
+      responses:
+        204:
+          description: Udaleno
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        409:
+          description: Za postavkoi zakrepleny sborohnye zadania
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                SupplyHasOrders:
+                  $ref: '#/components/examples/SupplyHasOrders'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/supplies/{supplyId}/orders:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Postavki
+      summary: Poluhit sborohnye zadania v postavke
+      description: 'Vozvrahaet sborohnye zadania, zakreplennye za postavkoi.
+
+        '
+      parameters:
+        - $ref: '#/components/parameters/Supply'
+      responses:
+        200:
+          description: Spisok sborohnyh zadanii
+          content:
+            application/json:
+              schema:
+                type: object
+                nullable: false
+                properties:
+                  orders:
+                    type: array
+                    nullable: false
+                    items:
+                      $ref: '#/components/schemas/SupplyOrder'
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/supplies/{supplyId}/deliver:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    patch:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Postavki
+      summary: Peredat postavku v dostavku
+      description: 'Zakryvaet postavku i perevodit vse sborohnye zadania v nei v status
+        **complete** ("V dostavke").
+
+        Posle zakrytia postavki novye sborohnye zadania k nei dobavit budet nevozmohno.
+
+        Peredat postavku v dostavku mohno tolko pri nalihii v nei hota by odnogo
+        sborohnogo zadania i otsutstvii pustyh korobov.
+
+        '
+      parameters:
+        - $ref: '#/components/parameters/Supply'
+      responses:
+        204:
+          description: Peredano v dostavku
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        409:
+          description: Ohibka zakrytia postavki
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                SupplyHasZeroOrders:
+                  $ref: '#/components/examples/SupplyHasZeroOrders'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/supplies/{supplyId}/barcode:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Postavki
+      summary: Poluhit QR postavki
+      description: 'Vozvrahaet QR v svg, zplv (vertikalnyi), zplh (gorizontalnyi),
+        png. <br>
+
+        Mohno poluhit, tolko esli postavka peredana v dostavku.
+
+        <dt>Dostupnye razmery:</dt>
+
+        <dd>580x400 pikselei
+
+        '
+      parameters:
+        - $ref: '#/components/parameters/Supply'
+        - name: type
+          in: query
+          required: true
+          description: Tip etiketki
+          schema:
+            type: string
+            enum:
+              - svg
+              - zplv
+              - zplh
+              - png
+      responses:
+        200:
+          description: QR postavki
+          content:
+            application/json:
+              schema:
+                type: object
+                nullable: false
+                properties:
+                  barcode:
+                    type: string
+                    nullable: false
+                    description: Zakodirovannoe znahenie etiketki (identifikator postavki)
+                    example: WB-GI-12345678
+                  file:
+                    type: string
+                    format: byte
+                    nullable: false
+                    description: Polnoe predstavlenie etiketki v zadannom formate.
+                      (kodirovka base64)
+                    example: U3dhZ2dlciByb2Nrcw==
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        409:
+          description: Ohibka zaprosa dannyh
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                SupplyNotClosed:
+                  $ref: '#/components/examples/SupplyNotClosed'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/supplies/{supplyId}/trbx:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Postavki
+      summary: Poluhit spisok korobov postavki
+      description: 'Vozvrahaet spisok korobov i identifikatory zakazov, vhodahih v
+        nih.
+
+        '
+      parameters:
+        - $ref: '#/components/parameters/Supply'
+      responses:
+        200:
+          description: Spisok korobov
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trbxes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SupplyTrbx'
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Postavki
+      summary: Dobavit koroba k postavke
+      description: Dobavlaet trebuemoe kolihestvo korobov v postavku. Mohno dobavit,
+        tolko poka postavka na sborke.
+      parameters:
+        - $ref: '#/components/parameters/Supply'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - amount
+              properties:
+                amount:
+                  type: integer
+                  minimum: 1
+                  maximum: 1000
+                  description: Kolihestvo korobov, kotorye neobhodimo dobavit k postavke.
+                  example: 4
+      responses:
+        201:
+          description: Sozdano
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trbxIds:
+                    type: array
+                    description: Spisok ID korobov, kotorye byli sozdany.
+                    minimum: 1
+                    items:
+                      type: string
+                      example: WB-TRBX-1234567
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectParameter:
+                  $ref: '#/components/examples/FailedToAddSupplyTrbx'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Postavki
+      summary: Udalit koroba iz postavki
+      description: Ubiraet zakazy iz perehislennyh korobov postavki i udalaet koroba.
+        Mohno udalit, tolko poka postavka na sborke.
+      parameters:
+        - $ref: '#/components/parameters/Supply'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - trbxIds
+              properties:
+                trbxIds:
+                  type: array
+                  description: Spisok ID korobov, kotorye neobhodimo udalit.
+                  items:
+                    type: string
+                    example: WB-TRBX-1234567
+      responses:
+        204:
+          description: Udaleno
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/supplies/{supplyId}/trbx/{trbxId}:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    patch:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Postavki
+      summary: Dobavit zakazy k korobu
+      description: Dobavlaet zakazy v korob dla vybrannoi postavki. Mohno dobavit,
+        tolko poka postavka na sborke.
+      parameters:
+        - $ref: '#/components/parameters/Supply'
+        - $ref: '#/components/parameters/Trbx'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - orderIds
+              properties:
+                orderIds:
+                  type: array
+                  description: Spisok zakazov, kotorye neobhodimo dobavit v korob.
+                  items:
+                    type: integer
+                    example: 1234567
+      responses:
+        204:
+          description: Dobavleno
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/supplies/{supplyId}/trbx/{trbxId}/orders/{orderId}:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    delete:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Postavki
+      summary: Udalit zakaz iz koroba
+      description: Udalaet zakaz iz koroba vybrannoi postavki. Mohno udalit, tolko
+        poka postavka na sborke.
+      parameters:
+        - $ref: '#/components/parameters/Supply'
+        - $ref: '#/components/parameters/Trbx'
+        - $ref: '#/components/parameters/Order'
+      responses:
+        204:
+          description: Udaleno
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/supplies/{supplyId}/trbx/stickers:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Postavki
+      summary: Poluhit stikery korobov postavki
+      description: 'Vozvrahaet stikery QR v svg, zplv (vertikalnyi), zplh (gorizontalnyi),
+        png.<br>
+
+        Mohno poluhit, tolko esli v korobe est zakazy.
+
+        <dt>Razmer stikerov: 580x400 pikselei</dt>
+
+        '
+      parameters:
+        - $ref: '#/components/parameters/Supply'
+        - name: type
+          in: query
+          required: true
+          description: Tip etiketki
+          schema:
+            type: string
+            enum:
+              - svg
+              - zplv
+              - zplh
+              - png
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - trbxIds
+              properties:
+                trbxIds:
+                  type: array
+                  description: Spisok ID korobov, po kotorym neobhodimo vernut stikery.
+                  items:
+                    type: string
+                    example: WB-TRBX-1234567
+      responses:
+        200:
+          description: Stikery korobov
+          content:
+            application/json:
+              schema:
+                type: object
+                nullable: false
+                properties:
+                  stickers:
+                    type: array
+                    minLength: 1
+                    items:
+                      $ref: '#/components/schemas/TrbxStickers'
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectParameter:
+                  $ref: '#/components/examples/IncorrectParameter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/offices:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sklady
+      summary: Poluhit spisok skladov WB
+      description: Vozvrahaet spisok vseh skladov WB dla privazki k skladam prodavca.
+      responses:
+        200:
+          description: Spisok skladov WB
+          content:
+            application/json:
+              schema:
+                type: array
+                nullable: false
+                description: Spisok skladov WB
+                items:
+                  $ref: '#/components/schemas/Office'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/warehouses:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sklady
+      summary: Poluhit spisok skladov prodavca
+      description: Vozvrahaet spisok vseh skladov prodavca.
+      responses:
+        200:
+          description: Spisok skladov prodavca
+          content:
+            application/json:
+              schema:
+                type: array
+                nullable: false
+                description: Spisok skladov prodavca
+                items:
+                  $ref: '#/components/schemas/Warehouse'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sklady
+      summary: Sozdat sklad prodavca
+      description: Sozdaet sklad prodavca. Nelza privazyvat sklad WB, kotoryi uhe
+        ispolzuetsa.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  nullable: false
+                  minLength: 1
+                  maxLength: 200
+                  description: Ima sklada prodavca
+                  example: Sklad Koledino
+                officeId:
+                  type: integer
+                  nullable: false
+                  min: 1
+                  description: ID sklada WB
+                  example: 15
+              required:
+                - name
+                - officeId
+      responses:
+        201:
+          description: Sozdano
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    nullable: false
+                    description: ID sklada prodavca
+                    example: 2
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectRequestBody:
+                  $ref: '#/components/examples/IncorrectRequestBody'
+                WarehouseNameInvalid:
+                  $ref: '#/components/examples/WarehouseNameInvalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        409:
+          description: Ohibka sozdania novogo sklada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/warehouses/{warehouseId}:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    put:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sklady
+      summary: Obnovit sklad
+      description: Obnovlaet sklad prodavca. Izmenenie vybrannogo sklada WB dopustimo
+        raz v sutki. Nelza privazyvat sklad WB, kotoryi uhe ispolzuetsa.
+      parameters:
+        - $ref: '#/components/parameters/Warehouse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  nullable: false
+                  minLength: 1
+                  maxLength: 200
+                  description: Ima sklada prodavca
+                  example: Sklad Koledino
+                officeId:
+                  type: integer
+                  nullable: false
+                  min: 1
+                  description: Identifikator sklada WB
+                  example: 15
+              required:
+                - name
+                - officeId
+      responses:
+        204:
+          description: Obnovleno
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectRequestBody:
+                  $ref: '#/components/examples/IncorrectRequestBody'
+                WarehouseNameInvalid:
+                  $ref: '#/components/examples/WarehouseNameInvalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        409:
+          description: Ohibka obnovlenia sklada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sklady
+      summary: Udalit sklad prodavca
+      description: Udalaet sklad prodavca.
+      parameters:
+        - $ref: '#/components/parameters/Warehouse'
+      responses:
+        204:
+          description: Udaleno
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/passes/offices:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Propuska
+      summary: Poluhit spisok skladov, dla kotoryh trebuetsa propusk
+      description: 'Vozvrahaet spisok skladov dla privazki k propusku prodavca. <br>
+        Obratite vnimanie: dannye, kotorye vozvrahaet metod, mogut menatsa. Rekomenduem
+        periodiheski sinhronizirovat spisok.
+
+        '
+      responses:
+        200:
+          description: Spisok skladov, dla kotoryh trebuetsa propusk.
+          content:
+            application/json:
+              schema:
+                type: array
+                nullable: false
+                description: Spisok skladov
+                items:
+                  $ref: '#/components/schemas/PassOffice'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/passes:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Propuska
+      summary: Poluhit spisok propuskov
+      description: Vozvrahaet spisok vseh propuskov prodavca.
+      responses:
+        200:
+          description: Spisok propuskov prodavca
+          content:
+            application/json:
+              schema:
+                type: array
+                nullable: false
+                description: Spisok propuskov prodavca
+                items:
+                  $ref: '#/components/schemas/Pass'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Propuska
+      summary: Sozdat propusk
+      description: 'Sozdaet propusk prodavca. <br> Propusk deistvuet 48 hasov so vremeni
+        sozdania. Metod ogranihen odnim vyzovom v 10 minut.
+
+        '
+      requestBody:
+        required: true
+        description: Obhaa dlina FIO ogranihena ot 6 do 100 simvolov. V nomere mahiny
+          mogut byt tolko bukvy i cifry.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                  nullable: false
+                  minLength: 1
+                  description: Ima voditela
+                  example: Aleksandr
+                lastName:
+                  type: string
+                  nullable: false
+                  minLength: 1
+                  description: Familia voditela
+                  example: Petrov
+                carModel:
+                  type: string
+                  nullable: false
+                  minLength: 1
+                  maxLength: 100
+                  description: Marka mahiny
+                  example: Lamborghini
+                carNumber:
+                  type: string
+                  nullable: false
+                  minLength: 6
+                  maxLength: 9
+                  description: Nomer mahiny
+                  example: A456BC123
+                officeId:
+                  type: integer
+                  format: int64
+                  nullable: false
+                  min: 1
+                  description: ID sklada
+                  example: 15
+              required:
+                - firstName
+                - lastName
+                - carModel
+                - carNumber
+                - officeId
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    nullable: false
+                    description: ID propuska prodavca
+                    example: 2
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectRequestBody:
+                  $ref: '#/components/examples/IncorrectRequestBody'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v3/passes/{passId}:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    put:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Propuska
+      summary: Obnovit propusk
+      description: Obnovlaet dannye propuska prodavca.
+      parameters:
+        - $ref: '#/components/parameters/Pass'
+      requestBody:
+        required: true
+        description: Obhaa dlina FIO ogranihena ot 6 do 100 simvolov. V nomere mahiny
+          mogut byt tolko bukvy i cifry.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                  nullable: false
+                  minLength: 1
+                  description: Ima voditela
+                  example: Aleksandr
+                lastName:
+                  type: string
+                  nullable: false
+                  minLength: 6
+                  description: Familia voditela
+                  example: Petrov
+                carModel:
+                  type: string
+                  nullable: false
+                  minLength: 1
+                  maxLength: 100
+                  description: Marka mahiny
+                  example: Lamborghini
+                carNumber:
+                  type: string
+                  nullable: false
+                  minLength: 6
+                  maxLength: 9
+                  description: Nomer mahiny
+                  example: A456BC123
+                officeId:
+                  type: integer
+                  format: int64
+                  nullable: false
+                  min: 1
+                  description: ID sklada
+                  example: 15
+              required:
+                - firstName
+                - lastName
+                - carModel
+                - carNumber
+                - officeId
+      responses:
+        204:
+          description: Obnovleno
+        400:
+          description: Zapros soderhit nekorrektnye dannye. Proverte ego na sootvetstvie
+            dokumentacii.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                IncorrectRequestBody:
+                  $ref: '#/components/examples/IncorrectRequestBody'
+                WarehouseNameInvalid:
+                  $ref: '#/components/examples/WarehouseNameInvalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Propuska
+      summary: Udalit propusk
+      description: Udalaet propusk prodavca.
+      parameters:
+        - $ref: '#/components/parameters/Pass'
+      responses:
+        204:
+          description: Udaleno
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'

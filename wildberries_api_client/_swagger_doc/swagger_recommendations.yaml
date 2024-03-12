@@ -1,0 +1,337 @@
+openapi: 3.0.1
+info:
+  title: Opisanie API Rekomendacii
+  version: '2.18'
+security:
+  - HeaderApiKey: []
+x-tagGroups:
+  - name: Rekomendacii
+    tags:
+      - Rekomendacii
+tags:
+  - name: Rekomendacii
+    description: Vzaimodeistvie s servisom dla formirovania vydahi karuseli "s etim
+      tovarom rekomenduut" v kartohke tovara i dopolnenia karuseli prodavcami na portale
+      prodavcov.
+components:
+  securitySchemes:
+    HeaderApiKey:
+      type: apiKey
+      name: Authorization
+      in: header
+  examples:
+    TokenMissing:
+      description: Token otsutstvuet
+      value: 'proxy: unauthorized'
+    TokenInvalid:
+      description: Token nedeistvitelen
+      value: 'proxy: invalid token'
+    TokenNotFound:
+      description: Token udalen
+      value: 'proxy: not found'
+paths:
+  /api/v1/ins:
+    servers:
+      - url: https://recommend-api.wildberries.ru
+      - url: https://recommend-api.wb.ru
+    post:
+      tags:
+        - Rekomendacii
+      summary: Dobavlenie rekomendacii
+      description: 'Metod pozvolaet dobavit rekomendacii k tovaru. <br> `VAhNO!`
+        Esli zapros prohel uspehno (kod otveta 200), a rekomendacii ne dobavilas,
+        to Vam neobhodimo proverit korrektnost otpravlennyh znahenii.  <br>Na dannyi
+        moment v metode ne predusmotrena validacia znahenii parametrov.  <br>Thatelno
+        proveraite dannye pered otpravkoi. <br>Ogranihenie po zaprosam: 120 zaprosov
+        v minutu. <br> <br>`VAhNO!` Esli Vy poluhili otvet s kodom 200 i telom vida
+        <b>CrutchSapi1356-65c49a25-7f9798142620 OK</b>, znahit minimum odna iz peredannyh
+        nomenklatur ne prinadlehit Vam, libo ne suhestvuet.
+
+        '
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              description: spisok nm tovarov i rekomendacii k nim
+              items:
+                properties:
+                  nm:
+                    description: Identifikator tovara (`nmId`), k kotoromu dobavlaetsa
+                      rekomendacia
+                    type: integer
+                  recom:
+                    description: Spisok identifikatorov tovarov (`nmId`), kotorye
+                      neobhodimo dobavit v rekomenduemye
+                    type: array
+                    items:
+                      type: integer
+                      minimum: 1
+                example:
+                  nm: 1376382
+                  recom:
+                    - 123456342
+                    - 789101112
+                    - 9877654321
+                required:
+                  - nm
+                  - recom
+      responses:
+        200:
+          description: Rekomendacii uspehno dobavleny
+        400:
+          description: Nevernyi sintaksis zaprosa
+          content:
+            application/json:
+              schema:
+                type: string
+                example: can't parse data from request
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        500:
+          description: Vnutrennaa ohibka servisa
+          content:
+            application/json:
+              schema:
+                type: string
+  /api/v1/del:
+    servers:
+      - url: https://recommend-api.wildberries.ru
+      - url: https://recommend-api.wb.ru
+    post:
+      tags:
+        - Rekomendacii
+      summary: Udalenie rekomendacii
+      description: 'Metod pozvolaet udalit rekomendacii. <br> `VAhNO!` Esli zapros
+        prohel uspehno (kod otveta 200), a rekomendacii ne udalilis, to Vam neobhodimo
+        proverit korrektnost otpravlennyh znahenii. Na dannyi moment v metode ne
+        predusmotrena validacia znahenii parametrov. Thatelno proveraite dannye pered
+        otpravkoi.<br> <br> `VAhNO`: Esli Vy poluhili otvet s kodom 200 i telom vida
+        <b>CrutchSapi1356-65c49a25-7f9798142620 OK</b>, znahit minimum odna iz peredannyh
+        nomenklatur ne prinadlehit Vam, libo ne suhestvuet.
+
+        '
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              description: spisok nm tovarov i rekomendacii k nim
+              items:
+                type: object
+                properties:
+                  nm:
+                    description: Identifikator tovara (`nmId`), u kotorogo neobhodimo
+                      udalit rekomendaciu
+                    type: integer
+                  recom:
+                    description: Spisok identifikatorov tovarov (`nmId`), kotorye
+                      neobhodimo udalit iz rekomenduemyh
+                    type: array
+                    items:
+                      type: integer
+                      minimum: 1
+                example:
+                  nm: 1376382
+                  recom:
+                    - 123456342
+                    - 789101112
+                    - 9877654321
+                required:
+                  - nm
+                  - recom
+      responses:
+        200:
+          description: OK
+        400:
+          description: Nevernyi sintaksis zaprosa
+          content:
+            application/json:
+              schema:
+                type: string
+                example: can't parse data from request
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        500:
+          description: Vnutrennaa ohibka servisa
+          content:
+            application/json:
+              schema:
+                type: string
+  /api/v1/set:
+    servers:
+      - url: https://recommend-api.wildberries.ru
+      - url: https://recommend-api.wb.ru
+    post:
+      tags:
+        - Rekomendacii
+      summary: Upravlenie rekomendaciami
+      description: 'Metod pozvolaet dobavlat, udalat rekomendacii.<br> Rabotaet
+        po principu perezapisi, vse hto ukazano v recom, stavitsa vzamen togo, hto
+        bylo ranee.<br> htoby udalit rekomendacii neobhodimo peredat pustoi massiv
+        recom.<br> <br> `VAhNO`: Esli Vy poluhili otvet s kodom 200 i telom vida <b>CrutchSapi1356-65c49a25-7f9798142620
+        OK</b>, znahit minimum odna iz peredannyh nomenklatur ne prinadlehit Vam,
+        libo ne suhestvuet.
+
+        '
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              description: spisok nm tovarov i rekomendacii k nim
+              items:
+                properties:
+                  nm:
+                    description: Artikul WB (`nmId`), kotoromu peredaetsa rekomendacia
+                    type: integer
+                  recom:
+                    description: Spisok artikulov WB (`nmId`), kotorye neobhodimo
+                      peredat v rekomenduemye.
+                    type: array
+                    items:
+                      type: integer
+                      minimum: 1
+                example:
+                  nm: 1376382
+                  recom:
+                    - 123456342
+                    - 789101112
+                    - 9877654321
+                required:
+                  - nm
+                  - recom
+      responses:
+        200:
+          description: Uspehno
+        400:
+          description: Nevernyi sintaksis zaprosa
+          content:
+            application/json:
+              schema:
+                type: string
+                example: can't parse data from request
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        500:
+          description: Vnutrennaa ohibka servisa
+          content:
+            application/json:
+              schema:
+                type: string
+  /api/v1/list:
+    servers:
+      - url: https://recommend-api.wildberries.ru
+      - url: https://recommend-api.wb.ru
+    post:
+      security:
+        - HeaderApiKey: []
+      summary: Spisok rekomendacii
+      description: 'Metod pozvolaet poluhit spisok rekomendacii po neskolkim tovaram.
+        <br> <br> `VAhNO`: Esli Vy poluhili ohibku s kodom 200 i soobheniem vida <b>CrutchSapi1356-65c49a25-7f9798142620-UKfmVPyPcik6d
+        OK</b>, znahit minimum odna iz peredannyh nomenklatur ne prinadlehit Vam,
+        libo ne suhestvuet.
+
+        '
+      tags:
+        - Rekomendacii
+      parameters:
+        - name: limit
+          in: header
+          schema:
+            type: integer
+            example: 123
+          description: Ogranihenie kolihestva rekomendacii v otvete.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+                description: Massiv s artikulami WB.
+            example:
+              - 111111111
+              - 222222222
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        nm:
+                          description: Artikul WB, po kotoromu zaproheny rekomendacii.
+                          type: integer
+                        list:
+                          description: Spisok rekomendacii
+                          type: array
+                          items:
+                            type: integer
+              example:
+                data:
+                  - nm: 111111111
+                    list:
+                      - 333333333
+                      - 444444444
+                      - 555555555
+                  - nm: 222222222
+                    list:
+                      - 777777777
+                      - 666666666
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'

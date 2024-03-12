@@ -1,0 +1,2075 @@
+openapi: 3.0.1
+info:
+  title: Opisanie API Analitika
+  version: '2.18'
+  description: "**Servis predostavlaet publihnyi API dla poluhenia analitiheskih dannyh.**\n\
+    \      \n  Analitiheskie dannye v istohnike hranatsa za poslednii god, pri vybore\
+    \ daty nahala perioda ranee hem god nazad, budet\n  vozvrahatsa ohibka, takim\
+    \ obrazom maksimalnoe kol-vo dnei v agregaciah — 365.\n\nTakhe v dannyh, gde\
+    \ predostavlaetsa informacia po predyduhemu periodu:\n  1. V `previousPeriod`\
+    \ dannye za takoi he period, hto i v `selectedPeriod`.\n  2. Esli data nahala\
+    \ `previousPeriod`\nranee, hem god nazad ot tekuhei daty, ona budet privedena\
+    \ k vidu:\n  \n  `previousPeriod.start = tekuhaa data - 365 dnei.`\n\n#### Taimzony\n\
+    \nFormat IANA, aktualnyi spisok mohno posmotret [zdes](https://nodatime.org/TimeZones).\n\
+    <br>\n<br>\n<br>\n"
+security:
+  - HeaderApiKey: []
+x-tagGroups:
+  - name: Analitika prodavca
+    tags:
+      - Voronka prodah
+  - name: Othety
+    tags:
+      - Tovary s obazatelnoi markirovkoi
+      - Platnoe hranenie
+      - Othety po uderhaniam
+tags:
+  - name: Voronka prodah
+  - name: Tovary s obazatelnoi markirovkoi
+  - name: Platnoe hranenie
+    description: "htoby poluhit othet:\n\n  1. Sozdaite ego s pomohu metoda [Sozdat\
+      \ othet](./#tag/Otchyot-o-platnom-hranenii/paths/~1api~1v1~1delayed-gen~1paid_storage/get).\n\
+      \  2. Dohdites, kogda othet budet gotov. Gotovnost mohno uznat s pomohu\
+      \ metoda [Proverit status](./#tag/Otchyot-o-platnom-hranenii/paths/~1api~1v1~1%7Btask_type%7D~1tasks~1%7Btask_id%7D~1status/get).\
+      \ Gotovyi othet hranitsa 2 hasa, posle ego nelza budet zagruzit.\n  3. Zagruzite\
+      \ othet s pomohu metoda [Poluhit othet](./#tag/Otchyot-o-platnom-hranenii/paths/~1api~1v1~1%7Btask_type%7D~1tasks~1%7Btask_id%7D~1download/get).\n"
+  - name: Othety po uderhaniam
+components:
+  securitySchemes:
+    HeaderApiKey:
+      type: apiKey
+      name: Authorization
+      in: header
+  examples:
+    TokenMissing:
+      description: Token otsutstvuet
+      value: 'proxy: unauthorized'
+    TokenInvalid:
+      description: Token nedeistvitelen
+      value: 'proxy: invalid token'
+    TokenNotFound:
+      description: Token udalen
+      value: 'proxy: not found'
+    CreateResponseData:
+      value:
+        data:
+          taskId: 219eaecf-e532-4bd8-9f15-8036ec1b042d
+    GetTasksResponseData:
+      value:
+        data:
+          id: cad56ec5-91ec-43a2-b5e8-efcf244cf309
+          status: done
+    GetTasksResponseBytesError:
+      description: Razmer zaprohennogo faila prevyhaet dopustimyi. Razbeite othet
+        na bolhee kolihestvo hastei, libo zaprosite dannye za menhii vremennoi promehutok.
+      value:
+        data:
+          tasks:
+            - id: 1d9225ea-e61e-4a69-bb64-8b92a81ecdb6
+              last_proc_err: report max bytes error
+              status: error
+    ErrorDifferenceBetweenDateFromDateTo:
+      description: Raznica znahenii mehdu dateFrom i dateTo dolhna byt menhe ili
+        ravna 8 dnam.
+      value:
+        errors:
+          - Difference between dateFrom and dateTo should be less or equal 8 days
+    ErrorResponseTasksCreate:
+      value:
+        errors:
+          - string
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+    responseError:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+          example: null
+        error:
+          description: Flag ohibki
+          type: boolean
+          example: true
+        errorText:
+          description: Opisanie ohibki
+          type: string
+          example: Tekst ohibki
+        additionalErrors:
+          description: Dopolnitelnye ohibki
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                description: Struktura, gde dopuhena ohibka
+                type: string
+              description:
+                description: Opisanie
+                type: string
+    NmReportDetailRequest:
+      type: object
+      required:
+        - page
+        - period
+      properties:
+        brandNames:
+          type: array
+          description: Nazvanie brenda
+          items:
+            type: string
+            example: Some
+        objectIDs:
+          type: array
+          description: Identifikator predmeta
+          items:
+            type: integer
+            format: int32
+            example: 358
+        tagIDs:
+          type: array
+          description: Identifikator tega
+          items:
+            type: integer
+            format: int32
+            example: 123
+        nmIDs:
+          type: array
+          description: Artikul WB
+          items:
+            type: integer
+            format: int32
+            example: 1234567
+        timezone:
+          type: string
+          description: 'Vremennaa zona.<br> Esli ne ukazano, to po umolhaniu ispolzuetsa
+            Europe/Moscow.
+
+            '
+          example: Europe/Moscow
+        period:
+          type: object
+          description: Period
+          properties:
+            begin:
+              description: Nahalo perioda
+              type: string
+              format: time-date
+              example: 2023-06-01 20:05:32
+            end:
+              description: Konec perioda
+              type: string
+              format: time-date
+              example: 2024-03-01 20:05:32
+        orderBy:
+          description: 'Parametry sortirovki. Esli ne ukazano, to po umolhaniu ispolzuetsa
+            znahenie "openCard" i sortirovka po ubyvaniu. <dl> <dt>Vse vidy sortirovki
+            <code>field</code>:</dt> <dd><code>openCard </code> — po otkrytiu kartohki
+            (perehod na stranicu tovara)</dd> <dd><code>addToCart </code> — po dobavleniam
+            v korzinu</dd> <dd><code>orders </code> — po kol-vu zakazov</dd> <dd><code>avgRubPrice
+            </code> — po srednei cene v rublah</dd> <dd><code>ordersSumRub </code>
+            — po summe zakazov v rublah</dd> <dd><code>stockMpQty </code> — po kol-vu
+            ostatkov marketpleisa ht.</dd> <dd><code>stockWbQty </code> — po kol-vu
+            ostatkov na sklade ht.</dd> <dd><code>cancelSumRub </code> — summe vozvratov
+            v rublah</dd> <dd><code>cancelCount </code> — po kol-vu vozvratov</dd>
+            <dd><code>buyoutCount </code> — po kol-vu vykupov</dd> <dd><code>buyoutSumRub
+            </code> — po summe vykupov</dd> </dl>
+
+            '
+          type: object
+          properties:
+            field:
+              description: Vid sortirovki
+              type: string
+              example: ordersSumRub
+            mode:
+              description: '`asc` — po vozrastaniu, `desc` — po ubyvaniu
+
+                '
+              type: string
+              example: asc
+        page:
+          description: Stranica
+          type: integer
+          format: int32
+          example: 1
+    NmReportGroupedRequest:
+      type: object
+      required:
+        - page
+        - period
+      properties:
+        objectIDs:
+          type: array
+          description: Identifikator predmeta
+          items:
+            type: integer
+            format: int32
+            example: 358
+        brandNames:
+          description: Nazvanie brenda
+          type: array
+          items:
+            type: string
+            example: Some
+        tagIDs:
+          description: Identifikator tega
+          type: array
+          items:
+            type: integer
+            format: int32
+            example: 123
+        timezone:
+          description: 'Vremennaa zona.<br> Esli ne ukazano, to po umolhaniu ispolzuetsa
+            Europe/Moscow.
+
+            '
+          type: string
+          example: Europe/Moscow
+        period:
+          description: Period
+          type: object
+          properties:
+            begin:
+              description: Nahalo perioda
+              type: string
+              example: 2023-10-04 20:05:32
+            end:
+              description: Konec perioda
+              type: string
+              example: 2024-03-01 20:05:32
+        orderBy:
+          description: 'Parametry sortirovki. Esli ne ukazano, to po umolhaniu ispolzuetsa
+            znahenie "openCard" i sortirovka po ubyvaniu. <dl> <dt>Vse vidy sortirovki
+            <code>field</code>:</dt> <dd><code>openCard </code> — po otkrytiu kartohki
+            (perehod na stranicu tovara)</dd> <dd><code>addToCart </code> — po dobavleniam
+            v korzinu</dd> <dd><code>orders </code> — po kol-vu zakazov</dd> <dd><code>avgRubPrice
+            </code> — po srednei cene v rublah</dd> <dd><code>ordersSumRub </code>
+            — po summe zakazov v rublah</dd> <dd><code>stockMpQty </code> — po kol-vu
+            ostatkov marketpleisa ht.</dd> <dd><code>stockWbQty </code> — po kol-vu
+            ostatkov na sklade ht.</dd> </dl>
+
+            '
+          type: object
+          properties:
+            field:
+              description: Vid sortirovki
+              type: string
+              example: ordersSumRub
+            mode:
+              description: '`asc` — po vozrastaniu, `desc` — po ubyvaniu
+
+                '
+              type: string
+              example: asc
+        page:
+          description: Stranica
+          type: integer
+          format: int32
+          example: 1
+    NmReportDetailHistoryRequest:
+      type: object
+      required:
+        - nmIDs
+        - period
+      properties:
+        nmIDs:
+          description: Artikul WB (max. 20)
+          type: array
+          items:
+            type: integer
+            format: int32
+            example: 1234567
+        period:
+          description: Period
+          type: object
+          properties:
+            begin:
+              description: Nahalo perioda
+              type: string
+              format: date
+              example: 2023-06-20
+            end:
+              description: Konec perioda
+              type: string
+              format: date
+              example: 2023-06-22
+        timezone:
+          type: string
+          description: 'Vremennaa zona.<br> Esli ne ukazano, to po umolhaniu ispolzuetsa
+            Europe/Moscow.
+
+            '
+          example: Europe/Moscow
+        aggregationLevel:
+          description: 'Tip aggregacii. Esli ne ukazano, to po umolhaniu ispolzuetsa
+            agregacia po dnam. <br> Dostupnye urovni agregacii `day`, `week`, `month`.
+
+            '
+          type: string
+          example: day
+    NmReportGroupedHistoryRequest:
+      type: object
+      required:
+        - period
+      properties:
+        objectIDs:
+          description: Identifikator predmeta
+          type: array
+          items:
+            type: integer
+            format: int32
+            example: 358
+        brandNames:
+          description: Nazvanie brenda
+          type: array
+          items:
+            type: string
+            example: Some
+        tagIDs:
+          description: Idetifikator tega
+          type: array
+          items:
+            type: integer
+            format: int32
+            example: 123
+        period:
+          description: Period
+          type: object
+          properties:
+            begin:
+              description: Nahalo perioda
+              type: string
+              format: date
+              example: 2023-06-21
+            end:
+              description: Konec perioda
+              type: string
+              format: date
+              example: 2023-06-23
+        timezone:
+          description: 'Vremennaa zona.<br> Esli ne ukazano, to po umolhaniu ispolzuetsa
+            Europe/Moscow.
+
+            '
+          type: string
+          example: Europe/Moscow
+        aggregationLevel:
+          description: 'Tip aggregacii. Esli ne ukazano, to po umolhaniu ispolzuetsa
+            agregacia po dnam. <br> Dostupnye urovni agregacii `day`, `week`, `month`.
+
+            '
+          type: string
+          example: day
+    NmReportDetailResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            page:
+              description: Stranica
+              type: integer
+              format: int32
+              example: 1
+            isNextPage:
+              description: Est li sleduuhaa stranica (false - net, true - est)
+              type: boolean
+            cards:
+              type: array
+              items:
+                type: object
+                properties:
+                  nmID:
+                    description: Artikul WB
+                    type: integer
+                    format: int32
+                    example: 1234567
+                  vendorCode:
+                    description: Artikul prodavca
+                    type: string
+                    example: supplierVendor
+                  brandName:
+                    description: Nazvanie brend
+                    type: string
+                    example: Some
+                  tags:
+                    description: Tegi
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          description: Identifikator tega
+                          type: integer
+                          format: int32
+                          example: 123
+                        name:
+                          description: Nazvanie tega
+                          type: string
+                          example: Sale
+                  object:
+                    description: Predmet
+                    type: object
+                    properties:
+                      id:
+                        description: Identifikator predmeta
+                        type: integer
+                        format: int32
+                        example: 447
+                      name:
+                        description: Nazvanie predmeta
+                        type: string
+                        example: Kondicionery dla volos
+                  statistics:
+                    description: Statistika
+                    type: object
+                    properties:
+                      selectedPeriod:
+                        description: Zaprahivaemyi period
+                        type: object
+                        properties:
+                          begin:
+                            description: Nahalo perioda
+                            type: string
+                            example: 2023-06-01 20:05:32
+                          end:
+                            description: Konec perioda
+                            type: string
+                            example: 2024-03-01 20:05:32
+                          openCardCount:
+                            description: Kolihestvo perehodov v kartohku tovara
+                            type: integer
+                            format: int32
+                            example: 0
+                          addToCartCount:
+                            description: Polohili v korzinu, htuk
+                            type: integer
+                            format: int32
+                            example: 0
+                          ordersCount:
+                            description: Zakazali tovarov, ht
+                            type: integer
+                            format: int32
+                            example: 0
+                          ordersSumRub:
+                            description: Zakazali na summu, rub.
+                            type: integer
+                            format: int32
+                            example: 0
+                          buyoutsCount:
+                            description: Vykupili tovarov, ht.
+                            type: integer
+                            format: int32
+                            example: 0
+                          buyoutsSumRub:
+                            description: Vykupili na summu, rub.
+                            type: integer
+                            format: int32
+                            example: 0
+                          cancelCount:
+                            description: Otmenili tovarov, ht.
+                            type: integer
+                            format: int32
+                            example: 0
+                          cancelSumRub:
+                            description: Otmenili na summu, rub.
+                            type: integer
+                            format: int32
+                            example: 0
+                          avgPriceRub:
+                            description: Srednaa cena, rub.
+                            type: integer
+                            format: int32
+                            example: 0
+                          avgOrdersCountPerDay:
+                            description: Srednee kolihestvo zakazov v den, ht.
+                            type: integer
+                            format: int32
+                            example: 0
+                          conversions:
+                            description: Konversii
+                            type: object
+                            properties:
+                              addToCartPercent:
+                                description: Konversia v korzinu, % (Kakoi procent
+                                  posetitelei, otkryvhih kartohku tovara, dobavili
+                                  tovar v korzinu)
+                                type: integer
+                                format: int32
+                                example: 0
+                              cartToOrderPercent:
+                                description: Konversia v zakaz, % (Kakoi procent posititelei,
+                                  dobavivhih tovar v korzinu, sdelali zakaz)
+                                type: integer
+                                format: int32
+                                example: 0
+                              buyoutsPercent:
+                                description: Procent vykupa, % ( Kakoi procent posetitelei,
+                                  zakazvhih tovar, ego vykupili. Bez uheta tovarov,
+                                  kotorye ehe dostavlautsa pokupatelu.)
+                                type: integer
+                                format: int32
+                                example: 0
+                      previousPeriod:
+                        description: Statistika za predyduhie 30 dnei
+                        type: object
+                        properties:
+                          begin:
+                            type: string
+                            description: Nahalo perioda
+                            example: 2023-05-07 20:05:31
+                          end:
+                            type: string
+                            description: Konec perioda
+                            example: 2023-06-01 20:05:31
+                          openCardCount:
+                            description: Kolihestvo perehodov v kartohku tovara
+                            type: integer
+                            format: int32
+                            example: 0
+                          addToCartCount:
+                            description: Polohili v korzinu, htuk
+                            type: integer
+                            format: int32
+                            example: 0
+                          ordersCount:
+                            description: Zakazali tovarov, htuk
+                            type: integer
+                            format: int32
+                            example: 1
+                          ordersSumRub:
+                            description: Zakazali na summu, rub.
+                            type: integer
+                            format: int32
+                            example: 1262
+                          buyoutsCount:
+                            description: Vykupili tovarov, ht.
+                            type: integer
+                            format: int32
+                            example: 1
+                          buyoutsSumRub:
+                            description: Vykupili na summu, rub.
+                            type: integer
+                            format: int32
+                            example: 1262
+                          cancelCount:
+                            description: Otmenili tovarov, htuk
+                            type: integer
+                            format: int32
+                            example: 0
+                          cancelSumRub:
+                            description: Otmenili na summu, rub.
+                            type: integer
+                            format: int32
+                            example: 0
+                          avgPriceRub:
+                            description: Srednaa cena, rub.
+                            type: integer
+                            format: int32
+                            example: 1262
+                          avgOrdersCountPerDay:
+                            description: Srednee kolihestvo zakazov v den, ht.
+                            type: number
+                            example: 0.04
+                          conversions:
+                            description: Konversii
+                            type: object
+                            properties:
+                              addToCartPercent:
+                                description: Konversia v korzinu, % (Kakoi procent
+                                  posetitelei, otkryvhih kartohku tovara, dobavili
+                                  tovar v korzinu)
+                                type: integer
+                                format: int32
+                                example: 0
+                              cartToOrderPercent:
+                                description: Konversia v zakaz, % (Kakoi procent posititelei,
+                                  dobavivhih tovar v korzinu, sdelali zakaz)
+                                type: integer
+                                format: int32
+                                example: 0
+                              buyoutsPercent:
+                                description: Procent vykupa, % ( Kakoi procent posetitelei,
+                                  zakazvhih tovar, ego vykupili. Bez uheta tovarov,
+                                  kotorye ehe dostavlautsa pokupatelu.)
+                                type: integer
+                                format: int32
+                                example: 100
+                      periodComparison:
+                        description: Sravnenie dvuh periodov, v procentah
+                        type: object
+                        properties:
+                          openCardDynamics:
+                            description: Dinamika perehodov v kartohku tovara
+                            type: integer
+                            format: int32
+                            example: 0
+                          addToCartDynamics:
+                            description: Dinamika dobavlenii v korzinu
+                            type: integer
+                            format: int32
+                            example: 0
+                          ordersCountDynamics:
+                            description: Dinamika kolihestva zakazov
+                            type: integer
+                            format: int32
+                            example: -100
+                          ordersSumRubDynamics:
+                            description: Dinamika summy zakazov, rublei
+                            type: integer
+                            format: int32
+                            example: -100
+                          buyoutsCountDynamics:
+                            description: Dinamika vykupov, htuk
+                            type: integer
+                            format: int32
+                            example: -100
+                          buyoutsSumRubDynamics:
+                            description: Dinamika summy vykupov, rublei
+                            type: integer
+                            format: int32
+                            example: -100
+                          cancelCountDynamics:
+                            description: Dinamika otmen tovarov, htuk
+                            type: integer
+                            format: int32
+                            example: 0
+                          cancelSumRubDynamics:
+                            description: Dinamika summ otmen tovarov, rublei
+                            type: integer
+                            format: int32
+                            example: 0
+                          avgOrdersCountPerDayDynamics:
+                            type: integer
+                            format: int32
+                            example: 0
+                            description: Dinamika srednego kolihestva zakazov v den
+                          avgPriceRubDynamics:
+                            type: integer
+                            format: int32
+                            example: -100
+                            description: Dinamika srednei ceny na tovary. Uhityvautsa
+                              skidki dla akcii i WB skidka.
+                          conversions:
+                            description: Konversii
+                            type: object
+                            properties:
+                              addToCartPercent:
+                                description: Konversia v korzinu, % (Kakoi procent
+                                  posetitelei, otkryvhih kartohku tovara, dobavili
+                                  tovar v korzinu)
+                                type: integer
+                                format: int32
+                                example: 0
+                              cartToOrderPercent:
+                                description: Konversia v zakaz, % (Kakoi procent posititelei,
+                                  dobavivhih tovar v korzinu, sdelali zakaz)
+                                type: integer
+                                format: int32
+                                example: 0
+                              buyoutsPercent:
+                                description: Procent vykupa, % ( Kakoi procent posetitelei,
+                                  zakazvhih tovar, ego vykupili. Bez uheta tovarov,
+                                  kotorye ehe dostavlautsa pokupatelu.)
+                                type: integer
+                                format: int32
+                                example: -100
+                  stocks:
+                    description: Ostatki
+                    type: object
+                    properties:
+                      stocksMp:
+                        description: Ostatki MP, ht. (Obhee kolihestvo ostatkov na
+                          sklade prodavca)
+                        type: integer
+                        format: int32
+                        example: 0
+                      stocksWb:
+                        description: Ostatki na skladah Wildberries (Obhee kolihestvo
+                          ostatkov na skladah Wildberries)
+                        type: integer
+                        format: int32
+                        example: 0
+        error:
+          type: boolean
+          description: Flag ohibki
+        errorText:
+          description: Opisanie ohibki
+          type: string
+          example: ''
+        additionalErrors:
+          description: Dopolnitelnye ohibki
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                description: Struktura, gde dopuhena ohibka
+                type: string
+              description:
+                description: Opisanie
+                type: string
+    NmReportGroupedResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            page:
+              description: Stranica
+              type: integer
+              format: int32
+              example: 1
+            isNextPage:
+              description: Est li sleduuhaa stranica (false - net, true - est)
+              type: boolean
+            groups:
+              type: array
+              items:
+                type: object
+                properties:
+                  brandName:
+                    description: Nazvanie brenda
+                    type: string
+                    example: Some
+                  tags:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          description: Identifikator tega
+                          type: integer
+                          format: int32
+                          example: 123
+                        name:
+                          description: Nazvanie tega
+                          type: string
+                          example: Sale
+                  object:
+                    type: object
+                    description: Predmet
+                    properties:
+                      id:
+                        description: Identifikator predmeta
+                        type: integer
+                        format: int32
+                        example: 1668
+                      name:
+                        type: string
+                        example: Voski dla volos
+                        description: Nazvanie predmeta
+                  statistics:
+                    type: object
+                    properties:
+                      selectedPeriod:
+                        description: Zaprahivaemyi period
+                        type: object
+                        properties:
+                          begin:
+                            description: Nahalo perioda
+                            type: string
+                            example: 2023-10-04 20:05:32
+                          end:
+                            description: Konec perioda
+                            type: string
+                            example: 2024-03-01 20:05:32
+                          openCardCount:
+                            description: Kolihestvo perehodov v KT
+                            type: integer
+                            format: int32
+                            example: 0
+                          addToCartCount:
+                            description: Polohili v korzinu, htuk
+                            type: integer
+                            format: int32
+                            example: 0
+                          ordersCount:
+                            description: Zakazli tovarov, htuk
+                            type: integer
+                            format: int32
+                            example: 0
+                          ordersSumRub:
+                            description: Zakazali na summu, rub.
+                            type: integer
+                            format: int32
+                            example: 0
+                          buyoutsCount:
+                            description: Vykupili tovarov, htuk
+                            type: integer
+                            format: int32
+                            example: 0
+                          buyoutsSumRub:
+                            description: Vykupili na summu, rub.
+                            type: integer
+                            format: int32
+                            example: 0
+                          cancelCount:
+                            description: Otmenili tovarov, htuk
+                            type: integer
+                            format: int32
+                            example: 0
+                          cancelSumRub:
+                            description: Otmenili na summu, rub
+                            type: integer
+                            format: int32
+                            example: 0
+                          avgPriceRub:
+                            description: Srednaa cena, rub.
+                            type: integer
+                            format: int32
+                            example: 0
+                          avgOrdersCountPerDay:
+                            description: Srednee kolihestvo zakazov v den, ht.
+                            type: integer
+                            format: int32
+                            example: 0
+                          conversions:
+                            description: Konversii
+                            type: object
+                            properties:
+                              addToCartPercent:
+                                type: integer
+                                format: int32
+                                example: 0
+                                description: Konversia v korzinu, % (Kakoi procent
+                                  posetitelei, otkryvhih kartohku tovara, dobavili
+                                  tovar v korzinu)
+                              cartToOrderPercent:
+                                type: integer
+                                format: int32
+                                example: 0
+                                description: Konversia v zakaz, % (Kakoi procent posititelei,
+                                  dobavivhih tovar v korzinu, sdelali zakaz)
+                              buyoutsPercent:
+                                type: integer
+                                format: int32
+                                example: 0
+                                description: Procent vykupa, % ( Kakoi procent posetitelei,
+                                  zakazvhih tovar, ego vykupili. Bez uheta tovarov,
+                                  kotorye ehe dostavlautsa pokupatelu.)
+                      previousPeriod:
+                        description: Statistika za predyduhie 30 dnei
+                        type: object
+                        properties:
+                          begin:
+                            description: Nahalo perioda
+                            type: string
+                            example: 2023-11-04 20:05:31
+                          end:
+                            description: Konec perioda
+                            type: string
+                            example: 2024-03-01 20:05:31
+                          openCardCount:
+                            description: Kolihestvo perehodov v KT
+                            type: integer
+                            format: int32
+                            example: 466
+                          addToCartCount:
+                            description: Polohili v korzinu, htuk
+                            type: integer
+                            format: int32
+                            example: 72
+                          ordersCount:
+                            description: Zakazli tovarov, htuk
+                            type: integer
+                            format: int32
+                            example: 84
+                          ordersSumRub:
+                            description: Zakazali na summu, rub.
+                            type: number
+                            example: 127060.42
+                          buyoutsCount:
+                            description: Vykupili tovarov, htuk
+                            type: integer
+                            format: int32
+                            example: 69
+                          buyoutsSumRub:
+                            description: Vykupili na summu, rub.
+                            type: number
+                            example: 104898.42
+                          cancelCount:
+                            description: Otmenili tovarov, htuk
+                            type: integer
+                            format: int32
+                            example: 13
+                          cancelSumRub:
+                            description: Otmenili na summu, rub
+                            type: integer
+                            format: int32
+                            example: 0
+                          avgPriceRub:
+                            description: Srednaa cena, rub.
+                            type: number
+                            example: 1562.65
+                          avgOrdersCountPerDay:
+                            description: Srednee kolihestvo zakazov v den, ht.
+                            type: number
+                            example: 0.72
+                          conversions:
+                            description: Konversii
+                            type: object
+                            properties:
+                              addToCartPercent:
+                                type: number
+                                example: 15.5
+                                description: Konversia v korzinu, % (Kakoi procent
+                                  posetitelei, otkryvhih kartohku tovara, dobavili
+                                  tovar v korzinu)
+                              cartToOrderPercent:
+                                type: number
+                                example: 116.7
+                                description: Konversia v zakaz, % (Kakoi procent posititelei,
+                                  dobavivhih tovar v korzinu, sdelali zakaz)
+                              buyoutsPercent:
+                                description: Procent vykupa, % ( Kakoi procent posetitelei,
+                                  zakazvhih tovar, ego vykupili. Bez uheta tovarov,
+                                  kotorye ehe dostavlautsa pokupatelu.)
+                                type: number
+                                example: 84.1
+                      periodComparison:
+                        description: Sravnenie dvuh periodov, v procentah
+                        type: object
+                        properties:
+                          openCardDynamics:
+                            description: Dinamika perehodov v kartohku tovara
+                            type: integer
+                            format: int32
+                            example: -100
+                          addToCartDynamics:
+                            description: Dinamika dobavlenii v korzinu
+                            type: integer
+                            format: int32
+                            example: -100
+                          ordersCountDynamics:
+                            description: Dinamika kolihestva zakazov
+                            type: integer
+                            format: int32
+                            example: -100
+                          ordersSumRubDynamics:
+                            description: Dinamika summy zakazov, rublei
+                            type: integer
+                            format: int32
+                            example: -100
+                          buyoutsCountDynamics:
+                            description: Dinamika vykupov, htuk
+                            type: integer
+                            format: int32
+                            example: -100
+                          buyoutsSumRubDynamics:
+                            description: Dinamika summy vykupov, rublei
+                            type: integer
+                            format: int32
+                            example: -100
+                          cancelCountDynamics:
+                            description: Dinamika otmen tovarov, htuk
+                            type: integer
+                            format: int32
+                            example: 0
+                          cancelSumRubDynamics:
+                            description: Dinamika summ otmen tovarov, rublei
+                            type: integer
+                            format: int32
+                            example: 0
+                          avgOrdersCountPerDayDynamics:
+                            type: integer
+                            format: int32
+                            example: 0
+                            description: Dinamika srednego kolihestva zakazov v den
+                          avgPriceRubDynamics:
+                            type: integer
+                            format: int32
+                            example: -100
+                            description: 'Dinamika srednei ceny na tovary. Uhityvautsa
+                              skidki dla akcii i WB skidka.
+
+                              '
+                          conversions:
+                            description: Konversii
+                            type: object
+                            properties:
+                              addToCartPercent:
+                                description: Konversia v korzinu, % (Kakoi procent
+                                  posetitelei, otkryvhih kartohku tovara, dobavili
+                                  tovar v korzinu)
+                                type: integer
+                                format: int32
+                                example: -100
+                              cartToOrderPercent:
+                                description: Konversia v zakaz, % (Kakoi procent posititelei,
+                                  dobavivhih tovar v korzinu, sdelali zakaz)
+                                type: integer
+                                format: int32
+                                example: -100
+                              buyoutsPercent:
+                                description: Procent vykupa, % ( Kakoi procent posetitelei,
+                                  zakazvhih tovar, ego vykupili. Bez uheta tovarov,
+                                  kotorye ehe dostavlautsa pokupatelu.)
+                                type: integer
+                                format: int32
+                                example: -100
+        error:
+          type: boolean
+          description: Flag ohibki
+        errorText:
+          description: Opisanie ohibki
+          type: string
+          example: ''
+        additionalErrors:
+          description: Dopolnitelnye ohibki
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                description: Struktura, gde dopuhena ohibka
+                type: string
+              description:
+                description: Opisanie
+                type: string
+    NmReportDetailHistoryResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              nmID:
+                type: integer
+                format: int32
+                example: 1234567
+                description: Artikul WB
+              imtName:
+                type: string
+                example: Naimenovanie KT
+                description: Naimenovanie KT
+              vendorCode:
+                type: string
+                example: supplierVendor
+                description: Artikul prodavca
+              history:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    dt:
+                      type: string
+                      format: date
+                      example: 2023-06-20
+                      description: Data
+                    openCardCount:
+                      type: integer
+                      format: int32
+                      example: 26
+                      description: Kolihestvo perehodov v kartohku tovara
+                    addToCartCount:
+                      type: integer
+                      format: int32
+                      example: 1
+                      description: Polohili v korzinu, htuk
+                    ordersCount:
+                      type: integer
+                      format: int32
+                      example: 0
+                      description: Zakazali tovarov, ht
+                    ordersSumRub:
+                      type: integer
+                      format: int32
+                      example: 0
+                      description: Zakazali na summu, rub.
+                    buyoutsCount:
+                      type: integer
+                      format: int32
+                      example: 0
+                      description: Vykupili tovarov, ht.
+                    buyoutsSumRub:
+                      type: integer
+                      format: int32
+                      example: 0
+                      description: Vykupili na summu, rub.
+                    buyoutPercent:
+                      type: integer
+                      format: int32
+                      example: 0
+                      description: Procent vykupa, % ( Kakoi procent posetitelei,
+                        zakazvhih tovar, ego vykupili. Bez uheta tovarov, kotorye
+                        ehe dostavlautsa pokupatelu.)
+                    addToCartConversion:
+                      type: number
+                      example: 3.8
+                      description: Konversia v korzinu, % (Kakoi procent posetitelei,
+                        otkryvhih kartohku tovara, dobavili tovar v korzinu)
+                    cartToOrderConversion:
+                      type: integer
+                      format: int32
+                      example: 0
+                      description: Konversia v zakaz, % (Kakoi procent posititelei,
+                        dobavivhih tovar v korzinu, sdelali zakaz)
+        error:
+          type: boolean
+          description: Flag ohibki
+        errorText:
+          description: Opisanie ohibki
+          type: string
+          example: ''
+        additionalErrors:
+          description: Dopolnitelnye ohibki
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                description: Struktura, gde dopuhena ohibka
+                type: string
+              description:
+                description: Opisanie
+                type: string
+    NmReportGroupedHistoryResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              object:
+                description: Predmet
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int32
+                    example: 358
+                    description: Identifikator predmeta
+                  name:
+                    type: string
+                    example: hampuni
+                    description: Nazvanie predmeta
+              brandName:
+                type: string
+                example: Some
+                description: Nazvanie brenda
+              tag:
+                description: Teg
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int32
+                    example: 123
+                    description: Identifikator tega
+                  name:
+                    type: string
+                    example: Sale
+                    description: Nazvanie tega
+              history:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    dt:
+                      type: string
+                      format: date
+                      example: 2023-06-21
+                    openCardCount:
+                      type: integer
+                      format: int32
+                      example: 0
+                      description: Kolihestvo perehodov v kartohku tovara
+                    addToCartCount:
+                      type: integer
+                      format: int32
+                      example: 0
+                      description: Polohili v korzinu, htuk
+                    ordersCount:
+                      type: integer
+                      format: int32
+                      example: 0
+                      description: Zakazali tovarov, ht
+                    ordersSumRub:
+                      type: integer
+                      format: int32
+                      example: 0
+                      description: Zakazali na summu, rub.
+                    buyoutsCount:
+                      type: integer
+                      format: int32
+                      example: 0
+                      description: Vykupili tovarov, ht.
+                    buyoutsSumRub:
+                      type: integer
+                      format: int32
+                      example: 0
+                      description: Vykupili na summu, rub.
+                    buyoutPercent:
+                      type: integer
+                      format: int32
+                      example: 0
+                      description: Procent vykupa, % ( Kakoi procent posetitelei,
+                        zakazvhih tovar, ego vykupili. Bez uheta tovarov, kotorye
+                        ehe dostavlautsa pokupatelu.)
+                    addToCartConversion:
+                      type: integer
+                      format: int32
+                      example: 0
+                      description: Konversia v korzinu, % (Kakoi procent posetitelei,
+                        otkryvhih kartohku tovara, dobavili tovar v korzinu)
+                    cartToOrderConversion:
+                      type: integer
+                      format: int32
+                      example: 0
+                      description: Konversia v zakaz, % (Kakoi procent posititelei,
+                        dobavivhih tovar v korzinu, sdelali zakaz)
+        error:
+          type: boolean
+          description: Flag ohibki
+        errorText:
+          description: Opisanie ohibki
+          type: string
+          example: ''
+        additionalErrors:
+          description: Dopolnitelnye ohibki
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                description: Struktura, gde dopuhena ohibka
+                type: string
+              description:
+                description: Opisanie
+                type: string
+    responseBodyContentError400:
+      type: object
+      properties:
+        data:
+          type: object
+          nullable: true
+        error:
+          description: Flag ohibki
+          type: boolean
+        errorText:
+          description: Opisanie ohibki
+          type: string
+        additionalErrors:
+          description: Dopolnitelnye ohibki
+          type: object
+          properties:
+            MoveNmsToTrash:
+              type: string
+      example:
+        data: null
+        error: true
+        errorText: Tekst ohibki
+        additionalErrors:
+          MoveNmsToTrash: Bad request
+    ExciseReportRequest:
+      type: object
+      properties:
+        countries:
+          type: array
+          description: 'Kod stran po standartu ISO 3166-2. htoby poluhit dannye po
+            vsem stranam, ostavte parametr pustym
+
+            '
+          items:
+            type: string
+            enum:
+              - AM
+              - BY
+              - KG
+              - KZ
+              - RU
+              - UZ
+      example:
+        countries:
+          - AM
+          - RU
+    ExciseReportResponse:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/models.ExciseReportResponse'
+    models.ExciseReportResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/models.ExciseReportResponseData'
+    models.ExciseReportResponseData:
+      type: array
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+            description: Strana pokupatela
+            example: Rossia
+          price:
+            type: number
+            description: cena tovara, s NDS
+            example: 100
+          currency_name_short:
+            type: string
+            description: Valuta
+            example: rub
+          excise_short:
+            type: string
+            description: Kod markirovki
+            example: 0102900254680370215_Re/=lSbNiGD
+          barcode:
+            type: string
+            description: Barkod
+            example: 2038893425820
+          nm_id:
+            type: integer
+            description: Artikul Wildberries
+            example: 169085355
+          operation_type_id:
+            type: integer
+            description: "Tip operacii, esli est:\n\n  * `1` — vyvod iz oborota\n\
+              \  * `2` — vozvrat v oborot\n"
+            example: 1
+          fiscal_doc_number:
+            type: integer
+            description: 'Nomer fiskalnogo dokumenta (heka polnogo rasheta), esli
+              est
+
+              '
+            example: 12345678
+          fiscal_dt:
+            type: string
+            description: Data fiskalizacii (data v heke), esli est, GGGG-MM-DD
+            example: 2024-01-01
+          fiscal_drive_number:
+            type: string
+            description: 'Nomer fiskalnogo nakopitela, esli est
+
+              '
+          rid:
+            type: integer
+            description: '`Rid`
+
+              '
+            example: 606217433440
+          srid:
+            type: string
+            description: '`Srid`
+
+              '
+            example: 7513432034713632943.1.0
+    responseBodyContentError403:
+      type: object
+      properties:
+        data:
+          type: object
+          nullable: true
+        error:
+          description: Flag ohibki
+          type: boolean
+        errorText:
+          description: Opisanie ohibki
+          type: string
+        additionalErrors:
+          description: Dopolnitelnye ohibki
+          type: string
+      example:
+        data: null
+        error: true
+        errorText: Dostup zaprehen
+        additionalErrors: Dostup zaprehen
+    ResponsePaidStorage:
+      type: array
+      items:
+        type: object
+        properties:
+          date:
+            type: string
+            description: Data
+          logWarehouseCoef:
+            type: integer
+            description: Koefficient logistiki i hranenia
+          officeId:
+            type: integer
+            description: ID sklada
+          warehouse:
+            type: string
+            description: Nazvanie sklada
+          warehouseCoef:
+            type: number
+            description: Koefficient sklada
+          giId:
+            type: integer
+            description: ID postavki
+          chrtId:
+            type: integer
+            description: hislovoi identifikator razmera dla dannogo artikula Wildberries
+          size:
+            type: string
+            description: Razmer (`techSize` v kartohke tovara)
+          barcode:
+            type: string
+            description: Barkod
+          subject:
+            type: string
+            description: Predmet
+          brand:
+            type: string
+            description: Brend
+          vendorCode:
+            type: string
+            description: Artikul prodavca
+          nmId:
+            type: integer
+            description: Artikul Wildberries
+          volume:
+            type: number
+            description: Obem tovara
+          calcType:
+            type: string
+            description: Sposob rasheta
+          warehousePrice:
+            type: number
+            description: Summa hranenia
+          barcodesCount:
+            type: integer
+            description: Kolihestvo edinic tovara (htuk), podlehahie tarificirovaniu
+              za rashetnye sutki
+          palletPlaceCode:
+            type: integer
+            description: Kod paletomesta
+          palletCount:
+            type: number
+            description: Kolihestvo palet
+      example:
+        - date: '2023-10-01'
+          'logWarehouseCoef ': 0
+          officeId: 507
+          warehouse: Koledino
+          warehouseCoef: 1.7
+          giId: 123456
+          chrt_id: 1234567
+          size: '0'
+          barcode: ''
+          subject: Maski odnorazovye
+          brand: 1000 Katalog
+          vendorCode: Artikul_prodavca
+          nmId: 1234567
+          volume: 12
+          calcType: 'koroba: bez gabaritov'
+          warehousePrice: 7.65
+          barcodesCount: 1
+          palletPlaceCode: 0
+          palletCount: 0
+    GetTasksRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          description: ID zadanii.
+          minItems: 1
+          maxItems: 50
+          items:
+            type: string
+            format: uuid
+    GetTasksResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/GetTasksResponseData'
+    GetTasksResponseData:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID zadania
+        status:
+          type: string
+          description: "Status zadania:\n  \n  * `new` — novoe\n  * `processing` —\
+            \ obrabatyvaetsa\n  * `done` — othet gotov\n  * `purged` — othet udalen\n\
+            \  * `canceled` — otkloneno\n"
+    CreateTaskRequest:
+      discriminator:
+        propertyName: type
+        mapping:
+          paid_storage: '#/components/schemas/CreateTaskRequestPaidStorage'
+      oneOf:
+        - $ref: '#/components/schemas/CreateTaskRequestPaidStorage'
+    CreateTaskRequestPaidStorage:
+      description: Shema tela zaprosa dla poluhenia otheta "Platnoe hranenie".
+      type: object
+      properties:
+        type:
+          type: string
+          description: 'Tip otheta:  <br><b>paid_storage</b> - Platnoe hranenie
+
+            '
+          enum:
+            - paid_storage
+        params:
+          type: object
+          description: 'Parametry zaprosa neobhodimye dla poluhenia vybrannogo tipa
+            otheta.
+
+            '
+          properties:
+            dateFrom:
+              type: string
+              format: date
+              description: Data nahala zaprahivaemogo perioda
+            dateTo:
+              type: string
+              format: date
+              description: Data konca zaprahivaemogo perioda
+            diviser:
+              type: integer
+              description: Kolihestvo hastei, na kotoroe neobhodimo razdelit zaprohennyi
+                othet.
+              example: 1
+            remainder:
+              type: integer
+              description: Nomer hasti otheta, kotoruu neobhodimo poluhit.
+              example: 0
+    CreateTaskResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/CreateTaskResponseData'
+    CreateTaskResponseData:
+      type: object
+      properties:
+        taskId:
+          type: string
+          description: ID zadania na generaciu
+    GetTasksResponseBytesError:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            tasks:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  last_proc_err:
+                    type: string
+                  status:
+                    type: string
+  parameters:
+    DateFrom:
+      in: query
+      name: dateFrom
+      required: true
+      description: "Nahalo othetnogo perioda v formate RFC3339. Mohno peredat datu\
+        \ ili datu so vremenem. Primery:\n\n  * `2023-12-01`\n  * `2023-12-01T23:59:59`\n\
+        \  * `2023-12-01T00:00:00.12345`\n  * `2023-12-01T00:00:00`\n"
+      schema:
+        type: string
+    DateTo:
+      in: query
+      name: dateTo
+      required: true
+      description: "Konec othetnogo perioda v formate RFC3339. Mohno peredat datu\
+        \ ili datu so vremenem. Primery:\n\n  * `2023-12-01`\n  * `2023-12-01T23:59:59`\n\
+        \  * `2023-12-01T00:00:00.12345`\n  * `2023-12-01T00:00:00`\n"
+      schema:
+        type: string
+    Date:
+      in: query
+      name: date
+      description: "Data, kotoraa vhodit v othetnyi period, `GGGG-MM-DD`, naprimer\
+        \ `2023-12-01`. \n<br/>         \nhtoby poluhit dannye za vse vrema s avgusta 2023,\
+        \ ne ukazyvaite etot parametr\n"
+      schema:
+        type: string
+  responses:
+    NotFound:
+      description: Takoi adres ne naiden
+    Unauthorized:
+      description: Polzovatel ne avtorizovan
+    ExceededLimitRequests:
+      description: Prevyhen limit po zaprosam
+    AccessDenied:
+      description: Dostup zaprehen
+    InternalServerError:
+      description: Vnutrennaa ohibka servisa
+    400Response:
+      description: Nepravilnyi zapros
+      content:
+        application/json:
+          schema:
+            type: string
+            example: Bad 'dateFrom' param
+    200SuccessDownloadedFiles:
+      description: Uspehno
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/ResponsePaidStorage'
+    SuccessTaskResponse:
+      description: Uderhania za samovykupy
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    nmID:
+                      type: integer
+                      description: Artikul Wildberries
+                      example: 123456789
+                    sum:
+                      type: integer
+                      description: Summa zakaza
+                      example: 3540
+                    currency:
+                      type: string
+                      description: Valuta zakaza
+                      example: RUB
+                    dateFrom:
+                      type: string
+                      description: Nahalo othetnogo perioda
+                      example: 2023-08-23
+                    dateTo:
+                      type: string
+                      description: Konec othetnogo perioda
+                      example: 2023-08-29
+paths:
+  /content/v1/analytics/nm-report/detail:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+      - url: https://suppliers-api.wb.ru
+    post:
+      tags:
+        - Voronka prodah
+      summary: Poluhenie statistiki KT za vybrannyi period, po nmID/predmetam/brendam/tegam
+      description: 'Poluhenie statistiki KT za vybrannyi period, po nmID/predmetam/brendam/tegam.<br>
+        Pola `brandNames`,`objectIDs`, `tagIDs`, `nmIDs` mogut byt pustymi, togda
+        v otvete idut vse kartohki prodavca.<br>  Pri vybore neskolkih polei v otvet
+        prihodat dannye po kartohkam, u kotoryh est vse vybrannye pola. Rabotaet
+        s paginaciei. <br> <b>Dopuskaetsa 3 zaprosa v minutu.</b>
+
+        '
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NmReportDetailRequest'
+        required: true
+      responses:
+        '200':
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NmReportDetailResponse'
+        '400':
+          description: Nekorretnyi format zaprosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseError'
+        '403':
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseError'
+        '500':
+          description: Vnutrennaa ohibka servera
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseError'
+  /content/v1/analytics/nm-report/grouped:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+      - url: https://suppliers-api.wb.ru
+    post:
+      tags:
+        - Voronka prodah
+      summary: Poluhenie statistiki KT za period, sgruppirovannyi po predmetam, brendam
+        i tegam
+      description: 'Poluhenie statistiki KT za period, sgruppirovannyi po predmetam,
+        brendam i tegam.<br> Pola `brandNames`, `objectIDs`, `tagIDs` mogut byt pustymi,
+        togda gruppirovka proishodit po vsem kartohkam prodavca. <br> <b>Dopuskaetsa
+        3 zaprosa v minutu.</b>
+
+        '
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NmReportGroupedRequest'
+        required: true
+      responses:
+        '200':
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NmReportGroupedResponse'
+        '400':
+          description: Nekorretnyi format zaprosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseError'
+        '403':
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseError'
+        '500':
+          description: Vnutrennaa ohibka servera
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseError'
+  /content/v1/analytics/nm-report/detail/history:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+      - url: https://suppliers-api.wb.ru
+    post:
+      tags:
+        - Voronka prodah
+      summary: Poluhenie statistiki KT po dnam/nedelam/mesacam po vybrannym nmID
+      description: 'Poluhenie statistiki KT po dnam/nedelam/mesacam po vybrannym `nmID`.
+        <br> <b>Dopuskaetsa 3 zaprosa v minutu.</b>
+
+        '
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NmReportDetailHistoryRequest'
+        required: true
+      responses:
+        '200':
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NmReportDetailHistoryResponse'
+        '400':
+          description: Nekorretnyi format zaprosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseError'
+        '403':
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseError'
+        '500':
+          description: Vnutrennaa ohibka servera
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseError'
+  /content/v1/analytics/nm-report/grouped/history:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+      - url: https://suppliers-api.wb.ru
+    post:
+      tags:
+        - Voronka prodah
+      summary: Poluhenie statistiki KT po dnam/nedelam/mesacam za period, sgruppirovannyi
+        po predmetam, brendam i tegam
+      description: 'Poluhenie statistiki KT po dnam/nedelam/mesacam za period, sgruppirovannyi
+        po predmetam, brendam i tegam.<br> Pola `brandNames`, `objectIDs`, `tagIDs`
+        mogut byt pustymi, togda gruppirovka proishodit po vsem kartohkam prodavca.<br>
+        V zaprose proizvedenie kolihestva predmetov, brendov, tegov ne dolhno byt
+        bolhe 16. <br> <b>Dopuskaetsa 3 zaprosa v minutu.</b>
+
+        '
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NmReportGroupedHistoryRequest'
+        required: true
+      responses:
+        '200':
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NmReportGroupedHistoryResponse'
+        '400':
+          description: Nepravilnyi zapros
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseError'
+        '403':
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseError'
+        '500':
+          description: Vnutrennaa ohibka servera
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseError'
+  /api/v1/analytics/excise-report:
+    servers:
+      - url: https://seller-analytics-api.wildberries.ru
+    post:
+      tags:
+        - Tovary s obazatelnoi markirovkoi
+      summary: Othet po tovaram s obazatelnoi markirovkoi
+      description: 'Vozvrahaet operacii po markiruemym tovaram. Maksimum 10 zaprosov
+        za 5 hasov.
+
+        '
+      parameters:
+        - $ref: '#/components/parameters/DateFrom'
+        - $ref: '#/components/parameters/DateTo'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExciseReportRequest'
+        required: false
+      responses:
+        200:
+          description: Othet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExciseReportResponse'
+        400:
+          $ref: '#/components/responses/400Response'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v1/paid_storage:
+    servers:
+      - url: https://seller-analytics-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Platnoe hranenie
+      summary: Sozdat othet
+      description: 'Sozdaet zadanie na generaciu otheta. Mohno poluhit othet maksimum
+        za 8 dnei.
+
+        Maksimum 1 zapros v minutu
+
+        '
+      parameters:
+        - name: dateFrom
+          in: query
+          schema:
+            type: string
+            example: '2022-01-01'
+          description: "Nahalo othetnogo perioda v formate RFC3339. Mohno peredat\
+            \ datu ili datu so vremenem. Primery:\n\n  * `2019-06-20`\n  * `2019-06-20T23:59:59`\n\
+            \  * `2019-06-20T00:00:00.12345`\n  * `2017-03-25T00:00:00`\n</ul>\n"
+        - name: dateTo
+          in: query
+          schema:
+            type: string
+            example: '2022-01-09'
+          description: "Konec othetnogo perioda v formate RFC3339. Mohno peredat\
+            \ datu ili datu so vremenem. Primery:\n\n  * `2019-06-20`\n  * `2019-06-20T23:59:59`\n\
+            \  * `2019-06-20T00:00:00.12345`\n  * `2017-03-25T00:00:00`\n"
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTaskResponse'
+              examples:
+                CreateResponseData:
+                  $ref: '#/components/examples/CreateResponseData'
+        400:
+          description: Nepravilnyi zapros
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                errors:
+                  - dateTo should be greater dateFrom
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          description: Slihkom mnogo zaprosov
+        500:
+          $ref: '#/components/responses/500InternalError'
+  /api/v1/paid_storage/tasks/{task_id}/status:
+    servers:
+      - url: https://seller-analytics-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Platnoe hranenie
+      summary: Proverit status
+      description: 'Vozvrahaet status zadania na generaciu. Maksimum 1 zapros v minutu
+
+        '
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: 06e06887-9d9f-491f-b16a-bb1766fcb8d2
+          description: 'ID zadania na generaciu
+
+            '
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTasksResponse'
+              examples:
+                GetTasksResponseData:
+                  $ref: '#/components/examples/GetTasksResponseData'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          description: Slihkom mnogo zaprosov
+        500:
+          $ref: '#/components/responses/500InternalError'
+  /api/v1/paid_storage/tasks/{task_id}/download:
+    servers:
+      - url: https://seller-analytics-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Platnoe hranenie
+      summary: Poluhit othet
+      description: Vozvrahaet othet po ID zadania. Maksimum 1 zapros v minutu
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: 06e06887-9d9f-491f-b16a-bb1766fcb8d2
+          description: 'ID zadania na generaciu
+
+            '
+      responses:
+        200:
+          description: Othet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponsePaidStorage'
+              example:
+                - date: '2023-10-01'
+                  'logWarehouseCoef ': 0
+                  officeId: 507
+                  warehouse: Koledino
+                  warehouseCoef: 1.7
+                  giId: 123456
+                  chrt_id: 1234567
+                  size: '0'
+                  barcode: ''
+                  subject: Maski odnorazovye
+                  brand: 1000 Katalog
+                  vendorCode: '567383'
+                  nmId: 1234567
+                  volume: 12
+                  calcType: 'koroba: bez gabaritov'
+                  warehousePrice: 7.65
+                  barcodesCount: 1
+                  palletPlaceCode: 0
+                  palletCount: 0
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          description: Slihkom mnogo zaprosov
+        500:
+          $ref: '#/components/responses/500InternalError'
+  /api/v1/analytics/antifraud-details:
+    servers:
+      - url: https://seller-analytics-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Othety po uderhaniam
+      summary: Samovykupy
+      description: 'Vozvrahaet othet po uderhaniam za samovykupy. Othet formiruetsa
+        kahduu nedelu po sredam, do 7:00 po moskovskomu vremeni, i soderhit dannye
+        za odnu nedelu. Takhe mohno poluhit othet za vse vrema s avgusta 2023.
+
+        <br/><br/>
+
+        Uderhanie za samovykup — eto 30% ot stoimosti tovarov. Minimalnaa summa vseh
+        uderhanii — 100 000 ₽, esli za nedelu vy prodali tovarov bolhe, hem na 100 000 ₽.
+
+        <br/><br/>
+
+        Maksimum 10 zaprosov za 100 minut.
+
+        '
+      parameters:
+        - $ref: '#/components/parameters/Date'
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessTaskResponse'
+        400:
+          description: Nepravilnyi zapros
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                errors:
+                  - date year should be greater or equal 2023
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'

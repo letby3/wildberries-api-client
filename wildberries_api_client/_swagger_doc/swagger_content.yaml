@@ -1,0 +1,3562 @@
+openapi: 3.0.1
+info:
+  title: Opisanie API Kontenta
+  version: '3.0'
+  description: '
+
+    <dl> <dt>Slovar sokrahenii:</dt> <dd>KT — kartohka tovara</dd> <dd>NM—- nomenklatura</dd>
+    </dl> Ogranihenia po kolihestvu zaprosov: <dd>Dopuskaetsa maksimum 100 zaprosov
+    v minutu na metody kontenta v celom.</dd>
+
+    <br> Publihnoe API Kontenta sozdano dla sinhronizacii dannyh mehdu serverami Wildberries
+    i serverami prodavcov. <br> Vy zagruhaete dannye na svoi nositeli, rabotaete s
+    nimi na svoih mohnostah i sinhroniziruetes s nahimi serverami po mere neobhodimosti.
+    <br> <code>Ne dopuskaetsa ispolzovanie API Kontenta v kahestve vnehnei bazy dannyh.
+    Pri prevyhenii limitov na zaprosy dostup k API budet ogranihen.</code> <br> <br>
+    <br>
+
+    '
+security:
+  - HeaderApiKey: []
+x-tagGroups:
+  - name: Kontent
+    tags:
+      - Zagruzka
+      - Prosmotr
+      - Konfigurator
+      - Mediafaily
+      - Tegi
+      - Korzina
+tags:
+  - name: Zagruzka
+    description: Sozdanie i redaktirovanie KT
+  - name: Prosmotr
+    description: Poluhenie informacii o sozdannyh KT, NM i razmerah
+  - name: Konfigurator
+  - name: Mediafaily
+    description: Rabota s mediafailami
+  - name: Tegi
+    description: Servis dla raboty s tegami KT. Tegi prednaznaheny dla bystrogo poiska
+      KT v vahem lk.
+  - name: Korzina
+  - name: Deprecated
+    description: Metody iz dannogo razdela budut otkluheny fevral-mart
+components:
+  securitySchemes:
+    HeaderApiKey:
+      type: apiKey
+      name: Authorization
+      in: header
+  examples:
+    TokenMissing:
+      description: Token otsutstvuet
+      value: 'proxy: unauthorized'
+    TokenInvalid:
+      description: Token nedeistvitelen
+      value: 'proxy: invalid token'
+    TokenNotFound:
+      description: Token udalen
+      value: 'proxy: not found'
+    creatingOneCard:
+      description: ''
+      value:
+        - subjectID: 105
+          variants:
+            - vendorCode: ArtikulProdavca
+              title: Naimenovanie tovara
+              description: Opisanie tovara
+              brand: Brend
+              dimensions:
+                length: 55
+                width: 40
+                height: 15
+              characteristics:
+                - id: 12
+                  value:
+                    - Turkish flag
+                - id: 25471
+                  value: 1200
+                - id: 14177449
+                  value:
+                    - red
+              sizes:
+                - techSize: S
+                  wbSize: '42'
+                  price: 5000
+                  skus:
+                    - '88005553535'
+    creatingMergedCards:
+      description: ''
+      value:
+        - subjectID: 3091
+          variants:
+            - vendorCode: ArtikulProdavca11
+              title: Naimenovanie tovara 1
+              description: Opisanie tovara 1
+              brand: Brend
+              dimensions:
+                length: 55
+                width: 40
+                height: 15
+              characteristics:
+                - id: 12
+                  value:
+                    - Turkish flag
+                - id: 25471
+                  value: 1200
+                - id: 14177449
+                  value:
+                    - red
+              sizes:
+                - skus:
+                    - '111111111133111'
+            - vendorCode: ArtikulProdavca22
+              title: Naimenovanie tovara 2
+              description: Opisanie tovara 2
+              brand: BrendDrugoi
+              dimensions:
+                length: 55
+                width: 40
+                height: 15
+              characteristics:
+                - id: 12
+                  value:
+                    - Turkish flag
+                - id: 25471
+                  value: 1200
+                - id: 14177449
+                  value:
+                    - red
+              sizes:
+                - skus:
+                    - '111111111441111'
+    creatingGroupOfIndividualCards:
+      description: ''
+      value:
+        - subjectID: 3091
+          variants:
+            - vendorCode: ArtikulProdavca1
+              title: Naimenovanie tovara 1
+              description: Opisanie tovara 1
+              brand: Brend
+              dimensions:
+                length: 55
+                width: 40
+                height: 15
+              characteristics:
+                - id: 12
+                  value:
+                    - Turkish flag
+                - id: 25471
+                  value: 1200
+                - id: 14177449
+                  value:
+                    - red
+              sizes:
+                - skus:
+                    - '1111111111111'
+        - subjectID: 105
+          variants:
+            - vendorCode: Artikul prodavca 2
+              title: Naimenovanie tovara 2
+              description: Opisanie tovara 2
+              brand: Brend
+              dimensions:
+                length: 55
+                width: 40
+                height: 15
+              characteristics:
+                - id: 12
+                  value:
+                    - Turkish flag
+                - id: 25471
+                  value: 1200
+                - id: 14177449
+                  value:
+                    - red
+              sizes:
+                - techSize: S
+                  wbSize: '42'
+                  price: 5000
+                  skus:
+                    - '2222222222222'
+    responseIncorrectBeginDate:
+      description: Nekorrektnaa data nahala
+      value:
+        error: Nekorrektnaa data nahala
+    responseIncorrectEndDate:
+      description: Nekorrektnaa data konca
+      value:
+        error: Nekorrektnaa data konca
+    responseExceededLimit:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: V gruppu mohno obedinit ne bolhe 30 kartohek. V rezultate zaprosa
+          budet prevyhen limit
+        additionalErrors:
+          error: V gruppu mohno obedinit ne bolhe 30 kartohek. V rezultate zaprosa
+            budet prevyhen limit
+    responseCombining:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Obedinenie tovarov s raznymi predmetami nevozmohno
+        additionalErrors:
+          error: Obedinenie tovarov s raznymi predmetami nevozmohno
+    responseIncorrectRequestFormat:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Nepravilnyi format zaprosa
+        additionalErrors:
+          error: Nepravilnyi format zaprosa
+    responseNonExistentNmId:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Ukazan nesuhestvuuhii nmID kartohki tovara
+        additionalErrors:
+          error: Ukazan nesuhestvuuhii nmID kartohki tovara
+    responseNonExistentImt:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Ukazan nesuhestvuuhii imt
+        additionalErrors:
+          error: Ukazan nesuhestvuuhii imt
+    responseDuplicateRequests:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Nedopustimo otpravlat dubliruuhiesa zaprosy!
+        additionalErrors:
+          error: Nedopustimo otpravlat dubliruuhiesa zaprosy!
+    responseAllCardsInSameGroup:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Vse kartohki nahodatsa v odnoi gruppe
+        additionalErrors:
+          error: Vse kartohki nahodatsa v odnoi gruppe
+    responseCardCreate1:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: string
+        additionalErrors:
+          string: string
+    InvalidRequestFormatContent:
+      description: Nekorrektnyi format zaprosa
+      value:
+        data: null
+        error: true
+        errorText: Invalid request format
+        additionalErrors: {}
+    CardCreatedWithoutVendorCode:
+      description: KT nelza sozdat bez artikula prodavca
+      value:
+        data: null
+        error: true
+        errorText: A card cannot be created without a vendorCode
+        additionalErrors: {}
+    CardsVendorCodeUsedInOtherCards:
+      description: Artikul prodavca ispolzuetsa v drugoi KT
+      value:
+        data: null
+        error: true
+        errorText: bad request; Unexpected the specified card's vendor code is used
+          in other cards
+        additionalErrors: {}
+    ThisCategoryDoesNotExist:
+      description: Takogo predmeta ne suhestvuet
+      value:
+        data: null
+        error: true
+        errorText: This category does not exist
+        additionalErrors:
+          id: '342342'
+    responseBodyContentError400:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Tekst ohibki
+        additionalErrors:
+          MoveNmsToTrash: Bad request
+    responseOK200:
+      description: ''
+      value:
+        data: null
+        error: false
+        errorText: ''
+        additionalErrors: null
+    responseBody400LenName:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Nedopustimoe znahenie naimenovania tega
+        additionalErrors:
+          description: Clihkom dlinnoe nazvanie tega. Razreheno ne bolee 15 simvolov
+    responseBodyLimitTag:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Isherpan limit na sozdanie tegov
+        additionalErrors: null
+    responseBodyNameNotExist:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Teg s takim imenem uhe suhestvuet
+        additionalErrors: null
+    responseNotFound200:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Nepravilnyi zapros
+        additionalErrors:
+          description: Takogo tega ne suhestvuet u prodavca
+    responseNotFound200Del:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Takogo tega ne suhestvuet
+        additionalErrors:
+          tagID: '1234'
+    IncorrectRequest4:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Nepravilnyi zapros
+        additionalErrors:
+          description: Ukazany nesuhestvuuhie tegi
+    responseBodyTagNotExist:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Takogo tega ne suhestvuet
+        additionalErrors:
+          tagID: '1234'
+    responseBodyError500:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Vnutrennaa ohibka.
+        additionalErrors: null
+  schemas:
+    responseBodyContentError400:
+      type: object
+      properties:
+        data:
+          type: object
+          nullable: true
+        error:
+          description: Flag ohibki
+          type: boolean
+        errorText:
+          description: Opisanie ohibki
+          type: string
+        additionalErrors:
+          description: Dopolnitelnye ohibki
+          type: object
+          properties:
+            MoveNmsToTrash:
+              type: string
+      example:
+        data: null
+        error: true
+        errorText: Tekst ohibki
+        additionalErrors:
+          MoveNmsToTrash: Bad request
+    responseBodyContentError403:
+      type: object
+      properties:
+        data:
+          type: object
+          nullable: true
+        error:
+          description: Flag ohibki
+          type: boolean
+        errorText:
+          description: Opisanie ohibki
+          type: string
+        additionalErrors:
+          description: Dopolnitelnye ohibki
+          type: string
+      example:
+        data: null
+        error: true
+        errorText: Dostup zaprehen
+        additionalErrors: Dostup zaprehen
+    creatingCard:
+      type: array
+      items:
+        type: array
+        items:
+          type: object
+          properties:
+            characteristics:
+              description: Massiv harakteristik, individualnyi dla kahdoi kategorii
+              type: array
+              items:
+                type: object
+            vendorCode:
+              description: Artikul prodavca
+              type: string
+            sizes:
+              description: Massiv razmerov dla nomenklatury (dla bezrazmernogo tovara
+                vse ravno nuhno peredavat dannyi massiv bez parametrov (`wbSize`
+                i `techSize`), no s cenoi i barkodom)
+              type: array
+              items:
+                type: object
+                properties:
+                  techSize:
+                    description: Razmer tovara (primer S, M, L, XL, 42, 42-43)
+                    type: string
+                  wbSize:
+                    description: Rossiiskii razmer tovara
+                    type: string
+                  price:
+                    description: cena
+                    type: integer
+                  skus:
+                    description: Massiv barkodov, strokovyh identifikatorov razmerov
+                      tovara (ih mohno sgenerirovat s pomohu API, sm. razdel "Prosmotr")
+                    type: array
+                    items:
+                      type: string
+    requestMoveNmsImtConn:
+      type: object
+      required:
+        - targetIMT
+        - nmIDs
+      properties:
+        targetIMT:
+          description: Suhestvuuhii u prodavca `imtID`, pod kotorym neobhodimo obedinit
+            NM
+          type: integer
+          example: 123
+        nmIDs:
+          description: '`nmID`, kotorye neobhodimo obedinit (maksimum 30)
+
+            '
+          type: array
+          items:
+            type: integer
+          example:
+            - 837459235
+            - 828572090
+    requestMoveNmsImtDisconn:
+      type: object
+      required:
+        - nmIDs
+      properties:
+        nmIDs:
+          description: '`nmID`, kotorye neobhodimo razedinit (max 30)'
+          type: array
+          items:
+            type: integer
+          example:
+            - 837459235
+            - 828572090
+    responseCardCreate:
+      type: object
+      properties:
+        data:
+          type: object
+          nullable: true
+          example: null
+        error:
+          description: Flag ohibki
+          type: boolean
+        errorText:
+          description: Opisanie ohibki
+          type: string
+        additionalErrors:
+          description: Dopolnitelnye ohibki
+          oneOf:
+            - type: object
+              properties:
+                string:
+                  type: string
+            - type: string
+    responseIncorrectDate:
+      type: object
+      properties:
+        error:
+          type: string
+    responseContentError1:
+      type: object
+      properties:
+        data:
+          type: object
+          nullable: true
+          example: null
+        error:
+          description: Flag ohibki
+          type: boolean
+        errorText:
+          description: Opisanie ohibki
+          type: string
+        additionalErrors:
+          description: Dopolnitelnye ohibki
+          type: object
+          properties:
+            error:
+              type: string
+    responseContentError4:
+      type: object
+      properties:
+        data:
+          type: object
+          nullable: true
+        error:
+          description: Flag ohibki
+          type: boolean
+        errorText:
+          description: Opisanie ohibki
+          type: string
+        additionalErrors:
+          description: Dopolnitelnye ohibki
+          type: object
+          properties:
+            description:
+              type: string
+    responseContentError5:
+      type: object
+      properties:
+        data:
+          type: object
+          nullable: true
+        error:
+          description: Flag ohibki
+          type: boolean
+        errorText:
+          description: Opisanie ohibki
+          type: string
+        additionalErrors:
+          description: Dopolnitelnye ohibki
+          type: object
+          properties:
+            tagID:
+              type: string
+    responseContentError6:
+      type: object
+      properties:
+        data:
+          type: object
+          nullable: true
+        error:
+          description: Flag ohibki
+          type: boolean
+        errorText:
+          description: Opisanie ohibki
+          type: string
+        additionalErrors:
+          description: Dopolnitelnye ohibki
+          type: string
+          nullable: true
+      example:
+        data: null
+        error: false
+        errorText: ''
+        additionalErrors: null
+paths:
+  /content/v2/cards/upload:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      tags:
+        - Zagruzka
+      summary: Sozdanie kartohki tovara
+      description: "Sozdanie kartohki tovara proishodit asinhronno, pri otpravke zaprosa\
+        \ na sozdanie kartohki vah zapros stanovitsa v ohered na sozdanie.\n\n\n\
+        **Vnimanie**. Kartohka shitaetsa sozdannoi, esli sozdalas hota by odna nomenklatura\
+        \ v nei. Esli vo vrema obrabotki zaprosa v oheredi vyavlautsa ohibki, to nomenklatura\
+        \ shitaetsa ohibohnoi.\n\n\nKak sozdat kartohku:\n\n  1. Poluhite spisok\
+        \ vseh kategorii s pomohu metoda `Roditelskie kategorii tovarov`\n  2. Poluhite\
+        \ spisok dostupnyh predmetov (podkategorii) s pomohu metoda `Spisok predmetov\
+        \ (podkategorii)`\n  3. Poluhite harakteristiki, kotorye mohno zadavat v\
+        \ etom predmete (podkategorii), s pomohu metoda `harakteristiki predmeta\
+        \ (podkategorii)`. Dla harakteristik cvet, Strana proizvodstva, Sezon, Stavka\
+        \ NDS, TNVED ispolzuite znahenia iz razdela `Konfigurator`.\n  4. Otpravte\
+        \ zapros. Esli otvet Uspehno (200), no kakie-to kartohki ne sozdalis, proverte\
+        \ ohibki s pomohu metoda `Spisok nesozdannyh nomenklatur (NM) s ohibkami`.\n\
+        \       \n\nV odnom zaprose mohno sozdat maksimum 100 kartohek (`imtID`)\
+        \ i po 30 nomenklatur (`nmID`) v kahdoi.\n"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                required:
+                  - subjectID
+                  - variants
+                properties:
+                  subjectID:
+                    type: integer
+                    description: ID predmeta
+                  variants:
+                    description: Massiv variantov tovara. V kahdoi KT mohet byt ne
+                      bolee 30 variantov (NM)
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - vendorCode
+                      properties:
+                        brand:
+                          type: string
+                          description: Brend
+                        title:
+                          type: string
+                          description: Naimenovanie tovara
+                        description:
+                          type: string
+                          description: Opisanie tovara
+                        vendorCode:
+                          type: string
+                          description: Artikul prodavca
+                        dimensions:
+                          description: "Gabarity upakovki tovara. Ukazyvat v santimetrah\
+                            \ dla lubogo tovara. \n<br> \nEsli ne ukazat strukturu\
+                            \ dimensions v zaprose, to ona sgeneriruetsa sistemoi\
+                            \ avtomatiheski s nulevymi znaheniami dliny, hiriny, vysoty\n"
+                          type: object
+                          properties:
+                            length:
+                              type: integer
+                              description: Dlina
+                            width:
+                              type: integer
+                              description: hirina
+                            height:
+                              type: integer
+                              description: Vysota
+                        sizes:
+                          type: array
+                          description: "Massiv s razmerami. <br> \nEsli dla razmernogo\
+                            \ tovara (obuv, odehda i dr.) ne ukazat etot massiv,\
+                            \ to sistemoi v kartohke on budet sgenerirovan avtomatiheski\
+                            \ s `techSize` = \"A\" i `wbSize` = \"1\" i barkodom.\n"
+                          items:
+                            type: object
+                            properties:
+                              techSize:
+                                type: string
+                                description: Razmer tovara (XL, 45 i dr.)
+                              wbSize:
+                                type: string
+                                description: Rossiiskii razmer tovara
+                              price:
+                                type: integer
+                                description: cena tovara
+                              skus:
+                                type: array
+                                items:
+                                  type: string
+                                description: Barkod. Esli ne ukazat, sgeneriruetsa
+                                  sistemoi avtomatiheski.
+                        characteristics:
+                          type: array
+                          description: Massiv harakteristik tovara
+                          items:
+                            type: object
+                            required:
+                              - id
+                              - value
+                            properties:
+                              id:
+                                type: integer
+                                description: Identifikator harakteritiki
+                              value:
+                                description: Znahenie harakteristiki. Tip znahenia
+                                  zavisit ot tipa harakteristiki
+            examples:
+              creatingOneCard:
+                $ref: '#/components/examples/creatingOneCard'
+              creatingMergedCards:
+                $ref: '#/components/examples/creatingMergedCards'
+              creatingGroupOfIndividualCards:
+                $ref: '#/components/examples/creatingGroupOfIndividualCards'
+      responses:
+        200:
+          description: Uspeh
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseCardCreate'
+              example:
+                data: null
+                error: false
+                errorText: ''
+                additionalErrors: {}
+        400:
+          description: ''
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/responseBodyContentError400-2'
+                  - $ref: '#/components/schemas/responseBodyContentError400-3'
+              examples:
+                InvalidRequestFormatContent:
+                  $ref: '#/components/examples/InvalidRequestFormatContent'
+                CardCreatedWithoutVendorCode:
+                  $ref: '#/components/examples/CardCreatedWithoutVendorCode'
+                CardsVendorCodeUsedInOtherCards:
+                  $ref: '#/components/examples/CardsVendorCodeUsedInOtherCards'
+                ThisCategoryDoesNotExist:
+                  $ref: '#/components/examples/ThisCategoryDoesNotExist'
+  /content/v2/cards/update:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      tags:
+        - Zagruzka
+      summary: Redaktirovanie KT
+      description: 'Obnovlaet kartohku tovara. Dannye dla obnovlenia mohno poluhit
+        s pomohu metoda [Spisok nomenklatur (NM)](./#tag/Prosmotr/paths/~1content~1v2~1get~1cards~1list/post)
+
+
+
+        Nelza redaktirovat ili udalit barkody, no mohno dobavit barkod k suhestvuuhemu.
+        Parametry `photos`, `video` i `tags` peredavat ne obazatelno, ih nelza
+        redaktirovat ili udalat v etom metode.
+
+
+
+        Esli otvet Uspehno (200), no kakie-to kartohki ne izmenilis, proverte ohibki
+        s pomohu metoda `Spisok nesozdannyh nomenklatur (NM) s ohibkami`.
+
+
+
+        V odnom zaprose mohno otredaktirovat maksimum 100 nomenklatur (`nmID`).
+
+        '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                required:
+                  - nmID
+                  - vendorCode
+                  - sizes
+                properties:
+                  nmID:
+                    type: integer
+                    description: Artikul WB
+                    required: true
+                  vendorCode:
+                    type: string
+                    description: Artikul prodavca
+                    required: true
+                  brand:
+                    type: string
+                    description: Brend
+                  title:
+                    type: string
+                    description: Naimenovanie tovara
+                  description:
+                    type: string
+                    description: Opisanie tovara
+                  dimensions:
+                    description: 'Gabarity upakovki tovara. Ukazyvat v santimetrah
+                      dla lubogo tovara.
+
+                      '
+                    type: object
+                    properties:
+                      length:
+                        type: integer
+                        description: Dlina
+                      width:
+                        type: integer
+                        description: hirina
+                      height:
+                        type: integer
+                        description: Vysota
+                  characteristics:
+                    description: harakteristiki tovara
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: ID harakteristiki
+                        value:
+                          description: Znahenie harakteristiki. Tip znahenia zavisit
+                            ot tipa harakteristiki.
+                  sizes:
+                    type: array
+                    required: true
+                    description: "Massiv razmerov artikula. <br> Dla bezrazmernogo\
+                      \ tovara vse ravno nuhno peredavat dannyi massiv bez parametrov\
+                      \ (wbSize i techSize), no s barkodom.                      \
+                      \    \n"
+                    items:
+                      type: object
+                      properties:
+                        chrtID:
+                          type: integer
+                          description: 'hislovoi identifikator razmera dla dannogo
+                            artikula Wildberries
+
+                            Obazatelen k zapolneniu dla suhestvuuhih razmerov.
+
+                            Dla dobavlaemyh razmerov ne ukazyvaetsa.
+
+                            '
+                        techSize:
+                          type: string
+                          description: Razmer tovara (XL, S, 45 i dr.)
+                        wbSize:
+                          type: string
+                          description: Rossiiskii razmer tovara
+                        skus:
+                          type: array
+                          items:
+                            type: string
+                          description: Barkod
+            example:
+              - nmID: 11111111
+                vendorCode: wbiz72wmro
+                brand: ''
+                title: Sviter henskii oversaiz s gorlom
+                description: '12345'
+                dimensions:
+                  length: 0
+                  width: 0
+                  height: 0
+                characteristics:
+                  - id: 14177450
+                    name: Sostav
+                    value:
+                      - hlopok 50% akril 50%
+                  - id: 50
+                    name: Dekorativnye elementy
+                    value:
+                      - svobodnyi kroi
+                sizes:
+                  - chrtID: 12345678
+                    techSize: ONE SIZE
+                    wbSize: 78-90
+                    skus:
+                      - '123487653460134'
+      responses:
+        200:
+          description: Kartohka obnovlena
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseCardCreate'
+              example:
+                data: null
+                error: false
+                errorText: ''
+                additionalErrors: {}
+        400:
+          description: Nevernaa forma zaprosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+  /content/v2/cards/upload/add:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      tags:
+        - Zagruzka
+      summary: Dobavlenie NM k KT
+      description: "Metod pozvolaet dobavit k kartohke tovara novuu nomenklaturu.\
+        \ <span class=\"newM\">new</span> <br> \nDobavlenie NM k KT proishodit asinhronno,\
+        \ posle otpravki zapros stanovitsa v ohered na obrabotku.<br> \n`Vahno!`\
+        \ Esli posle uspehnoi otpravki zaprosa nomenklatura ne sozdalas, to neobhodimo\
+        \ proverit razdel \"Spisok nesozdannyh NM s ohibkami\". <br> \nDla togo htoby\
+        \ ubrat NM iz ohibohnyh, neobhodimo povtorno sdelat zapros s ispravlennymi\
+        \ ohibkami.\n"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                imtID:
+                  type: integer
+                  description: imtID KT, k kotoroi dobavlaetsa NM
+                cardsToAdd:
+                  description: Struktura dobavlaemoi NM
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - vendorCode
+                    properties:
+                      brand:
+                        type: string
+                        description: Brend
+                      vendorCode:
+                        type: string
+                        description: Artikul prodavca
+                      title:
+                        type: string
+                        description: Naimenovanie tovara
+                      description:
+                        type: string
+                        description: Naimenovanie tovara
+                      dimensions:
+                        description: "Gabarity upakovki tovara. Ukazyvat v santimetrah\
+                          \ dla lubogo tovara. \n<br> \nEsli ne ukazat strukturu\
+                          \ dimensions v zaprose, to ona sgeneriruetsa sistemoi avtomatiheski\
+                          \ s nulevymi znaheniami dliny, hiriny, vysoty\n"
+                        type: object
+                        properties:
+                          length:
+                            type: integer
+                            description: Dlina
+                          width:
+                            type: integer
+                            description: hirina
+                          height:
+                            type: integer
+                            description: Vysota
+                      characteristics:
+                        description: harakteristiki tovara
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              description: ID harakteristiki
+                            value:
+                              description: Znahenie harakteristiki. Tip znahenia zavisit
+                                ot tipa harakteristiki
+                      sizes:
+                        type: array
+                        description: "Massiv s razmerami. <br> \nEsli dla razmernogo\
+                          \ tovara (obuv, odehda i dr.) ne ukazat etot massiv, to\
+                          \ sistemoi v kartohke on budet sgenerirovan avtomatiheski\
+                          \ s `techSize` = \"A\" i `wbSize` = \"1\" i barkodom.\n"
+                        items:
+                          type: object
+                          properties:
+                            techSize:
+                              type: string
+                              description: Razmer tovara (XL, 42 i dr.)
+                            wbSize:
+                              type: string
+                              description: Rossiiskii razmer tovara
+                            price:
+                              type: integer
+                              description: cena tovara
+                            skus:
+                              description: Barkod
+                              type: array
+                              items:
+                                type: string
+            example:
+              imtID: 987654321
+              cardsToAdd:
+                - vendorCode: myVariant1
+                  title: Naimenovanie tovara
+                  description: Opisanie tovara
+                  brand: Brend
+                  dimensions:
+                    length: 55
+                    width: 40
+                    height: 15
+                  characteristics:
+                    - id: 12
+                      value:
+                        - Russian flag
+                    - id: 25471
+                      value: 1300
+                    - id: 14177449
+                      value:
+                        - blue
+                  sizes:
+                    - skus:
+                        - '12345678'
+                - vendorCode: myVariant2
+                  title: Naimenovanie tovara
+                  description: Opisanie tovarov
+                  brand: Brend
+                  dimensions:
+                    length: 55
+                    width: 40
+                    height: 15
+                  characteristics:
+                    - id: 12
+                      value:
+                        - Russian flag
+                    - id: 25471
+                      value: 1300
+                    - id: 14177449
+                      value:
+                        - blue
+                  sizes:
+                    - skus:
+                        - '222222222222'
+      responses:
+        200:
+          description: Uspeh
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseCardCreate'
+              example:
+                data: null
+                error: false
+                errorText: ''
+                additionalErrors: {}
+        400:
+          description: ''
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/responseBodyContentError400-2'
+                  - $ref: '#/components/schemas/responseBodyContentError400-3'
+              examples:
+                InvalidRequestFormatContent:
+                  $ref: '#/components/examples/InvalidRequestFormatContent'
+                CardCreatedWithoutVendorCode:
+                  $ref: '#/components/examples/CardCreatedWithoutVendorCode'
+                CardsVendorCodeUsedInOtherCards:
+                  $ref: '#/components/examples/CardsVendorCodeUsedInOtherCards'
+                ThisCategoryDoesNotExist:
+                  $ref: '#/components/examples/ThisCategoryDoesNotExist'
+  /content/v2/cards/moveNm:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      tags:
+        - Zagruzka
+      summary: Obedinenie / Razedinenie NM
+      description: "Metod pozvolaet obedinat nomenklatury (`nmID`) pod odnim `imtID`\
+        \ i razedinat ih.<br>\n\nDla obedinenia NM neobhodimo otpravit zapros\
+        \ so spiskom NM s zapolnennym parametrom `targetIMT` v tele zaprosa. \nPri\
+        \ etom vse NM obedinatsa pod `imtID` ukazannom v `targetIMT`. <br>\n<br>\n\
+        htoby otsoedinit NM ot kartohki, neobhodimo peredat etu NM bez parametra\
+        \ `targetIMT` v tele zaprosa.<br>\nPri etom dla peredavaemoi NM sozdaetsa\
+        \ novyi `imtID`. <br>\nEsli v zaprose na <b>razedinenie</b> peredaetsa neskolko\
+        \ NM, to vse oni avtomatiheski <b>obedinatsa</b> pod <b>odnim</b> novym `imtID`.\
+        \ <br>\nhtoby prisvoit kahdoi NM unikalnyi `imtID` neobhodimo peredavat\
+        \ po odnoi NM za zapros.\nDla NM, ne uhastvuuhih v zaprose, nikakih izmenenii\
+        \ ne proishodit.<br>\n<br>\n`VAhNO:` Obedinit mohno tolko nomenklatury\
+        \ s odinakovymi predmetami.<br>\n`VAhNO:` V odnoi KT (pod odnim `imtID`) ne\
+        \ mohet byt bolhe 30 nomenklatur (`nmID`).\n"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/requestMoveNmsImtConn'
+                - $ref: '#/components/schemas/requestMoveNmsImtDisconn'
+      responses:
+        200:
+          description: Uspeh
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseCardCreate'
+              example:
+                data: null
+                error: false
+                errorText: ''
+                additionalErrors: {}
+        400:
+          description: Nekorretnyi format zaprosa
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/responseContentError1'
+                  - $ref: '#/components/schemas/responseCardCreate'
+                  - $ref: '#/components/schemas/responseIncorrectDate'
+              examples:
+                responseExceededLimit:
+                  $ref: '#/components/examples/responseExceededLimit'
+                responseCombining:
+                  $ref: '#/components/examples/responseCombining'
+                responseIncorrectRequestFormat:
+                  $ref: '#/components/examples/responseIncorrectRequestFormat'
+                responseNonExistentNmId:
+                  $ref: '#/components/examples/responseNonExistentNmId'
+                responseNonExistentImt:
+                  $ref: '#/components/examples/responseNonExistentImt'
+                responseCardCreate1:
+                  $ref: '#/components/examples/responseCardCreate1'
+                responseDuplicateRequests:
+                  $ref: '#/components/examples/responseDuplicateRequests'
+                responseAllCardsInSameGroup:
+                  $ref: '#/components/examples/responseAllCardsInSameGroup'
+                responseIncorrectBeginDate:
+                  $ref: '#/components/examples/responseIncorrectBeginDate'
+                responseIncorrectEndDate:
+                  $ref: '#/components/examples/responseIncorrectEndDate'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseCardCreate'
+        500:
+          description: Vnutrennaa ohibka servera
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseCardCreate'
+  /content/v2/barcodes:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      security:
+        - HeaderApiKey: []
+      summary: Generacia barkodov
+      description: Metod pozvolaet sgenerirovat massiv unikalnyh barkodov dla sozdania
+        razmera NM v KT.
+      tags:
+        - Zagruzka
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                count:
+                  description: Kol-vo barkodov kotorye nado sgenerirovat, maksimalnoe
+                    dostupnoe kolihestvo barkodov dla generacii - `5 000`
+                  type: integer
+                  example: 100
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    description: Massiv sgenerirovanyh barkodov
+                    type: array
+                    items:
+                      type: string
+                      example: '5032781145187'
+                  error:
+                    description: Flag ohibki
+                    type: boolean
+                    example: false
+                  errorText:
+                    description: Opisanie ohibki
+                    type: string
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    type: string
+                    example: ''
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+  /content/v2/get/cards/list:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Prosmotr
+      summary: Spisok nomenklatur (NM)
+      description: "Metod pozvolaet poluhit spisok sozdannyh NM s filtraciei po\
+        \ raznym parametram, paginaciei i sortirovkoi. \n<br> *Vahno*. Kartohki, nahodahiesa\
+        \ v korzine, v otvete metoda ne vydautsa. <br> Poluhit takie kartohki mohno\
+        \ tolko metodom \"Spisok NM, nahodahihsa v korzine\".<br> <br>Poradok raboty\
+        \ s `get/cards/list`: <br> htoby poluhit polnyi spisok nomenklatur, <b>esli\
+        \ ih > 1000</b>, neobhodimo vospolzovatsa paginaciei.\n  <ol>\n    <li>Cdelat\
+        \ pervyi zapros (vse ukazannye nihe parametry obazatelny): <br>\n      <pre\
+        \ style=\"background-color: rgb(38 50 56 / 5%); color: #e53935\">\n      \
+        \  {\n          \"settings\": {                      \n          \"cursor\"\
+        : {\n            \"limit\": 1000\n          },\n          \"filter\": {\n\
+        \            \"withPhoto\": -1\n            }\n          }\n        }</pre>\
+        \                               \n    </li>\n    <li>Proiti v konec poluhennogo\
+        \ spiska nomenklatur, skopirovat iz <code>cursor</code> dve stroki:\n   \
+        \   <ul>\n        <li><code>\"updatedAt\": \"***\"</code>,</li>\n        <li><code>\"\
+        nmID\": ***</code>,</li>\n      </ul>\n    <li>Vstavit skopirovannye stroki\
+        \ v <code>cursor</code> zaprosa, povtorit vyzov metoda. </li>\n    <li>Povtorat\
+        \ punkty <b>2</b> i <b>3</b>, poka <code>total</code> v otvete ne stanet menhe\
+        \ hem <code>limit</code> v zaprose.\n      <br>Eto budet oznahat, hto Vy\
+        \ poluhili vse kartohki.\n  </ol>\n  <br> Po helaniu mohno dobavit poisk\
+        \ i sortirovku. Sm opisanie v <b>Request Body schema</b>\n  <br> V <b>Request\
+        \ samples</b> predstavlen primer zaprosa so vsemi vozmohnymi parametrami.\
+        \ \n"
+      parameters:
+        - name: locale
+          in: query
+          schema:
+            type: string
+            example: ru
+          description: "azyk dla perevoda polei otveta `name`, `value` i `object`:\
+            \  `ru` - russkii, `en` - angliiskii, `zh` - kitaiskii.\n\nNe ispolzuetsa\
+            \ v pesohnice.  \n"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                settings:
+                  type: object
+                  description: Nastroiki
+                  properties:
+                    sort:
+                      description: Parametr sortirovki
+                      type: object
+                      properties:
+                        ascending:
+                          type: boolean
+                          description: Sortirovat po polu **updatedAt** (`false`
+                            - po ubyvaniu, `true` - po vozvrastaniu)
+                    filter:
+                      description: Parametry filtracii
+                      type: object
+                      properties:
+                        withPhoto:
+                          type: integer
+                          description: "Filtr po foto:\n \n  * `0` — tolko kartohki\
+                            \ bez foto\n  * `1` — tolko kartohki s foto\n  * `-1` —\
+                            \ vse kartohki tovara\n\nNe ispolzuetsa v pesohnice.\n"
+                        textSearch:
+                          type: string
+                          description: Poisk po artikulu prodavca, artikulu WB, barkodu
+                        tagIDs:
+                          type: array
+                          description: Poisk po ID tegov. Ne ispolzuetsa v pesohnice
+                          items:
+                            type: integer
+                        allowedCategoriesOnly:
+                          description: Filtr po kategorii. `true` - tolko razrehennye,
+                            `false` - vse. Ne ispolzuetsa v pesohnice.
+                          type: boolean
+                        objectIDs:
+                          type: array
+                          description: Poisk po id predmetov
+                          items:
+                            type: integer
+                        brands:
+                          type: array
+                          description: Poisk po brendam
+                          items:
+                            type: string
+                        imtID:
+                          description: Poisk po identifikatoru KT
+                          type: integer
+                    cursor:
+                      description: 'Kursor
+
+                        '
+                      type: object
+                      properties:
+                        limit:
+                          type: integer
+                          description: Skolko KT vydat v otvete.
+            example:
+              settings:
+                sort:
+                  ascending: false
+                filter:
+                  textSearch: ''
+                  allowedCategoriesOnly: true
+                  tagIDs: []
+                  objectIDs: []
+                  brands: []
+                  imtID: 0
+                  withPhoto: -1
+                cursor:
+                  updatedAt: ''
+                  nmID: 0
+                  limit: 11
+      responses:
+        200:
+          description: Otvet
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cards:
+                    type: array
+                    description: Spisok KT
+                    items:
+                      type: object
+                      properties:
+                        nmID:
+                          type: integer
+                          description: Artikul WB
+                        imtID:
+                          type: integer
+                          description: Identifikator KT. <br> Artikuly WB iz odnoi
+                            KT budut imet odinakovyi imtID.
+                        subjectID:
+                          type: integer
+                          description: Identifikator predmeta
+                        vendorCode:
+                          type: string
+                          description: Artikul prodavca
+                        subjectName:
+                          type: string
+                          description: Nazvanie predmeta
+                        brand:
+                          type: string
+                          description: Brend
+                        title:
+                          type: string
+                          description: Naimenovanie tovara
+                        photos:
+                          type: array
+                          description: Massiv fotografii (pri nalihii)
+                          items:
+                            type: object
+                            properties:
+                              516x288:
+                                description: Ne ispolzuetsa
+                                type: string
+                              big:
+                                description: URL na foto v razrehenii 1200h900
+                                type: string
+                              small:
+                                description: Ne ispolzuetsa
+                                type: string
+                        video:
+                          type: string
+                          description: URL video (pri nalihii)
+                        dimensions:
+                          description: Gabarity upakovki tovara, sm
+                          type: object
+                          properties:
+                            length:
+                              type: integer
+                              description: Dlina
+                            width:
+                              type: integer
+                              description: hirina
+                            height:
+                              type: integer
+                              description: Vysota
+                        characteristics:
+                          type: array
+                          description: harakteristiki
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                description: Identifikator harakteristiki
+                              name:
+                                type: string
+                                description: Nazvanie harakteristiki
+                              value:
+                                description: Znahenie harakteristiki. Tip znahenia
+                                  zavisit ot tipa harakteristiki
+                        sizes:
+                          type: array
+                          description: Razmery tovara
+                          items:
+                            type: object
+                            properties:
+                              chrtID:
+                                type: integer
+                                description: hislovoi identifikator razmera dla dannogo
+                                  artikula WB
+                              techSize:
+                                type: string
+                                description: Razmer tovara (A, XXL, 57 i dr.)
+                              wbSize:
+                                type: string
+                                description: Rossiiskii razmer tovara
+                              skus:
+                                type: array
+                                description: Barkod tovara
+                                items:
+                                  type: string
+                                  example: 12345Ejf5
+                        tags:
+                          description: Tegi
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                description: Identifikator tega
+                              name:
+                                type: string
+                                description: Nazvanie tega
+                              color:
+                                type: string
+                                description: "cvet tega. <dl> <dt>Dostupnye cveta:</dt>\
+                                  \ <dd><code>D1CFD7</code> - seryi</dd> <dd><code>FEE0E0</code>\
+                                  \ - krasnyi</dd> <dd><code>ECDAFF</code> - fioletovyi</dd>\
+                                  \ <dd><code>E4EAFF</code> - sinii</dd> <dd><code>DEF1DD</code>\
+                                  \ - zelennyi</dd> <dd><code>FFECC7</code> - heltyi</dd>\
+                                  \ </dl>        \n"
+                        createdAt:
+                          type: string
+                          description: Data sozdania
+                        updatedAt:
+                          type: string
+                          description: Data izmenenia
+                  cursor:
+                    type: object
+                    description: Paginator
+                    properties:
+                      updatedAt:
+                        type: string
+                        description: Data s kotoroi nado zaprahivat sleduuhii spisok
+                          KT
+                      nmID:
+                        type: integer
+                        description: Nomer Artikula WB s kotoroi nado zaprahivta
+                          sleduuhii spisok KT
+                      total:
+                        type: integer
+                        description: Kol-vo vozvrahennyh KT
+              example:
+                cards:
+                  - nmID: 12345678
+                    imtID: 123654789
+                    subjectID: 7771
+                    subjectName: AKF sistemy
+                    vendorCode: wb7f6mumjr1
+                    brand: ''
+                    title: ''
+                    description: ''
+                    dimensions:
+                      length: 0
+                      width: 0
+                      height: 0
+                    characteristics:
+                      - id: 14177449
+                        name: cvet
+                        value:
+                          - krasno-sirenevyi
+                    sizes:
+                      - chrtID: 316399238
+                        techSize: '0'
+                        skus:
+                          - '987456321654'
+                    tags:
+                      - id: 592569
+                        name: Popularnyi
+                        color: D1CFD7
+                    createdAt: '2023-12-06T11:17:00.96577Z'
+                    updatedAt: '2023-12-06T11:17:00.96577Z'
+                cursor:
+                  updatedAt: '2023-12-06T11:17:00.96577Z'
+                  nmID: 123654123
+                  total: 1
+        400:
+          description: Nevernaa forma zaprosa.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+  /content/v2/cards/error/list:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Spisok nesozdannyh nomenklatur (NM) s ohibkami
+      description: 'Metod pozvolaet poluhit spisok NM i spisok ohibok kotorye proizohli
+        vo vrema sozdania KT. <br>`VAhNO`: Dla togo htoby ubrat NM iz ohibohnyh,
+        nado povtorno sdelat zapros s ispravlennymi ohibkami na sozdanie KT.
+
+        '
+      tags:
+        - Prosmotr
+      parameters:
+        - name: locale
+          in: query
+          schema:
+            type: string
+            example: en
+          description: '
+
+            Parametr vybora azyka znahenii polei otveta (dla kotoroyh predusmotrena
+            multiazyhnost). <span class="new">new</span>
+
+
+            Ne ispolzuetsa v pesohnice.
+
+            '
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        object:
+                          description: Kategoria dla kotoryi sozdavalos KT s dannoi
+                            NM
+                          type: string
+                          example: Bluzki
+                        vendorCode:
+                          description: Artikul prodavca
+                          type: string
+                          example: '6000000001'
+                        updateAt:
+                          description: Data i vrema zaprosa na sozdanie KT s dannym
+                            NM
+                          type: string
+                          example: '2022-06-15T14:37:13Z'
+                        errors:
+                          description: Spisok ohibok iz-za kotoryh ne obrabotalsa
+                            zapros na sozdanie KT s dannym NM
+                          type: array
+                          items:
+                            type: string
+                            example: Pola Ros. razmer, Razmer obazatelny dla zapolnenia
+                        objectID:
+                          description: Identifikator predmeta
+                          type: integer
+                          example: 41
+                  error:
+                    description: Flag ohibki.
+                    type: boolean
+                    example: false
+                  errorText:
+                    description: Opisanie ohibki.
+                    type: string
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki.
+                    type: string
+                    example: ''
+        400:
+          description: Nevernaa forma zaprosa.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+  /content/v2/cards/limits:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Limity po KT
+      description: 'Metod pozvolaet poluhit otdelno besplatnye i platnye limity
+        prodavca na sozdanie kartohek tovarov. <br> Formula dla poluhenia kolihestva
+        kartohek, kotorye mohno sozdat: (`freeLimits` + `paidLimits`) - Kolihestvo
+        sozdannyh kartohek.<br> Sozdannymi shitautsa vse kartohki, kotorye mohno poluhit
+        metodami "Spisok NM" i "Spisok NM, nahodahihsa v korzine".
+
+        '
+      tags:
+        - Prosmotr
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      freeLimits:
+                        description: Kolihestvo besplatnyh limitov
+                        type: integer
+                      paidLimits:
+                        description: Kolihestvo oplahennyh limitov
+                        type: integer
+                  error:
+                    description: Flag ohibki
+                    type: boolean
+                  errorText:
+                    description: Opisanie ohibki
+                    type: string
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    type: string
+                    nullable: true
+              example:
+                data:
+                  freeLimits: 1500
+                  paidLimits: 10
+                error: false
+                errorText: ''
+                additionalErrors: null
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+  /content/v2/object/parent/all:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Roditelskie kategorii tovarov
+      description: S pomohu dannogo metoda mohno poluhit spisok vseh roditelskih
+        kategorii tovarov.
+      tags:
+        - Konfigurator
+      parameters:
+        - name: locale
+          in: query
+          description: Parametr vybora azyka (ru, en, zh) znahenii pola name. Ne ispolzuetsa
+            v pesohnice
+          schema:
+            type: string
+            example: en
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          description: Nazvanie kategorii
+                          type: string
+                          example: Elektronika
+                        id:
+                          description: Identifikator roditelskoi kategorii
+                          type: integer
+                          example: 479
+                        isVisible:
+                          description: Viden na saite
+                          type: boolean
+                          example: true
+                  error:
+                    description: Flag nalihia ohibki
+                    type: boolean
+                    example: false
+                  errorText:
+                    description: Opisanie ohibki
+                    type: string
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    type: string
+                    example: ''
+        400:
+          description: Nevernaa forma zaprosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+  /content/v2/object/all:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Spisok predmetov (podkategorii)
+      description: S pomohu dannogo metoda mohno poluhit spisok vseh dostupnyh predmetov,
+        roditelskih kategorii predmetov, i ih identifikatorov.  <span class="newM">new</span>
+      tags:
+        - Konfigurator
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+            example: Noski
+          description: Poisk po naimenovaniu predmeta (Noski), poisk rabotaet po podstroke,
+            iskat mohno na lubom iz podderhivaemyh azykov.
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            example: 1000
+          description: Kolihestvo podkategorii (predmetov), maksimum 1 000
+        - name: locale
+          in: query
+          schema:
+            type: string
+            example: en
+          description: azyk polei otveta (ru, en, zh). Ne ispolzuetsa v pesohnice
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            example: 5000
+          description: Nomer pozicii, s kotoroi neobhodimo poluhit otvet
+        - name: parentID
+          in: query
+          schema:
+            type: integer
+            example: 1000
+          description: Identifikator roditelskoi kategorii predmeta
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Podkategorii (predmety)
+                    items:
+                      type: object
+                      properties:
+                        subjectID:
+                          type: integer
+                          description: Identifikator predmeta
+                        parentID:
+                          type: integer
+                          description: Identifikator roditelskoi kategorii
+                        subjectName:
+                          type: string
+                          description: Nazvanie predmeta
+                        parentName:
+                          type: string
+                          description: Nazvanie roditelskoi kategorii
+                        isVisible:
+                          type: boolean
+                          description: Vidimost na saite
+                  error:
+                    type: boolean
+                    description: Flag nalihia ohibki
+                  errorText:
+                    type: string
+                    description: Tekst ohibki
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    type: string
+              example:
+                data:
+                  - subjectID: 2560
+                    parentID: 479
+                    subjectName: 3D ohki
+                    parentName: Elektronika
+                    isVisible: true
+                  - subjectID: 1152
+                    parentID: 858
+                    subjectName: 3D-printery
+                    parentName: Orgtehnika
+                    isVisible: true
+                error: false
+                errorText: ''
+                additionalErrors: null
+  /content/v2/object/charcs/{subjectId}:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: harakteristiki predmeta (podkategorii)
+      description: Poluhenie spiska harakteristik predmeta po ego ID. <span class="newM">new</span>
+      tags:
+        - Konfigurator
+      parameters:
+        - name: subjectId
+          in: path
+          required: true
+          description: Identifikator predmeta
+          schema:
+            type: integer
+            example: 105
+        - name: locale
+          in: query
+          description: Parametr vybora azyka (ru, en, zh) znahenii polei `subjectName`,
+            `name`. Ne ispolzuetsa v pesohnice
+          schema:
+            type: string
+            example: en
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: Dannye
+                    items:
+                      type: object
+                      properties:
+                        charcID:
+                          type: integer
+                          description: Identifikator harakteristiki
+                        subjectName:
+                          type: string
+                          description: Nazvanie predmeta
+                        subjectID:
+                          type: integer
+                          description: Identifikator predmeta
+                        name:
+                          type: string
+                          description: Nazvanie harakteristiki
+                        required:
+                          type: boolean
+                          description: true - harakteristiku neobhodimo obazatelno
+                            ukazat v KT. false - harakteristiku ne obazatelno ukazyvat
+                        unitName:
+                          type: string
+                          description: Edinica izmerenia
+                        maxCount:
+                          type: integer
+                          description: 'Maksimalnoe kol-vo znahenii, kotoroe mohno
+                            prisvoit dannoi harakteristike. Esli 0, to net ogranihenia.
+
+                            '
+                        popular:
+                          description: harakteristika popularna u polzovatelei (true
+                            - da, false - net)
+                          type: boolean
+                        charcType:
+                          type: integer
+                          description: Tip harakteristiki (1 i 0 - stroka ili massiv
+                            strok; 4 - hislo ili massiv hisel)
+                    error:
+                      type: boolean
+                      description: Flag nalihia ohibki
+                    errorText:
+                      type: string
+                      description: Tekst ohibki
+                    additionalErrors:
+                      type: string
+                      description: Dopolnitelnye ohibki
+                example:
+                  data:
+                    - charcID: 54337
+                      subjectName: Krossovki
+                      subjectID: 105
+                      name: Razmer
+                      required: false
+                      unitName: sm
+                      maxCount: 0
+                      popular: false
+                      charcType: 4
+                  error: false
+                  errorText: ''
+                  additionalErrors: null
+        400:
+          description: Nevernaa forma zaprosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+  /content/v2/directory/colors:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: cvet
+      description: Poluhenie znahenia harakteristiki cvet.
+      tags:
+        - Konfigurator
+      parameters:
+        - name: locale
+          in: query
+          description: Parametr vybora azyka (ru, en, zh) znahenii polei `subjectName`,
+            `name`. Ne ispolzuetsa v pesohnice
+          schema:
+            type: string
+            example: en
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          description: Naimenovanie cveta
+                          type: string
+                          example: persikovyi kraiola
+                        parentName:
+                          description: Naimenovanie roditelskogo cveta
+                          type: string
+                          example: oranhevyi
+                  error:
+                    description: Flag ohibki
+                    type: boolean
+                    example: false
+                  errorText:
+                    description: Opisanie ohibki
+                    type: string
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    type: string
+                    example: ''
+        400:
+          description: Nevernaa forma zaprosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+  /content/v2/directory/kinds:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Pol
+      description: Poluhenie znahenia harakteristiki pol.
+      tags:
+        - Konfigurator
+      parameters:
+        - name: locale
+          in: query
+          description: Parametr vybora azyka (ru, en, zh) znahenii polei `subjectName`,
+            `name`. Ne ispolzuetsa v pesohnice
+          schema:
+            type: string
+            example: en
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    description: Massiv znahenii dla har-ki Pol
+                    type: array
+                    items:
+                      type: string
+                      example: Muhskoi
+                  error:
+                    description: Flag ohibki
+                    type: boolean
+                    example: false
+                  errorText:
+                    description: Opisanie ohibki
+                    type: string
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    type: string
+                    example: ''
+        400:
+          description: Nevernaa forma zaprosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+  /content/v2/directory/countries:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Strana Proizvodstva
+      description: Poluhenie znahenia harakteristiki Strana Proizvodstva.
+      tags:
+        - Konfigurator
+      parameters:
+        - name: locale
+          in: query
+          description: Parametr vybora azyka (ru, en, zh) znahenii polei `subjectName`,
+            `name`. Ne ispolzuetsa v pesohnice
+          schema:
+            type: string
+            example: en
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          description: Znahenie harakteristiki Strany
+                          type: string
+                          example: Afganistan
+                        fullName:
+                          description: Polnoe nazvanie strany
+                          type: string
+                          example: Islamskii Emirat Afganistan
+                  error:
+                    description: Flag ohibki
+                    type: boolean
+                    example: false
+                  errorText:
+                    description: Opisanie ohibki
+                    type: string
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    type: string
+                    example: ''
+        400:
+          description: Nevernaa forma zaprosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+  /content/v2/directory/seasons:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Sezon
+      description: Poluhenie znahenia harakteristiki Sezon.
+      tags:
+        - Konfigurator
+      parameters:
+        - name: locale
+          in: query
+          description: Parametr vybora azyka (ru, en, zh) znahenii polei `subjectName`,
+            `name`. Ne ispolzuetsa v pesohnice
+          schema:
+            type: string
+            example: en
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    description: Massiv znahenii dla har-ki Sezon
+                    type: array
+                    items:
+                      type: string
+                      example: demisezon
+                  error:
+                    description: Flag ohibki
+                    type: boolean
+                    example: false
+                  errorText:
+                    description: Opisanie ohibki
+                    type: string
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    type: string
+                    example: ''
+        400:
+          description: Nevernaa forma zaprosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+  /content/v2/directory/tnved:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: TNVED kod
+      description: S pomohu dannogo metoda mohno poluhit spisok TNVED kodov po ID
+        predmeta i filtru po tnved kodu. <span class="newM">new</span>
+      tags:
+        - Konfigurator
+      parameters:
+        - name: subjectID
+          in: query
+          required: true
+          description: Identifikator predmeta
+          schema:
+            type: integer
+            example: 105
+        - name: search
+          in: query
+          description: Poisk po TNVED-kodu. Rabotaet tolko v pare s subjectID
+          schema:
+            type: integer
+            example: 6106903000
+        - name: locale
+          in: query
+          description: Parametr vybora azyka (ru, en, zh) znahenii polei `subjectName`,
+            `name`. Ne ispolzuetsa v pesohnice
+          schema:
+            type: string
+            example: en
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    description: Dannye
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tnved:
+                          type: string
+                          description: TNVED-kod
+                        isKiz:
+                          type: boolean
+                          description: true - KIZ trebuetsa, false - KIZ ne trebuetsa
+                  error:
+                    type: boolean
+                    description: Flag nalihia ohibki
+                  errorText:
+                    type: string
+                    description: Tekst ohibki
+                  additionalErrors:
+                    type: string
+                    description: Dopolnitelnye ohibki
+              example:
+                data:
+                  - tnved: '6106903000'
+                    isKiz: true
+                error: false
+                errorText: ''
+                additionalErrors: null
+        400:
+          description: Nevernaa forma zaprosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+  /content/v2/directory/vat:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Stavka NDS
+      description: S pomohu dannogo metoda mohno poluhit spisok znahenii dla harakteristiki
+        Stavka NDS. <span class="newM">new</span>
+      tags:
+        - Konfigurator
+      parameters:
+        - name: locale
+          in: query
+          required: true
+          description: azyk znahenia elementov `data` (`ru`, `en`, `zh`). Ne ispolzuetsa
+            v pesohnice
+          schema:
+            type: string
+            example: ru
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  error:
+                    type: boolean
+                    description: Flag nalihia ohibki
+                  errorText:
+                    type: string
+                    description: Tekst ohibki
+                  additionalErrors:
+                    type: string
+                    description: Dopolnitelnye ohibki
+              example:
+                data:
+                  - '0'
+                  - '10'
+                  - '20'
+                  - Bez NDS
+                  - '13'
+                error: false
+                errorText: ''
+                additionalErrors: null
+        400:
+          description: Nevernaa forma zaprosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+  /content/v3/media/save:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      security:
+        - HeaderApiKey: []
+      summary: Izmenit mediafaily
+      description: "Izmenaet nabor mediafailov dla tovara (nomenklatury).\n\n**Vnimanie**.\
+        \ Novye mediafaily (`data`) polnostu zamenaut starye (`mediaFiles`). htoby\
+        \ dobavit novye mediafaily, ukahite ssylki ne tolko na nih, no i na starye\
+        \ faily. \n\n\nTrebovania k izobraheniam:\n\n\n  * maksimum izobrahenii dla\
+        \ odnogo tovara (nomenklatury) — 30;\n  * minimalnoe razrehenie – 700 × 900\
+        \ pikselei;\n  * minimalnoe kahestvo — 65%;\n  * formaty — JPG, PNG, BMP,\
+        \ GIF, WebP.\n\n\nTrebovania k video:\n\n\n  * maksimum 1 video dla odnogo\
+        \ tovara (nomenklatury).\n  * maksimalnyi razmer — 50 Mb;\n  * formaty —\
+        \ MOV, MP4.\n\n\nEsli hota by odno izobrahenie v zaprose ne sootvetstvuet\
+        \ trebovaniam, to dahe pri uspehnom otvete (200) ni odno izobrahenie ne zagruzitsa\n"
+      tags:
+        - Mediafaily
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nmID:
+                  description: Artikul Wildberries
+                  type: string
+                  example: '213864079'
+                data:
+                  description: Ssylki na izobrahenia v tom poradke, v kotorom oni
+                    budut na kartohke tovara
+                  type: array
+                  items:
+                    type: string
+                    example: https://basket-stage-02.wb.ru/vol669/part66964/66964260/images/big/2.jpg
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    nullable: true
+                    example: null
+                  error:
+                    description: Flag ohibki
+                    type: boolean
+                    example: false
+                  errorText:
+                    description: Opisanie ohibki
+                    type: string
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    type: string
+                    example: ''
+        400:
+          description: Nevernaa forma zaprosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError400'
+        401:
+          description: Polzovatel ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+  /content/v3/media/file:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      security:
+        - HeaderApiKey: []
+      summary: Dobavit mediafaily
+      description: "Dobavlaet odin mediafail dla tovara (nomenklatury).\n\nTrebovania\
+        \ k izobraheniam:\n\n  * maksimum izobrahenii dla odnogo tovara (nomenklatury) —\
+        \ 30;\n  * minimalnoe razrehenie – 700 × 900 pikselei;\n  * minimalnoe kahestvo —\
+        \ 65%;\n  * formaty — JPG, PNG, BMP, GIF, WebP.\n\nTrebovania k video:\n\n\
+        \  * maksimum 1 video dla odnogo tovara (nomenklatury);\n  * maksimalnyi\
+        \ razmer — 50 Mb;\n  * formaty — MOV, MP4.\n"
+      tags:
+        - Mediafaily
+      parameters:
+        - name: X-Nm-Id
+          in: header
+          description: Artikul Wildberries
+          schema:
+            type: string
+            example: '213864079'
+          required: true
+        - name: X-Photo-Number
+          in: header
+          description: 'Nomer mediafaila na zagruzku, nahinaetsa s `1`. Pri zagruzke
+            video vsegda ukazyvaite `1`.
+
+
+            htoby dobavit izobrahenie k uhe zagruhennym, nomer mediafaila dolhen
+            byt bolhe kolihestva uhe zagruhennyh mediafailov.
+
+            '
+          schema:
+            type: integer
+            example: 2
+          required: true
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                uploadfile:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    nullable: true
+                    example: null
+                  error:
+                    description: Flag ohibki
+                    type: boolean
+                    example: false
+                  errorText:
+                    description: Opisanie ohibki
+                    type: string
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    type: string
+                    example: ''
+        400:
+          description: Nevernaa forma zaprosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+  /content/v2/media/save:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      deprecated: true
+      security:
+        - HeaderApiKey: []
+      summary: Izmenenie media kontenta KT
+      description: 'Metod pozvolaet izmenit poradok izobrahenii ili udalit mediafaily
+        s NM v KT, a takhe zagruzit izobrahenia v NM so storonnih resursov po URL.
+        <br>Tekuhie izobrahenia zamenautsa na peredannye v massive data. <br> <br>Trebovania
+        k mediafailam: <br>`Foto`: minimalnoe razrehenie – 700x900. <br>Maksimalno
+        dopustimoe kolihestvo foto v KT 30.  <br>Dopustimye formaty izobrahenii -
+        jpg i png. <br>Minimalnyi uroven kahestva izobrahenia - 65%.  <br> <br>Esli
+        hota by odno izobrahenie v zaprose ne sootvetstvuet trebovaniam k mediafailam,
+        to dahe pri kode otveta 200 ni odno izobrahenie ne zagruzitsa v KT.<br>  <br>`VAhNO!`
+        Vse, hto peredaetsa v massive `data` polnostu zamenaet soboi soderhimoe massiva
+        `mediaFiles` v KT. <br>Esli Vy dobavlaete foto k uhe imeuhimsa v KT, to vmeste
+        s novymi peredaite v zaprose vse ssylki na foto i video, kotorye uhe soderhatsa
+        v KT. V protivnom sluhae v kartohke okahutsa tolko peredavaemye foto.
+
+        '
+      tags:
+        - Mediafaily
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                vendorCode:
+                  description: Artikul prodavca
+                  type: string
+                  example: '6000000001'
+                data:
+                  description: Ssylki na izobrahenia v tom poradke, v kotorom my hotim
+                    ih uvidet v kartohke tovara.
+                  type: array
+                  items:
+                    type: string
+                    example: https://basket-stage-02.wb.ru/vol669/part66964/66964260/images/big/2.jpg
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    nullable: true
+                    example: null
+                  error:
+                    description: Flag ohibki
+                    type: boolean
+                    example: false
+                  errorText:
+                    description: Opisanie ohibki
+                    type: string
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    type: string
+                    example: ''
+        400:
+          description: Nevernaa forma zaprosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+  /content/v2/media/file:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      deprecated: true
+      security:
+        - HeaderApiKey: []
+      summary: Dobavlenie media kontenta v KT
+      description: 'Metod pozvolaet zagruzit i dobavit odin mediafail za zapros,
+        k NM v KT.
+
+        <br>Trebovania k mediafailam: <br>`Foto`: minimalnoe razrehenie – 700x900.
+        <br>Maksimalno dopustimoe kolihestvo foto v KT 30. <br>Dopustimye formaty
+        izobrahenii - jpg i png. <br>Minimalnyi uroven kahestva izobrahenia - 65%.   <br>`Video`:
+        maksimalnyi razmer 50 mb. Formaty MOV, MP4. <br>Maksimalno dopustimoe kolihestvo
+        video v KT 1.
+
+        '
+      tags:
+        - Mediafaily
+      parameters:
+        - name: X-Vendor-Code
+          in: header
+          description: Artikul prodavca
+          schema:
+            type: string
+            example: '6000000001'
+          required: true
+        - name: X-Photo-Number
+          in: header
+          description: 'Nomer mediafaila na zagruzku. <b>Nahinat s 1</b>.<br>Pri
+            zagruzke video vsegda ukazyvat znahenie 1. <br>htoby dobavit foto k
+            uhe zagruhennym v NM, nomer mediafaila dolhen byt bolhe kol-va zagruhennyh
+            v NM mediafailov.
+
+            '
+          schema:
+            type: integer
+            example: 2
+          required: true
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                uploadfile:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    nullable: true
+                    example: null
+                  error:
+                    description: Flag ohibki
+                    type: boolean
+                    example: false
+                  errorText:
+                    description: Opisanie ohibki
+                    type: string
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    type: string
+                    example: ''
+        400:
+          description: Nevernaa forma zaprosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+  /content/v2/tags:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Spisok tegov
+      description: Metod pozvolaet poluhit spisok suhestvuuhih tegov prodavca.
+      tags:
+        - Tegi
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    properties:
+                      id:
+                        description: hislovoi identifikator tega
+                        type: integer
+                      color:
+                        description: cvet tega
+                        type: string
+                      name:
+                        description: Ima tega
+                        type: string
+                  error:
+                    description: Flag ohibki
+                    type: boolean
+                    example: false
+                  errorText:
+                    description: Opisanie ohibki
+                    type: string
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    type: string
+                    example: ''
+              example:
+                data:
+                  - id: 1
+                    color: D1CFD7
+                    name: Sale
+                error: false
+                errorText: ''
+                additionalErrors: ''
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+  /content/v2/tag:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      security:
+        - HeaderApiKey: []
+      summary: Sozdanie tega
+      description: 'Metod pozvolaet sozdat teg.<br> Zavesti mohno 15 tegov.<br> Maksimalnaa
+        dlina tega 15 simvolov.
+
+        '
+      tags:
+        - Tegi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                color:
+                  description: 'cvet tega. <dl> <dt>Dostupnye cveta:</dt> <dd><code>D1CFD7</code>
+                    - seryi</dd> <dd><code>FEE0E0</code> - krasnyi</dd> <dd><code>ECDAFF</code>
+                    - fioletovyi</dd> <dd><code>E4EAFF</code> - sinii</dd> <dd><code>DEF1DD</code>
+                    - zelennyi</dd> <dd><code>FFECC7</code> - heltyi</dd> </dl>
+
+                    '
+                  type: string
+                  example: D1CFD7
+                name:
+                  description: Ima tega
+                  type: string
+                  example: Sale
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseContentError6'
+              examples:
+                responseOK200:
+                  $ref: '#/components/examples/responseOK200'
+        400:
+          description: Nevernaa forma zaprosa
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/responseBodyContentError400'
+                  - $ref: '#/components/schemas/responseContentError4'
+                  - $ref: '#/components/schemas/responseContentError6'
+              examples:
+                responseBodyContentError400:
+                  $ref: '#/components/examples/responseBodyContentError400'
+                responseBody400LenName:
+                  $ref: '#/components/examples/responseBody400LenName'
+                responseBodyLimitTag:
+                  $ref: '#/components/examples/responseBodyLimitTag'
+                responseBodyNameNotExist:
+                  $ref: '#/components/examples/responseBodyNameNotExist'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+  /content/v2/tag/{id}:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    patch:
+      security:
+        - HeaderApiKey: []
+      summary: Izmenenie tega
+      description: Metod pozvolaet izmenat informaciu o tege (ima i cvet).
+      tags:
+        - Tegi
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+            example: 1
+          description: hislovoi identifikator tega
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                color:
+                  description: cvet tega
+                  type: string
+                  example: D1CFD7
+                name:
+                  description: Ima tega
+                  type: string
+                  example: Sale
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/responseContentError6'
+                  - $ref: '#/components/schemas/responseContentError4'
+              examples:
+                responseOK200:
+                  $ref: '#/components/examples/responseOK200'
+                responseNotFound200:
+                  $ref: '#/components/examples/responseNotFound200'
+        400:
+          description: Nevernaa forma zaprosa
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/responseBodyContentError400'
+                  - $ref: '#/components/schemas/responseContentError4'
+              examples:
+                responseBodyContentError400:
+                  $ref: '#/components/examples/responseBodyContentError400'
+                responseBody400LenName:
+                  $ref: '#/components/examples/responseBody400LenName'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+    delete:
+      security:
+        - HeaderApiKey: []
+      summary: Udalenie tega
+      description: Metod pozvolaet udalit teg.
+      tags:
+        - Tegi
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+            example: 1
+          description: hislovoi identifikator tega
+          required: true
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/responseContentError6'
+                  - $ref: '#/components/schemas/responseContentError5'
+              examples:
+                responseOK200:
+                  $ref: '#/components/examples/responseOK200'
+                responseNotFound200Del:
+                  $ref: '#/components/examples/responseNotFound200Del'
+        400:
+          description: Nevernaa forma zaprosa
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/responseBodyContentError400'
+                  - $ref: '#/components/schemas/responseContentError5'
+              examples:
+                responseBodyContentError400:
+                  $ref: '#/components/examples/responseBodyContentError400'
+                responseBodyTagNotExist:
+                  $ref: '#/components/examples/responseBodyTagNotExist'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+  /content/v2/tag/nomenclature/link:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      security:
+        - HeaderApiKey: []
+      summary: Upravlenie tegami v KT
+      description: 'Metod pozvolaet dobavit tegi k KT i snat ih s KT.<br> Pri snatii
+        tega s KT sam teg ne udalaetsa.<br> K kartohke mohno dobavit 15 tegov.
+
+        '
+      tags:
+        - Tegi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nmID:
+                  description: Artikul WB
+                  type: integer
+                tagsIDs:
+                  description: 'Massiv hislovyh identifikatorov tegov.<br>   hto by
+                    snat tegi s KT, neobhodimo peredat pustoi massiv.<br> htoby
+                    dobavit tegi k uhe imeuhimsa v KT, neobhodimo v zaprose peredat
+                    novye tegi i tegi, kotorye uhe est v KT.
+
+                    '
+                  type: array
+                  items:
+                    type: integer
+                    description: hislovoi identifikator tega.
+            example:
+              nmID: 179891389
+              tagsIDs:
+                - 123456
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseContentError6'
+              examples:
+                responseOK200:
+                  $ref: '#/components/examples/responseOK200'
+        400:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseContentError4'
+              examples:
+                IncorrectRequest4:
+                  $ref: '#/components/examples/IncorrectRequest4'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+        500:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseContentError6'
+              examples:
+                responseBodyError500:
+                  $ref: '#/components/examples/responseBodyError500'
+  /content/v2/cards/delete/trash:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      security:
+        - HeaderApiKey: []
+      summary: Perenos NM v korzinu
+      description: 'Metod pozvolaet perenesti NM v korzinu. Perenos kartohki v korzinu
+        ne avlaetsa udaleniem kartohki. <span class="newM">new</span><br> <code>VAhNO</code>:
+        Pri perenose NM v korzinu, dannaa NM vyhodit iz KT, to est ei prisvaivaetsa
+        novyi <code>imtID</code>.<br> Kartohka tovara udalaetsa avtomatiheski, esli
+        lehit v korzine bolhe 30 dnei.<br> Korzina zahihaetsa ot kartohek, lehahih
+        v nei bolee 30 dnei, kahduu noh po Moskovskomu vremeni.
+
+        '
+      tags:
+        - Korzina
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  nmIDs:
+                    description: Artikul WB (max. 1000)
+                    type: array
+                    items:
+                      type: integer
+            example:
+              nmIDs:
+                - 987654321
+                - 123456789
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    nullable: true
+                  error:
+                    description: Flag ohibki
+                    type: boolean
+                  errorText:
+                    description: Opisanie ohibki
+                    type: string
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    type: object
+              example:
+                data: null
+                error: false
+                errorText: ''
+                additionalErrors: {}
+        400:
+          description: Nevernaa forma zaprosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+  /content/v2/cards/recover:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      security:
+        - HeaderApiKey: []
+      summary: Vosstanovlenie NM iz korziny.
+      description: 'Metod pozvolaet vosstanovit NM iz korziny. <span class="newM">new</span><br>
+        <code>VAhNO</code>: Pri vosstanovlenii NM iz korziny ona ne vozvrahaetsa v
+        KT v kotoroi byla do perenosa v korzinu, to est <code>imtID</code> ostaetsa
+        tot he, hto i byl u NM v korzine.
+
+        '
+      tags:
+        - Korzina
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  nmIDs:
+                    description: Artikul WB (max. 1000)
+                    type: string
+            example:
+              nmIDs:
+                - 123456789, 987654321
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    nullable: true
+                  error:
+                    description: Flag ohibki
+                    type: boolean
+                  errorText:
+                    description: Opisanie ohibki
+                    type: string
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    type: object
+              example:
+                data: null
+                error: false
+                errorText: ''
+                additionalErrors: {}
+        400:
+          description: Nevernaa forma zaprosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'
+  /content/v2/get/cards/trash:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      security:
+        - HeaderApiKey: []
+      summary: Spisok NM, nahodahihsa v korzine
+      description: "Metod pozvolaet poluhit spisok NM, nahodahihsa v korzine.  <br>\
+        \ <br>Poradok raboty. <br> htoby poluhit polnyi spisok nomenklatur, <b>esli\
+        \ ih > 1000</b>, neobhodimo vospolzovatsa paginaciei.\n  <ol>\n    <li>Cdelat\
+        \ pervyi zapros (vse ukazannye nihe parametry obazatelny): <br>\n      <pre\
+        \ style=\"background-color: rgb(38 50 56 / 5%); color: #e53935\">\n      \
+        \  {\n          \"settings\": {                      \n          \"cursor\"\
+        : {\n            \"limit\": 1000\n          }\n           }\n        }</pre>\
+        \                               \n    </li>\n    <li>Proiti v konec poluhennogo\
+        \ spiska nomenklatur, skopirovat iz <code>cursor</code> dve stroki:\n   \
+        \   <ul>\n        <li><code>\"trashedAt\": \"***\"</code>,</li>\n        <li><code>\"\
+        nmID\": ***</code>,</li>\n      </ul>\n    <li>Vstavit skopirovannye stroki\
+        \ v <code>cursor</code> zaprosa, povtorit vyzov metoda. </li>\n    <li>Povtorat\
+        \ punkty <b>2</b> i <b>3</b>, poka <code>total</code> v otvete ne stanet menhe\
+        \ hem <code>limit</code> v zaprose.\n      <br>Eto budet oznahat, hto Vy\
+        \ poluhili vse kartohki.\n  </ol>\n  <br> Po helaniu mohno dobavit poisk\
+        \ i sortirovku. Sm opisanie v <b>Request Body schema</b>\n  <br> V <b>Request\
+        \ samples</b> predstavlen primer zaprosa so vsemi vozmohnymi parametrami.\n"
+      tags:
+        - Korzina
+      parameters:
+        - name: locale
+          in: query
+          schema:
+            type: string
+            enum:
+              - ru
+              - en
+              - zh
+          description: 'azyk polei otveta `name`, `value` i `object`: `ru`, `en`,
+            `zh`.
+
+
+            Ne ispolzuetsa v pesohnice
+
+            '
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                settings:
+                  type: object
+                  description: Nastroiki
+                  properties:
+                    sort:
+                      description: Parametr sortirovki
+                      type: object
+                      properties:
+                        ascending:
+                          type: boolean
+                          description: Sortirovat po `trashedAt` (`false` - po ubyvaniu,
+                            `true` - po vozrastaniu)
+                    cursor:
+                      description: Kursor
+                      type: object
+                      properties:
+                        limit:
+                          type: integer
+                          description: Skolko KT vydat v otvete
+                    filter:
+                      description: Parametry filtracii
+                      type: object
+                      properties:
+                        textSearch:
+                          type: string
+                          description: Poisk po artikulu prodavca, artikulu WB, barkodu.
+            example:
+              settings:
+                sort:
+                  ascending: false
+                filter:
+                  textSearch: ''
+                cursor:
+                  limit: 11
+      responses:
+        '200':
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cards:
+                    description: Massiv kartohek tovarov
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        nmID:
+                          type: integer
+                          description: Artikul WB
+                        vendorCode:
+                          type: string
+                          description: Artikul prodavca
+                        subjectID:
+                          description: Identifikator predmeta
+                          type: string
+                        subjectName:
+                          description: Nazvanie predmeta
+                          type: string
+                        sizes:
+                          type: array
+                          description: Massiv razmerov
+                          items:
+                            type: object
+                            properties:
+                              chrtID:
+                                type: integer
+                                description: ID razmera
+                              techSize:
+                                type: string
+                                description: Razmer tovara
+                              wbSize:
+                                type: string
+                                description: Rossiiskii razmer tovara
+                              skus:
+                                type: array
+                                description: Massiv barkodov
+                                items:
+                                  type: string
+                                  example: 12345Ejf5
+                        dimensions:
+                          type: object
+                          properties:
+                            length:
+                              type: integer
+                            width:
+                              type: integer
+                            height:
+                              type: integer
+                        characteristics:
+                          description: Massiv harakteristik, pri nalihii
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                              name:
+                                type: string
+                              value:
+                                type: array
+                                items:
+                                  type: string
+                        createdAt:
+                          type: string
+                        trashedAt:
+                          type: string
+                  cursor:
+                    type: object
+                    properties:
+                      trashedAt:
+                        type: string
+                      nmID:
+                        type: integer
+                      total:
+                        type: integer
+              example:
+                cards:
+                  - nmID: 1234567
+                    vendorCode: wb5xsy5ftj
+                    subjectID: 1436
+                    subjectName: Vedra hozaistvennye
+                    sizes:
+                      - chrtID: 111111111
+                        techSize: '0'
+                        skus:
+                          - xxxxxxxxxxxx
+                    dimensions:
+                      length: 0
+                      width: 0
+                      height: 0
+                    createdAt: '2023-12-05T14:55:09.323462Z'
+                    trashedAt: '2023-12-06T10:57:42.193028Z'
+                cursor:
+                  trashedAt: '2023-12-06T10:57:42.193028Z'
+                  nmID: 194128521
+                  total: 1
+        400:
+          description: Nevernaa forma zaprosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Dostup zaprehen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseBodyContentError403'

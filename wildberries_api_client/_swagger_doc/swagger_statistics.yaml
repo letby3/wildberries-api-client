@@ -1,0 +1,1583 @@
+openapi: 3.0.1
+info:
+  title: Opisanie API Statistiki
+  version: '2.18'
+  description: 'S pomohu etih metodov mohno poluhit othety.
+
+    '
+security:
+  - HeaderApiKey: []
+x-tags:
+  - name: Statistika
+    description: 'Metody statistiki <br><b>Limit po zaprosam:</b> odin zapros odnogo
+      metoda v minutu. <br><br> <a href="../../excel_save/ru/index.html">Instrukcia:
+      Sohranenie statistiki v Excel</a>
+
+      '
+  - name: Otlohennaa generacia
+    deprecated: true
+    description: "V dannom razdele opisan process poluhenia othetov sposobom otlohennoi\
+      \ generacii.<br>  <br> `Dla avtorizacii ispolzuite token s tipom Statistika,\
+      \ bez flaga \"Tolko na htenie\".`<br>  <br> Dla kahdogo metoda dopuskaetsa\
+      \ ne bolee 1 zaprosa v minutu.   <br>  `Vahno!`Na dannyi moment dostupna generacia\
+      \ tolko otheta o platnom hranenii.        <br> <br>  Poradok poluhenia otheta:\
+      \ <ol>\n  <li> Dla nahala neobhodimo sozdat zadanie na generaciu otheta. <br>Otpravte\
+      \ zapros s neobhodimym tipom otheta na <b>POST /api/v1/delayed-gen/tasks/create</b>\n\
+      \      <br>\n      V otvete, v pole <b>taskId</b> vernetsa nomer zadania.\n\
+      \  </li>\n  <li>\n    Teper neobhodimo dohdatsa vypolnenia zadnia na generaciu\
+      \ otheta. \n    <br> S pomohu metoda <b>GET /api/v1/delayed-gen/tasks</b> Vy\
+      \ mohete otslehivat status zadania. \n    <br>\n    Kogda zadanie poluhit status\
+      \ <code>done</code>, mohno perehodit k poslednemu punktu.\n  </li>\n  <li>\n\
+      \    Poluhite othet s pomohu metoda <b>GET /api/v1/delayed-gen/tasks/download</b>\n\
+      \    <br> Opisanie polei nahoditsa v razdele dokumentacii Othety.\n    <br>\
+      \ Sgenerirovannyi othet hranitsa 2 hasa, posle hego avtomatiheski udalaetsa.\n\
+      \  </li>\n</ol>\n"
+components:
+  securitySchemes:
+    HeaderApiKey:
+      type: apiKey
+      name: Authorization
+      in: header
+  responses:
+    200SuccessDownloadedFiles:
+      description: Uspehno
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/ResponsePaidStorage'
+    400BadRequest:
+      description: Nepravilnyi zapros
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    429TooManyRequests:
+      description: Slihkom mnogo zaprosov
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    500InternalError:
+      description: Vnutrennaa ohibka servisa
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    404EntityNotFound:
+      description: Takoi adres ne naiden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+    DownloadRequest:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID zadania
+    responseErrorStatistics:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+    Response429:
+      type: object
+      properties:
+        code:
+          description: ''
+          type: integer
+        message:
+          description: ''
+          type: string
+    IncomesItem:
+      type: object
+      properties:
+        incomeId:
+          type: integer
+          description: Nomer postavki
+        number:
+          type: string
+          maxLength: 40
+          description: Nomer UPD
+        date:
+          type: string
+          format: date
+          description: Data postuplenia. Esli hasovoi poas ne ukazan, to beretsa Moskovskoe
+            vrema UTC+3.
+        lastChangeDate:
+          type: string
+          format: date-time
+          description: Data i vrema obnovlenia informacii v servise. Eto pole sootvetstvuet
+            parametru `dateFrom` v zaprose. Esli hasovoi poas ne ukazan, to beretsa
+            Moskovskoe vrema UTC+3.
+        supplierArticle:
+          type: string
+          maxLength: 75
+          description: Artikul prodavca
+        techSize:
+          type: string
+          maxLength: 30
+          description: Razmer tovara (primer S, M, L, XL, 42, 42-43)
+        barcode:
+          type: string
+          maxLength: 30
+          description: Bar-kod
+        quantity:
+          type: integer
+          description: Kolihestvo
+        totalPrice:
+          type: number
+          description: cena iz UPD
+        dateClose:
+          type: string
+          format: date
+          description: Data prinatia (zakrytia) v WB. Esli hasovoi poas ne ukazan,
+            to beretsa Moskovskoe vrema UTC+3.
+        warehouseName:
+          type: string
+          maxLength: 50
+          description: Nazvanie sklada
+        nmId:
+          type: integer
+          description: Artikul WB
+        status:
+          type: string
+          maxLength: 50
+          enum:
+            - Prinato
+          description: Tekuhii status postavki
+    StocksItem:
+      type: object
+      properties:
+        lastChangeDate:
+          type: string
+          format: date-time
+          description: Data i vrema obnovlenia informacii v servise. Eto pole sootvetstvuet
+            parametru `dateFrom` v zaprose. Esli hasovoi poas ne ukazan, to beretsa
+            Moskovskoe vrema (UTC+3).
+        warehouseName:
+          type: string
+          maxLength: 50
+          description: Nazvanie sklada
+        supplierArticle:
+          type: string
+          maxLength: 75
+          description: Artikul prodavca
+        nmId:
+          type: integer
+          description: Artikul WB
+        barcode:
+          type: string
+          maxLength: 30
+          description: Barkod
+        quantity:
+          type: integer
+          description: Kolihestvo, dostupnoe dla prodahi (skolko mohno dobavit v
+            korzinu)
+        inWayToClient:
+          type: integer
+          description: V puti k klientu
+        inWayFromClient:
+          type: integer
+          description: V puti ot klienta
+        quantityFull:
+          type: integer
+          description: Polnoe (neprodannoe) kolihestvo, kotoroe hislitsa za skladom
+            (= `quantity` + v puti)
+        category:
+          type: string
+          maxLength: 50
+          description: Kategoria
+        subject:
+          type: string
+          maxLength: 50
+          description: Predmet
+        brand:
+          type: string
+          maxLength: 50
+          description: Brend
+        techSize:
+          type: string
+          maxLength: 30
+          description: Razmer
+        Price:
+          type: number
+          description: cena
+        Discount:
+          type: number
+          description: Skidka
+        isSupply:
+          type: boolean
+          description: Dogovor postavki (vnutrennie tehnologiheskie dannye)
+        isRealization:
+          type: boolean
+          description: Dogovor realizacii (vnutrennie tehnologiheskie dannye)
+        SCCode:
+          type: string
+          maxLength: 50
+          description: Kod kontrakta (vnutrennie tehnologiheskie dannye)
+    OrdersItem:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+          description: Data i vrema zakaza. Eto pole sootvetstvuet parametru `dateFrom`
+            v zaprose, esli parametr `flag`=1. Esli hasovoi poas ne ukazan, to beretsa
+            Moskovskoe vrema (UTC+3).
+        lastChangeDate:
+          type: string
+          format: date-time
+          description: Data i vrema obnovlenia informacii v servise. Eto pole sootvetstvuet
+            parametru `dateFrom` v zaprose, esli parametr `flag`=0 ili ne ukazan.
+            Esli hasovoi poas ne ukazan, to beretsa Moskovskoe vrema (UTC+3).
+        warehouseName:
+          type: string
+          maxLength: 50
+          description: Sklad otgruzki
+        countryName:
+          type: string
+          maxLength: 200
+          description: Strana
+        oblastOkrugName:
+          type: string
+          maxLength: 200
+          description: Okrug
+        regionName:
+          type: string
+          maxLength: 200
+          description: Region
+        supplierArticle:
+          type: string
+          maxLength: 75
+          description: Artikul prodavca
+        nmId:
+          type: integer
+          description: Artikul WB
+        barcode:
+          type: string
+          maxLength: 30
+          description: Barkod
+        category:
+          type: string
+          maxLength: 50
+          description: Kategoria
+        subject:
+          type: string
+          maxLength: 50
+          description: Predmet
+        brand:
+          type: string
+          maxLength: 50
+          description: Brend
+        techSize:
+          type: string
+          maxLength: 30
+          description: Razmer tovara
+        incomeID:
+          type: integer
+          description: Nomer postavki
+        isSupply:
+          type: boolean
+          description: Dogovor postavki
+        isRealization:
+          type: boolean
+          description: Dogovor realizacii
+        totalPrice:
+          type: number
+          description: cena bez skidok
+        discountPercent:
+          type: integer
+          description: Skidka prodavca
+        spp:
+          type: number
+          description: Skidka WB
+        finishedPrice:
+          type: number
+          description: Faktiheskaa cena s uhetom vseh skidok (k vzimaniu s pokupatela)
+        priceWithDisc:
+          type: number
+          description: cena so skidkoi prodavca (= `totalPrice` * (1 - `discountPercent`/100))
+        isCancel:
+          type: boolean
+          description: Otmena zakaza. true - zakaz otmenen
+        cancelDate:
+          type: string
+          format: date-time
+          description: Data i vrema otmeny zakaza. Esli zakaz ne byl otmenen, to "0001-01-01T00:00:00".
+            Esli hasovoi poas ne ukazan, to beretsa Moskovskoe vrema UTC+3.
+        orderType:
+          type: string
+          description: 'Tip zakaza <ul> <li> `Klientskii` — zakaz, postupivhii ot
+            pokupatela <li> `Vozvrat Braka` — vozvrat tovara prodavcu <li> `Prinuditelnyi
+            vozvrat` — vozvrat tovara prodavcu <li> `Vozvrat obezlihki` — vozvrat
+            tovara prodavcu <li> `Vozvrat Nevernogo Vlohenia` — vozvrat tovara prodavcu
+            <li> `Vozvrat Prodavca` — vozvrat tovara prodavcu </ul>
+
+            '
+        sticker:
+          type: string
+          description: Identifikator stikera
+        gNumber:
+          type: string
+          maxLength: 50
+          description: Nomer zakaza
+        srid:
+          type: string
+          description: 'Unikalnyi identifikator zakaza.<br> Primehanie dla ispolzuuhih
+            API Marketpleis: `srid` raven `rid` v otvetah metodov sborohnyh zadanii.
+
+            '
+    SalesItem:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+          description: Data i vrema prodahi. Eto pole sootvetstvuet parametru `dateFrom`
+            v zaprose, esli parametr `flag`=1. Esli hasovoi poas ne ukazan, to beretsa
+            Moskovskoe vrema (UTC+3).
+        lastChangeDate:
+          type: string
+          format: date-time
+          description: Data i vrema obnovlenia informacii v servise. Eto pole sootvetstvuet
+            parametru `dateFrom` v zaprose, esli parametr `flag`=0 ili ne ukazan.
+            Esli hasovoi poas ne ukazan, to beretsa Moskovskoe vrema (UTC+3).
+        warehouseName:
+          type: string
+          maxLength: 50
+          description: Sklad otgruzki
+        countryName:
+          type: string
+          maxLength: 200
+          description: Strana
+        oblastOkrugName:
+          type: string
+          maxLength: 200
+          description: Okrug
+        regionName:
+          type: string
+          maxLength: 200
+          description: Region
+        supplierArticle:
+          type: string
+          maxLength: 75
+          description: Artikul prodavca
+        nmId:
+          type: integer
+          description: Artikul WB
+        barcode:
+          type: string
+          maxLength: 30
+          description: Barkod
+        category:
+          type: string
+          maxLength: 50
+          description: Kategoria
+        subject:
+          type: string
+          maxLength: 50
+          description: Predmet
+        brand:
+          type: string
+          maxLength: 50
+          description: Brend
+        techSize:
+          type: string
+          maxLength: 30
+          description: Razmer tovara
+        incomeID:
+          type: integer
+          description: Nomer postavki
+        isSupply:
+          type: boolean
+          description: Dogovor postavki
+        isRealization:
+          type: boolean
+          description: Dogovor realizacii
+        totalPrice:
+          type: number
+          description: cena bez skidok
+        discountPercent:
+          type: integer
+          description: Skidka prodavca
+        spp:
+          type: number
+          description: Skidka WB
+        forPay:
+          type: number
+          description: K perehisleniu prodavcu
+        finishedPrice:
+          type: number
+          description: Faktiheskaa cena s uhetom vseh skidok (k vzimaniu s pokupatela)
+        priceWithDisc:
+          type: number
+          description: cena so skidkoi prodavca, ot kotoroi shitaetsa summa k perehisleniu
+            prodavcu `forPay` (= `totalPrice` * (1 - `discountPercent`/100))
+        saleID:
+          type: string
+          maxLength: 15
+          description: 'Unikalnyi identifikator prodahi/vozvrata <ul>  <li> `S**********`
+            — prodaha  <li> `R**********` — vozvrat (na sklad WB)  </ul>
+
+            '
+        orderType:
+          type: string
+          description: 'Tip zakaza <ul> <li> `Klientskii` — zakaz, postupivhii ot
+            pokupatela <li> `Vozvrat Braka` — vozvrat tovara prodavcu <li> `Prinuditelnyi
+            vozvrat` — vozvrat tovara prodavcu <li> `Vozvrat obezlihki` — vozvrat
+            tovara prodavcu <li> `Vozvrat Nevernogo Vlohenia` — vozvrat tovara prodavcu
+            <li> `Vozvrat Prodavca` — vozvrat tovara prodavcu </ul>
+
+            '
+        sticker:
+          type: string
+          description: Identifikator stikera
+        gNumber:
+          type: string
+          maxLength: 50
+          description: Nomer zakaza
+        srid:
+          type: string
+          description: 'Unikalnyi identifikator zakaza.<br> Primehanie dla ispolzuuhih
+            API Marketpleis: `srid` raven `rid` v otvetah metodov sborohnyh zadanii.
+
+            '
+    DetailReportItem:
+      type: object
+      properties:
+        realizationreport_id:
+          example: 1234567
+          type: integer
+          description: Nomer otheta
+        date_from:
+          example: '2022-10-17T00:00:00Z'
+          type: string
+          format: date-time
+          description: Data nahala othetnogo perioda
+        date_to:
+          example: '2022-10-23T00:00:00Z'
+          type: string
+          format: date-time
+          description: Data konca othetnogo perioda
+        create_dt:
+          example: '2022-10-24T14:40:32'
+          type: string
+          format: date-time
+          description: Data formirovania otheta
+        currency_name:
+          example: rub
+          type: string
+          description: Valuta otheta
+        suppliercontract_code:
+          example: null
+          type: object
+          description: Dogovor
+        rrd_id:
+          example: 1232610467
+          type: integer
+          description: Nomer stroki
+        gi_id:
+          example: 123456
+          type: integer
+          description: Nomer postavki
+        subject_name:
+          example: Mini-pehi
+          type: string
+          description: Predmet
+        nm_id:
+          example: 1234567
+          type: integer
+          description: Artikul WB
+        brand_name:
+          example: BlahBlah
+          type: string
+          description: Brend
+        sa_name:
+          example: MAB123
+          type: string
+          description: Artikul prodavca
+        ts_name:
+          example: '0'
+          type: string
+          description: Razmer
+        barcode:
+          example: '1231312352310'
+          type: string
+          description: Barkod
+        doc_type_name:
+          example: Prodaha
+          type: string
+          description: Tip dokumenta
+        quantity:
+          type: integer
+          example: 1
+          description: Kolihestvo
+        retail_price:
+          example: 1249
+          type: number
+          description: cena roznihnaa
+        retail_amount:
+          example: 367
+          type: number
+          description: Summa prodah (vozvratov)
+        sale_percent:
+          example: 68
+          type: integer
+          description: Soglasovannaa skidka
+        commission_percent:
+          example: 0.1324
+          type: number
+          description: Procent komissii
+        office_name:
+          example: Koledino
+          type: string
+          description: Sklad
+        supplier_oper_name:
+          example: Prodaha
+          type: string
+          description: Obosnovanie dla oplaty
+        order_dt:
+          example: '2022-10-13T00:00:00Z'
+          type: string
+          format: date-time
+          description: Data zakaza. <br> Prisylaetsa s avnym ukazaniem hasovogo poasa
+        sale_dt:
+          example: '2022-10-20T00:00:00Z'
+          type: string
+          format: date-time
+          description: Data prodahi. <br> Prisylaetsa s avnym ukazaniem hasovogo poasa
+        rr_dt:
+          example: '2022-10-20T00:00:00Z'
+          type: string
+          format: date-time
+          description: Data operacii. <br> Prisylaetsa s avnym ukazaniem hasovogo
+            poasa
+        shk_id:
+          example: 1239159661
+          type: integer
+          description: htrih-kod
+        retail_price_withdisc_rub:
+          example: 399.68
+          type: number
+          description: cena roznihnaa s uhetom soglasovannoi skidki
+        delivery_amount:
+          example: 0
+          type: integer
+          description: Kolihestvo dostavok
+        return_amount:
+          example: 0
+          type: integer
+          description: Kolihestvo vozvratov
+        delivery_rub:
+          example: 0
+          type: number
+          description: Stoimost logistiki
+        gi_box_type_name:
+          example: Monopaleta
+          type: string
+          description: Tip korobov
+        product_discount_for_report:
+          example: 399.68
+          type: number
+          description: Soglasovannyi produktovyi diskont
+        supplier_promo:
+          example: 0
+          type: number
+          description: Promokod
+        rid:
+          example: 123722249253
+          type: integer
+          description: Unikalnyi identifikator zakaza
+        ppvz_spp_prc:
+          example: 0.1581
+          type: number
+          description: Skidka postoannogo pokupatela
+        ppvz_kvw_prc_base:
+          example: 0.15
+          type: number
+          description: Razmer kVV bez NDS, % bazovyi
+        ppvz_kvw_prc:
+          example: -0.0081
+          type: number
+          description: Itogovyi kVV bez NDS, %
+        sup_rating_prc_up:
+          type: number
+          description: Razmer snihenia kVV iz-za reitinga
+        is_kgvp_v2:
+          type: number
+          description: Razmer snihenia kVV iz-za akcii
+        ppvz_sales_commission:
+          example: -3.74
+          type: number
+          description: Voznagrahdenie s prodah do vyheta uslug poverennogo, bez NDS
+        ppvz_for_pay:
+          example: 376.99
+          type: number
+          description: K perehisleniu prodavcu za realizovannyi tovar
+        ppvz_reward:
+          example: 0
+          type: number
+          description: Vozmehenie za vydahu i vozvrat tovarov na PVZ
+        acquiring_fee:
+          example: 14.89
+          type: number
+          description: 'Vozmehenie izderhek po ekvairingu. <br> Izderhki WB za uslugi
+            ekvairinga: vyhitautsa iz voznagrahdenia WB i ne vliaut na dohod prodavca.
+
+            '
+        acquiring_bank:
+          example: Tinkoff
+          type: string
+          description: Naimenovanie banka-ekvaiera
+        ppvz_vw:
+          example: -3.74
+          type: number
+          description: Voznagrahdenie WB bez NDS
+        ppvz_vw_nds:
+          example: -0.75
+          type: number
+          description: NDS s voznagrahdenia WB
+        ppvz_office_id:
+          example: 105383
+          type: integer
+          description: Nomer ofisa
+        ppvz_office_name:
+          example: Punkt samovyvoza (PVZ)
+          type: string
+          description: Naimenovanie ofisa dostavki
+        ppvz_supplier_id:
+          example: 186465
+          type: integer
+          description: Nomer partnera
+        ppvz_supplier_name:
+          example: IP hasmin
+          type: string
+          description: Partner
+        ppvz_inn:
+          example: '010101010101'
+          type: string
+          description: INN partnera
+        declaration_number:
+          example: ''
+          type: string
+          description: Nomer tamohennoi deklaracii
+        bonus_type_name:
+          example: htraf MP. Nevypolnennyi zakaz (otmena klientom posle nedovoza)
+          type: string
+          description: 'Obosnovanie htrafov i doplat. <br> Pole budet v otvete pri
+            nalihii znahenia
+
+            '
+        sticker_id:
+          example: '1964038895'
+          type: string
+          description: cifrovoe znahenie stikera, kotoryi kleitsa na tovar v processe
+            sborki zakaza po sheme "Marketpleis"
+        site_country:
+          example: RU
+          type: string
+          description: Strana prodahi
+        penalty:
+          example: 231.35
+          type: number
+          description: htrafy
+        additional_payment:
+          example: 0
+          type: number
+          description: Doplaty
+        rebill_logistic_cost:
+          example: 1.349
+          type: number
+          description: 'Vozmehenie izderhek po perevozke. Pole budet v otvete pri
+            nalihii znahenia
+
+            '
+        rebill_logistic_org:
+          example: IP Ivanov Ivan Ivanovih(123456789012)
+          type: string
+          description: "Organizator perevozki. Pole budet v otvete pri nalihii znahenia.\
+            \          \n"
+        kiz:
+          example: "0102900000376311210G2CIS?ehge)S\x1D91002A\x1D92F9Qof4FDo/31Icm14kmtuVYQzLypxm3HWkC1vQ/+pVVjm1dNAth1laFMoAGn7yEMWlTjxIe7lQnJqZ7TRZhlHQ=="
+          type: string
+          description: 'Kod markirovki. <br> Pole budet v otvete pri nalihii znahenia
+
+            '
+        srid:
+          example: 711ab8cb94e040f98b3804e5f331bf7a_r
+          type: string
+          description: 'Unikalnyi identifikator zakaza. Primehanie dla ispolzuuhih
+            API Marketplace: `srid` raven `rid` v otvetah metodov sborohnyh zadanii.'
+    ResponsePaidStorage:
+      type: array
+      items:
+        type: object
+        properties:
+          date:
+            type: string
+            description: Data
+          logWarehouseCoef:
+            type: integer
+            description: Koefficient logistiki i hranenia
+          officeId:
+            type: integer
+            description: ID sklada
+          warehouse:
+            type: string
+            description: Nazvanie sklada
+          warehouseCoef:
+            type: number
+            description: Koefficient sklada
+          giId:
+            type: integer
+            description: ID postavki
+          chrtId:
+            type: integer
+            description: hislovoi identifikator razmera dla dannogo artikula Wildberries
+          size:
+            type: string
+            description: Razmer (`techSize` v kartohke tovara)
+          barcode:
+            type: string
+            description: Barkod
+          subject:
+            type: string
+            description: Predmet
+          brand:
+            type: string
+            description: Brend
+          vendorCode:
+            type: string
+            description: Artikul prodavca
+          nmId:
+            type: integer
+            description: Artikul Wildberries
+          volume:
+            type: number
+            description: Obem tovara
+          calcType:
+            type: string
+            description: Sposob rasheta
+          warehousePrice:
+            type: number
+            description: Summa hranenia
+          barcodesCount:
+            type: integer
+            description: Kolihestvo tovarnyh edinic (htuk) na ostatke, podlehahie
+              tarificirovaniu za rashetnye sutki
+          palletPlaceCode:
+            type: integer
+            description: Kod paletomesta
+          palletCount:
+            type: number
+            description: Kolihestvo palet
+      example:
+        - date: '2023-10-01'
+          'logWarehouseCoef ': 0
+          officeId: 507
+          warehouse: Koledino
+          warehouseCoef: 1.7
+          giId: 123456
+          chrt_id: 1234567
+          size: '0'
+          barcode: ''
+          subject: Maski odnorazovye
+          brand: 1000 Katalog
+          vendorCode: Artikul_prodavca
+          nmId: 1234567
+          volume: 12
+          calcType: 'koroba: bez gabaritov'
+          warehousePrice: 7.65
+          barcodesCount: 1
+          palletPlaceCode: 0
+          palletCount: 0
+    GetTasksRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          description: ID zadanii
+          minItems: 1
+          maxItems: 50
+          items:
+            type: string
+            format: uuid
+    GetTasksResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/GetTasksResponseData'
+    GetTasksResponseData:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID zadania
+        status:
+          type: string
+          description: "Status zadania:\n  \n  * `new` — novoe\n  * `processing` —\
+            \ obrabatyvaetsa\n  * `done` — othet gotov\n  * `purged` — othet udalen\n\
+            \  * `canceled` — otkloneno\n"
+    CreateTaskRequest:
+      discriminator:
+        propertyName: type
+        mapping:
+          paid_storage: '#/components/schemas/CreateTaskRequestPaidStorage'
+      oneOf:
+        - $ref: '#/components/schemas/CreateTaskRequestPaidStorage'
+    CreateTaskRequestPaidStorage:
+      description: Shema tela zaprosa dla poluhenia otheta "Platnoe hranenie".
+      type: object
+      properties:
+        type:
+          type: string
+          description: 'Tip otheta:  <br><b>paid_storage</b> - Platnoe hranenie
+
+            '
+          enum:
+            - paid_storage
+        params:
+          type: object
+          description: 'Parametry zaprosa neobhodimye dla poluhenia vybrannogo tipa
+            otheta.
+
+            '
+          properties:
+            dateFrom:
+              type: string
+              format: date
+              description: Data nahala zaprahivaemogo perioda
+            dateTo:
+              type: string
+              format: date
+              description: Data konca zaprahivaemogo perioda
+            diviser:
+              type: integer
+              description: Kolihestvo hastei, na kotoroe neobhodimo razdelit zaprohennyi
+                othet.
+              example: 1
+            remainder:
+              type: integer
+              description: Nomer hasti otheta, kotoruu neobhodimo poluhit.
+              example: 0
+    CreateTaskResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/CreateTaskResponseData'
+    CreateTaskResponseData:
+      type: object
+      properties:
+        taskId:
+          type: string
+          description: ID zadania na generaciu
+    GetTasksResponseBytesError:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            tasks:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  last_proc_err:
+                    type: string
+                  status:
+                    type: string
+    400BadRequest:
+      description: Nepravilnyi zapros
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    429TooManyRequests:
+      description: Slihkom mnogo zaprosov
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    500InternalError:
+      description: Vnutrennaa ohibka servisa
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    404EntityNotFound:
+      description: Takoi adres ne naiden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  parameters:
+    flag:
+      in: query
+      name: flag
+      schema:
+        type: integer
+        default: 0
+      required: false
+      description: 'Esli parametr `flag=0` (ili ne ukazan v stroke zaprosa), pri vyzove
+        API vozvrahautsa dannye,  u kotoryh znahenie pola `lastChangeDate` (data vrema
+        obnovlenia informacii v servise) bolhe ili ravno peredannomu  znaheniu parametra
+        `dateFrom`.  Pri etom kolihestvo vozvrahennyh strok dannyh variruetsa v intervale
+        ot 0 do primerno 100 000. <br> Esli parametr `flag=1`, to budet vygruhena
+        informacia obo vseh zakazah ili prodahah s datoi,  ravnoi peredannomu parametru
+        `dateFrom` (v dannom sluhae vrema v date znahenia ne imeet).  Pri etom kolihestvo
+        vozvrahennyh strok dannyh budet ravno kolihestvu vseh zakazov ili prodah,  sdelannyh
+        v ukazannuu datu, peredannuu v parametre `dateFrom`.
+
+        '
+  examples:
+    TokenMissing:
+      description: Token otsutstvuet
+      value: 'proxy: unauthorized'
+    TokenInvalid:
+      description: Token nedeistvitelen
+      value: 'proxy: invalid token'
+    TokenNotFound:
+      description: Token udalen
+      value: 'proxy: not found'
+    TokenIsNotApplicable:
+      description: Ispolzuemyi token ne primenim k dannym metodam.
+      value: 'Error ae394f96-e258-432d-af13-a53a3d31f8b0: request rejected, unathorized:
+        token scope not allowed for this API route'
+    CantParseDateFrom:
+      description: Ohibka v zaprose
+      value:
+        errors:
+          - can't parse dateFrom
+    RequestTimeout:
+      description: Taim-aut zaprosa
+      value:
+        errors:
+          - (api-new) request timeout
+    RequestLimitStatistics:
+      description: Prevyheno dopustimoe kol-vo zaprosov v edinicu vremeni
+      value:
+        code: 429
+        message: error text
+    CreateResponseData:
+      value:
+        data:
+          taskId: 219eaecf-e532-4bd8-9f15-8036ec1b042d
+    GetTasksResponseData:
+      value:
+        data:
+          id: cad56ec5-91ec-43a2-b5e8-efcf244cf309
+          status: done
+    GetTasksResponseBytesError:
+      description: Razmer zaprohennogo faila prevyhaet dopustimyi. Razbeite othet
+        na bolhee kolihestvo hastei, libo zaprosite dannye za menhii vremennoi promehutok.
+      value:
+        data:
+          tasks:
+            - id: 1d9225ea-e61e-4a69-bb64-8b92a81ecdb6
+              last_proc_err: report max bytes error
+              status: error
+    ErrorDifferenceBetweenDateFromDateTo:
+      description: Raznica znahenii mehdu dateFrom i dateTo dolhna byt menhe ili
+        ravna 8 dnam.
+      value:
+        errors:
+          - Difference between dateFrom and dateTo should be less or equal 8 days
+    ErrorResponseTasksCreate:
+      value:
+        errors:
+          - string
+paths:
+  /api/v1/supplier/incomes:
+    servers:
+      - url: https://statistics-api.wildberries.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Postavki
+      description: Postavki. Maksimum 1 zapros v minutu
+      tags:
+        - Statistika
+      parameters:
+        - name: dateFrom
+          in: query
+          schema:
+            type: string
+            format: RFC3339
+          required: true
+          description: 'Data i vrema poslednego izmenenia po postavke. <br> Data v
+            formate RFC3339. Mohno peredat datu ili datu so vremenem.  Vrema mohno
+            ukazyvat s tohnostu do sekund ili millisekund. <br> Vrema peredaetsa
+            v hasovom poase Msk (UTC+3). <br>Primery: <ul> <li> `2019-06-20` <li>
+            `2019-06-20T23:59:59` <li> `2019-06-20T00:00:00.12345` <li> `2017-03-25T00:00:00`
+            </ul>
+
+            '
+      responses:
+        200:
+          description: Spisok postavok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IncomesItem'
+              example:
+                - incomeId: 12345
+                  number: ''
+                  date: '2022-05-08T00:00:54'
+                  lastChangeDate: '2022-05-08T00:44:15.5'
+                  supplierArticle: ABCDEF
+                  techSize: '0'
+                  barcode: '2000328074123'
+                  quantity: 3
+                  totalPrice: 0
+                  dateClose: '2022-05-08T00:00:00'
+                  warehouseName: Podolsk
+                  nmId: 1234567
+                  status: Prinato
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenIsNotApplicable:
+                  $ref: '#/components/examples/TokenIsNotApplicable'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        429:
+          description: Slihkom mnogo zaprosov
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response429'
+              examples:
+                RequestLimitStatistics:
+                  $ref: '#/components/examples/RequestLimitStatistics'
+  /api/v1/supplier/stocks:
+    servers:
+      - url: https://statistics-api.wildberries.ru/
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Sklad
+      description: 'Ostatki tovarov na skladah WB. Dannye obnovlautsa raz v 30 minut.
+        <br> Servis statistiki ne hranit istoriu ostatkov tovarov, poetomu poluhit
+        dannye o nih mohno tolko v rehime "na tekuhii moment".<br> Maksimum 1 zapros
+        v minutu
+
+        '
+      tags:
+        - Statistika
+      parameters:
+        - name: dateFrom
+          in: query
+          schema:
+            type: string
+            format: RFC3339
+          required: true
+          description: 'Data i vrema poslednego izmenenia po tovaru. <br> Dla poluhenia
+            polnogo ostatka sleduet ukazyvat maksimalno rannee znahenie. <br> Naprimer,
+            `2019-06-20` <br> Data v formate RFC3339. Mohno peredat datu ili datu
+            so vremenem.  Vrema mohno ukazyvat s tohnostu do sekund ili millisekund.
+            <br> Vrema peredaetsa v hasovom poase Msk (UTC+3). <br>Primery: <ul> <li>
+            `2019-06-20` <li> `2019-06-20T23:59:59` <li> `2019-06-20T00:00:00.12345`
+            <li> `2017-03-25T00:00:00` </ul>
+
+            '
+      responses:
+        200:
+          description: Spisok tovarov na sklade
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StocksItem'
+              example:
+                - lastChangeDate: '2023-07-05T11:13:35'
+                  warehouseName: Krasnodar
+                  supplierArticle: '443284'
+                  nmId: 1439871458
+                  barcode: '2037401340280'
+                  quantity: 33
+                  inWayToClient: 1
+                  inWayFromClient: 0
+                  quantityFull: 34
+                  category: Posuda i inventar
+                  subject: Formy dla zapekania
+                  brand: X
+                  techSize: '0'
+                  Price: 185
+                  Discount: 0
+                  isSupply: true
+                  isRealization: false
+                  SCCode: Tech
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenIsNotApplicable:
+                  $ref: '#/components/examples/TokenIsNotApplicable'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        429:
+          description: Slihkom mnogo zaprosov
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response429'
+              examples:
+                RequestLimitStatistics:
+                  $ref: '#/components/examples/RequestLimitStatistics'
+  /api/v1/supplier/orders:
+    servers:
+      - url: https://statistics-api.wildberries.ru/
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Zakazy
+      description: 'Zakazy. <br> Garantiruetsa hranenie dannyh ne bolee 90 dnei ot
+        daty zakaza. <br> Dannye obnovlautsa raz v 30 minut. <br> Dla identifikacii
+        zakaza sleduet ispolzovat pole `srid`. <br> 1 stroka = 1 zakaz = 1 edinica
+        tovara. <br> Maksimum 1 zapros v minutu
+
+        '
+      tags:
+        - Statistika
+      parameters:
+        - name: dateFrom
+          in: query
+          schema:
+            type: string
+            format: RFC3339
+          required: true
+          description: 'Data i vrema poslednego izmenenia po zakazu. <br> Data v formate
+            RFC3339. Mohno peredat datu ili datu so vremenem.  Vrema mohno ukazyvat
+            s tohnostu do sekund ili millisekund. <br> Vrema peredaetsa v hasovom
+            poase Msk (UTC+3). <br>Primery: <ul> <li> `2019-06-20` <li> `2019-06-20T23:59:59`
+            <li> `2019-06-20T00:00:00.12345` <li> `2017-03-25T00:00:00` </ul>
+
+            '
+        - $ref: '#/components/parameters/flag'
+      responses:
+        200:
+          description: Spisok zakazov
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrdersItem'
+              example:
+                - date: '2022-03-04T18:08:31'
+                  lastChangeDate: '2022-03-06T10:11:07'
+                  warehouseName: Podolsk
+                  countryName: Rossia
+                  oblastOkrugName: centralnyi federalnyi okrug
+                  regionName: Moskovskaa
+                  supplierArticle: '12345'
+                  nmId: 1234567
+                  barcode: '123453559000'
+                  category: Bytovaa tehnika
+                  subject: Multistailery
+                  brand: Test
+                  techSize: '0'
+                  incomeID: 56735459
+                  isSupply: false
+                  isRealization: true
+                  totalPrice: 1887
+                  discountPercent: 18
+                  spp: 26
+                  finishedPrice: 1145
+                  priceWithDisc: 1547
+                  isCancel: true
+                  cancelDate: '2022-03-09T00:00:00'
+                  orderType: Klientskii
+                  sticker: '926912515'
+                  gNumber: '34343462218572569531'
+                  srid: 11.rf9ef11fce1684117b0nhj96222982382.3.0
+        400:
+          description: Ohibka v zaprose
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseErrorStatistics'
+              examples:
+                CantParseDateFrom:
+                  $ref: '#/components/examples/CantParseDateFrom'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenIsNotApplicable:
+                  $ref: '#/components/examples/TokenIsNotApplicable'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        429:
+          description: Slihkom mnogo zaprosov
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response429'
+              examples:
+                RequestLimitStatistics:
+                  $ref: '#/components/examples/RequestLimitStatistics'
+  /api/v1/supplier/sales:
+    servers:
+      - url: https://statistics-api.wildberries.ru/
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Prodahi
+      description: 'Prodahi i vozvraty. <br> Garantiruetsa hranenie dannyh ne bolee
+        90 dnei ot daty prodahi. <br> Dannye obnovlautsa raz v 30 minut. <br> Dla
+        identifikacii zakaza sleduet ispolzovat pole `srid`. <br> 1 stroka = 1 prodaha/vozvrat
+        = 1 edinica tovara.  <br> Maksimum 1 zapros v minutu
+
+        '
+      tags:
+        - Statistika
+      parameters:
+        - name: dateFrom
+          in: query
+          schema:
+            type: string
+            format: RFC3339
+          required: true
+          description: 'Data i vrema poslednego izmenenia po prodahe/vozvratu. <br>
+            Data v formate RFC3339. Mohno peredat datu ili datu so vremenem.  Vrema
+            mohno ukazyvat s tohnostu do sekund ili millisekund. <br> Vrema peredaetsa
+            v hasovom poase Msk (UTC+3). <br>Primery: <ul> <li> `2019-06-20` <li>
+            `2019-06-20T23:59:59` <li> `2019-06-20T00:00:00.12345` <li> `2017-03-25T00:00:00`
+            </ul>
+
+            '
+        - $ref: '#/components/parameters/flag'
+      responses:
+        200:
+          description: Spisok prodah
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SalesItem'
+              example:
+                - date: '2022-03-04T18:08:31'
+                  lastChangeDate: '2022-03-06T10:11:07'
+                  warehouseName: Podolsk
+                  countryName: Rossia
+                  oblastOkrugName: centralnyi federalnyi okrug
+                  regionName: Moskovskaa
+                  supplierArticle: '12345'
+                  nmId: 1234567
+                  barcode: '123453559000'
+                  category: Bytovaa tehnika
+                  subject: Multistailery
+                  brand: Test
+                  techSize: '0'
+                  incomeID: 56735459
+                  isSupply: false
+                  isRealization: true
+                  totalPrice: 1887
+                  discountPercent: 18
+                  spp: 26
+                  forPay: 1284.01
+                  finishedPrice: 1145
+                  priceWithDisc: 1547
+                  saleID: S9993700024
+                  orderType: Klientskii
+                  sticker: '926912515'
+                  gNumber: '34343462218572569531'
+                  srid: 11.rf9ef11fce1684117b0nhj96222982382.3.0
+        400:
+          description: Ohibka v zaprose
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseErrorStatistics'
+              examples:
+                CantParseDateFrom:
+                  $ref: '#/components/examples/CantParseDateFrom'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenIsNotApplicable:
+                  $ref: '#/components/examples/TokenIsNotApplicable'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        429:
+          description: Slihkom mnogo zaprosov
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response429'
+              examples:
+                RequestLimitStatistics:
+                  $ref: '#/components/examples/RequestLimitStatistics'
+  /api/v1/supplier/reportDetailByPeriod:
+    servers:
+      - url: https://statistics-api.wildberries.ru/
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Othet o prodahah po realizacii
+      description: 'Detalizacia k othetu realizacii.  <br> V othete dostupny dannye
+        za poslednie 3 mesaca. <br> V sluhae otsutstvia dannyh za ukazannyi period
+        metod vernet `null`. <br> Tehniheskii pereryv v rabote metoda: kahdyi ponedelnik
+        s 3:00 do 16:00. <br> <a href="../../excel_save/ru/index.html">Instrukcia:
+        Sohranenie statistiki v Excel</a> <br> Maksimum 1 zapros v minutu
+
+        '
+      tags:
+        - Statistika
+      parameters:
+        - name: dateFrom
+          in: query
+          schema:
+            type: string
+            format: RFC3339
+          required: true
+          description: 'Nahalnaa data otheta.<br> Data v formate RFC3339. Mohno peredat
+            datu ili datu so vremenem.  Vrema mohno ukazyvat s tohnostu do sekund
+            ili millisekund. <br> Vrema peredaetsa v hasovom poase Msk (UTC+3). <br>Primery:
+            <ul> <li> `2019-06-20` <li> `2019-06-20T23:59:59` <li> `2019-06-20T00:00:00.12345`
+            <li> `2017-03-25T00:00:00` </ul>
+
+            '
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 100000
+          required: false
+          description: Maksimalnoe kolihestvo strok otheta, vozvrahaemyh metodom.
+            Ne mohet byt bolee 100000.
+        - in: query
+          name: dateTo
+          schema:
+            type: string
+            format: date
+          required: true
+          description: Konehnaa data otheta
+        - in: query
+          name: rrdid
+          schema:
+            type: integer
+          required: false
+          description: "Unikalnyi identifikator stroki otheta. Neobhodim dla poluhenia\
+            \ otheta hastami. \n<br>\nZagruzku otheta nuhno nahinat s `rrdid = 0`\
+            \ i pri posleduuhih vyzovah API peredavat v zaprose znahenie `rrd_id`\
+            \ iz poslednei stroki, poluhennoi v rezultate predyduhego vyzova. \n\
+            <br>\nTakim obrazom dla zagruzki odnogo otheta mohet ponadobitsa vyzyvat\
+            \ API do teh por, poka kolihestvo vozvrahaemyh strok ne stanet ravnym\
+            \ nulu.\n"
+      responses:
+        200:
+          description: Spisok realizovannyh pozicii
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DetailReportItem'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenIsNotApplicable:
+                  $ref: '#/components/examples/TokenIsNotApplicable'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        429:
+          description: ''
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: string
+                  - $ref: '#/components/schemas/Response429'
+              examples:
+                TechnicalBreak:
+                  value: 'Tehniheskii pereryv v rabote metoda: kahdyi ponedelnik
+                    s 3:00 do 16:00.'
+                RequestLimitStatistics:
+                  $ref: '#/components/examples/RequestLimitStatistics'
+  /api/v1/delayed-gen/tasks/create:
+    servers:
+      - url: https://statistics-api.wildberries.ru
+    post:
+      deprecated: true
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Otlohennaa generacia
+      summary: Sozdanie zadania na generaciu otheta
+      description: "Metod pozvolaet sozdavat zadanie na generaciu neobhodimogo otheta.\
+        \ <br> <br> <b>Detali poluhenia otheta o platnom hranenii:</b>   <br> Maksimalnyi\
+        \ diapazon dat - 8 dnei. <br> Za odin zapros poluhit othet mohno tolko v\
+        \ tom sluhae, esli razmer ego ne prevyhaet 50 mb. Esli razmer otheta bolhe,\
+        \ to vospolzuites parametrami <code>diviser</code> i <code>remainder</code>,\
+        \ htoby poluhit othet po hastam.<br> Ponat, hto razmer otheta prevyhaet\
+        \ 50 mb, mohno proveriv status zadania. V otvete budet soderhatsa stroka\
+        \ \"report max bytes error\". \nMaksimum 1 zapros v minutu\n"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskRequest'
+        required: true
+      responses:
+        201:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTaskResponse'
+        400:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ErrorResponseTasksCreate:
+                  $ref: '#/components/examples/ErrorResponseTasksCreate'
+                ErrorDifferenceBetweenDateFromDateTo:
+                  $ref: '#/components/examples/ErrorDifferenceBetweenDateFromDateTo'
+        429:
+          description: Slihkom mnogo zaprosov
+  /api/v1/delayed-gen/tasks:
+    servers:
+      - url: https://statistics-api.wildberries.ru
+    get:
+      deprecated: true
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Otlohennaa generacia
+      summary: Poluhit status zadania
+      description: 'Pozvolaet poluhat status zadania na generaciu otheta.
+
+        Maksimum 1 zapros v minutu
+
+        '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetTasksRequest'
+        required: true
+      responses:
+        200:
+          description: Informacia po zadahe generacii
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/GetTasksResponse'
+                  - $ref: '#/components/schemas/GetTasksResponseBytesError'
+              examples:
+                GetTasksResponseData:
+                  $ref: '#/components/examples/GetTasksResponseData'
+                GetTasksResponseBytesError:
+                  $ref: '#/components/examples/GetTasksResponseBytesError'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/404EntityNotFound'
+        429:
+          description: Slihkom mnogo zaprosov
+        500:
+          $ref: '#/components/responses/500InternalError'
+  /api/v1/delayed-gen/tasks/download:
+    servers:
+      - url: https://statistics-api.wildberries.ru
+    get:
+      deprecated: true
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Otlohennaa generacia
+      summary: Poluhit othet po ID zadania
+      description: 'Metod pozvolaet poluhat sgenerirovannyi othet po ID zadania.
+
+        Maksimum 1 zapros v minutu
+
+        '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DownloadRequest'
+        required: true
+      responses:
+        200:
+          description: Zaprahivaemye dannye. <br> Opisanie sm. v razdele dokumentacii
+            Othety.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponsePaidStorage'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/404EntityNotFound'
+        429:
+          description: Slihkom mnogo zaprosov
+        500:
+          $ref: '#/components/responses/500InternalError'

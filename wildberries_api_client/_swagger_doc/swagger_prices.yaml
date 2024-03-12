@@ -1,0 +1,1693 @@
+openapi: 3.0.1
+info:
+  title: API cen i skidok
+  description: 'S pomohu etih metodov mohno ustanavlivat ceny i skidki. Maksimum —
+    10 zaprosov za 6 sekund summarno dla vseh metodov.
+
+    '
+x-tagGroups:
+  - name: ceny i Skidki
+    tags:
+      - Ustanovka cen i skidok
+      - Sostoania zagruzok
+      - Spiski tovarov
+  - name: Ustarevhie metody
+    tags:
+      - ceny
+      - Promokody i skidki
+tags:
+  - name: Ustanovka cen i skidok
+    description: Proveraite statusy obnovlenii s pomohu metodov iz razdela [Sostoania
+      zagruzok](./#tag/Sostoyaniya-zagruzok). U metodov mohet byt otvet Uspehno (200),
+      dahe esli ne obnovilis dannye u kakih-to tovarov ili razmerov (naprimer, iz-za
+      slihkom nizkoi ceny ili skidki)
+  - name: ceny
+  - name: Sostoania zagruzok
+    description: "Kogda vy obnovlaete ceny ili skidki, dannye po kakim-to tovaram\
+      \ mogut ne obnovitsa. Naprimer, esli vy peredali nepravilnuu cenu ili skidku.\
+      \ Proveraite status zagruzki s pomohu metoda [Sostoanie obrabotannoi zagruzki](./#tag/Istoriya-zagruzok/paths/~1api~1v2~1history~1tasks/get).\n\
+      Statusy zagruzki:\n\n  * `3` — obrabotana, v tovarah net ohibok, ceny i skidki\
+      \ obnovilis.\n  * `4` — otmenena.\n  * `5` — obrabotana, no v tovarah est\
+      \ ohibki. Dla tovarov bez ohibok ceny i skidki obnovilis, a ohibki v ostalnyh\
+      \ tovarah mohno poluhit s pomohu metoda [Detalizacia obrabotannoi zagruzki](./#tag/Sostoyaniya-zagruzok/paths/~1api~1v2~1history~1goods~1task/get).\n\
+      \  * `6` — obrabotana, no vo vseh tovarah est ohibki. Ih tohe mohno poluhit\
+      \ s pomohu metoda [Detalizacia obrabotannoi zagruzki](#tag/Sostoyaniya-zagruzok/paths/~1api~1v2~1history~1goods~1task/get).\n\
+      \n\nEsli vy zadaete ceny i skidki [v lihnom kabinete, v kalendare akcii](https://seller.wildberries.ru/dp-promo-calendar),\
+      \ zagruzka s takimi tovarami popadaet v obrabotku. ceny i skidki izmenatsa k\
+      \ nahalu akcii.\n\nU takoi zagruzki status `1`, a poluhit informaciu pro nee\
+      \ mohno s pomohu metodov [Detalizacia neobrabotannoi zagruzki](./#tag/Istoriya-zagruzok/paths/~1api~1v2~1buffer~1goods~1task/get)\
+      \ i [Sostoanie neobrabotannoi zagruzki](#tag/Istoriya-zagruzok/paths/~1api~1v2~1buffer~1tasks/get)\n\
+      <blockquote class=\"spoiler\">\n  <p class=\"descr\">U zagruzki ne mohet byt\
+      \ statusa <code>2</code>.</p>\n</blockquote>\n"
+security:
+  - HeaderApiKey: []
+components:
+  securitySchemes:
+    HeaderApiKey:
+      type: apiKey
+      name: Authorization
+      in: header
+  schemas:
+    ResponseError:
+      type: object
+      properties:
+        errors:
+          type: string
+        error_code:
+          type: integer
+    Successful:
+      type: object
+      properties:
+        uploadId:
+          description: ID zagruzki
+          type: string
+    TaskAlreadyExistsError:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              description: ID zagruzki
+              type: integer
+            alreadyExists:
+              description: 'Flag dublirovania zagruzki: `true` — takaa zagruzka uhe
+                est
+
+                '
+              type: boolean
+        error:
+          description: Flag ohibki
+          type: boolean
+        errorText:
+          description: Tekst ohibki
+          type: string
+    TaskCreated:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: ID zagruzki
+            alreadyExists:
+              type: boolean
+              description: 'Flag dublirovania zagruzki: `true` — takaa zagruzka uhe
+                est
+
+                '
+              example: false
+        error:
+          description: Flag ohibki
+          type: boolean
+          example: false
+        errorText:
+          description: Tekst ohibki
+          type: string
+          example: ''
+    CancelGoods:
+      type: array
+      items:
+        $ref: '#/components/schemas/CancelGood'
+    CancelGood:
+      type: object
+      properties:
+        nmID:
+          type: integer
+          example: 1
+          description: Artikul Wildberries
+    Goods:
+      type: array
+      description: Tovary, ceny i skidki dla nih. Maksimum 1 000 tovarov. cena i skidka
+        ne mogut byt pustymi odnovremenno
+      items:
+        $ref: '#/components/schemas/Good'
+    Good:
+      type: object
+      required:
+        - nmID
+      properties:
+        nmID:
+          type: integer
+          example: 123
+          description: Artikul Wildberries
+          required: true
+        price:
+          type: integer
+          example: 999
+          description: 'cena. Valutu mohno poluhit s pomohu metoda [Poluhenie spiska
+            tovarov po artikulam](./#tag/Spiski-tovarov/paths/~1api~1v2~1list~1goods~1filter/get),
+            pole `currencyIsoCode4217`
+
+            '
+        discount:
+          type: integer
+          example: 30
+          description: Skidka, %
+    SizeGoodsBody:
+      description: Razmery i ceny dla nih. Maksimum 1 000 razmerov
+      type: array
+      items:
+        $ref: '#/components/schemas/SizeGoodReq'
+    SizeGoodReq:
+      type: object
+      required:
+        - nmID
+        - sizeID
+        - price
+      properties:
+        nmID:
+          type: integer
+          example: 123
+          description: Artikul Wildberries
+        sizeID:
+          type: integer
+          example: 98989887
+          description: ID razmera. Mohno poluhit s pomohu metoda [Poluhenie spiska
+            tovarov po artikulam](./#tag/Spiski-tovarov/paths/~1api~1v2~1list~1goods~1filter/get),
+            pole `sizeID`. V metodah kontenta eto pole `chrtID`
+        price:
+          type: integer
+          example: 999
+          description: cena. Valutu mohno poluhit s pomohu metoda [Poluhenie spiska
+            tovarov po artikulam](./#tag/Spiski-tovarov/paths/~1api~1v2~1list~1goods~1filter/get),
+            pole `currencyIsoCode4217`
+    GoodsList:
+      type: object
+      description: Razmery tovara
+      properties:
+        nmID:
+          type: integer
+          description: Artikul Wildberries
+          example: 98486
+        vendorCode:
+          type: string
+          description: Artikul prodavca
+          example: '07326060'
+        sizes:
+          type: array
+          description: Razmer
+          items:
+            type: object
+            properties:
+              sizeID:
+                type: integer
+                description: ID razmera. V metodah kontenta eto pole `chrtID`
+                format: int64
+                example: 3123515574
+              price:
+                type: integer
+                description: cena
+                example: 500
+              discountedPrice:
+                type: integer
+                description: cena so skidkoi
+                example: 350
+              techSizeName:
+                description: Razmer tovara
+                type: string
+                example: 42
+        currencyIsoCode4217:
+          type: string
+          description: Valuta, po standartu ISO 4217
+          example: RUB
+        discount:
+          type: integer
+          description: Skidka, %
+          example: 30
+        editableSizePrice:
+          description: 'Mohno li ustanavlivat ceny otdelno dla raznyh razmerov:
+            `true` — mohno, `false` — nelza. Eta vozmohnost zavisit ot kategorii
+            tovara
+
+            '
+          type: boolean
+          example: true
+    SizeGood:
+      type: object
+      description: Informacia o razmere
+      properties:
+        nmID:
+          type: integer
+          example: 123
+          description: Artikul Wildberries
+        sizeID:
+          description: ID razmera. Mohno poluhit s pomohu metoda [Poluhenie spiska
+            tovarov po artikulam](./#tag/Spiski-tovarov/paths/~1api~1v2~1list~1goods~1filter/get),
+            pole `sizeID`. V metodah kontenta eto pole `chrtID`
+          type: integer
+          example: 98989887
+        vendorCode:
+          type: string
+          example: '34552332'
+          description: Artikul prodavca
+        price:
+          type: integer
+          example: 25000
+          description: cena
+        currencyIsoCode4217:
+          type: string
+          description: Valuta, po standartu ISO 4217
+          example: RUB
+        discountedPrice:
+          type: integer
+          example: 14250
+          description: cena so skidkoi
+        discount:
+          description: Skidka, %
+          type: integer
+          example: 43
+        techSizeName:
+          description: Razmer tovara
+          type: string
+          example: 42
+        editableSizePrice:
+          description: 'Mohno li ustanavlivat ceny otdelno dla raznyh razmerov,
+            vsegda `true`. Eta vozmohnost zavisit ot kategorii tovara
+
+            '
+          type: boolean
+          example: true
+    GoodBufferHistory:
+      type: object
+      properties:
+        nmID:
+          type: integer
+          example: 544833232
+          description: Artikul Wildberries
+        vendorCode:
+          type: string
+          example: '34552332'
+          description: Artikul prodavca
+        sizeID:
+          type: integer
+          example: 54483342
+          description: ID razmera. V metodah kontenta eto pole `chrtID`
+        techSizeName:
+          type: string
+          example: XXL
+          description: Razmer
+        price:
+          type: integer
+          example: 1500
+          description: cena
+        currencyIsoCode4217:
+          type: string
+          example: RUB
+          description: Valuta, po standartu ISO 4217
+        discount:
+          type: integer
+          example: 25
+          description: Skidka, %
+        status:
+          $ref: '#/components/schemas/GoodStatusBuffer'
+        errorText:
+          type: string
+          example: null
+          description: Tekst ohibki
+    GoodHistory:
+      type: object
+      properties:
+        nmID:
+          type: integer
+          example: 544833232
+          description: Artikul Wildberries
+        vendorCode:
+          type: string
+          example: '34552332'
+          description: Artikul prodavca
+        sizeID:
+          type: integer
+          example: 54483342
+          description: ID razmera. V metodah kontenta eto pole `chrtID`
+        techSizeName:
+          type: string
+          example: 42
+          description: Razmer
+        price:
+          type: integer
+          example: 1500
+          description: cena
+        currencyIsoCode4217:
+          type: string
+          example: RUB
+          description: Valuta, po standartu ISO 4217
+        discount:
+          type: integer
+          example: 25
+          description: Skidka, %
+        status:
+          $ref: '#/components/schemas/GoodStatus'
+        errorText:
+          type: string
+          example: ''
+          description: Tekst ohibki
+    SupplierTaskMetadata:
+      properties:
+        uploadID:
+          type: integer
+          example: 395643565
+          description: ID zagruzki
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        uploadDate:
+          $ref: '#/components/schemas/Date'
+        activationDate:
+          $ref: '#/components/schemas/Date1'
+        overAllGoodsNumber:
+          description: Vsego tovarov
+          type: integer
+        successGoodsNumber:
+          description: Tovarov bez ohibok
+          type: integer
+    SupplierTaskMetadataBuffer:
+      properties:
+        uploadID:
+          type: integer
+          example: 395643565
+          description: ID zagruzki
+        status:
+          $ref: '#/components/schemas/TaskStatusBuffer'
+        uploadDate:
+          $ref: '#/components/schemas/Date'
+        activationDate:
+          $ref: '#/components/schemas/Date1'
+        overAllGoodsNumber:
+          description: Vsego tovarov
+          type: integer
+          example: 100
+        successGoodsNumber:
+          description: Tovarov bez ohibok (0, potomu hto zagruzka v obrabotke)
+          type: integer
+          example: 0
+    EditableSizePrice:
+      type: boolean
+      description: 'Mohno li ustanavlivat ceny otdelno dla raznyh razmerov: `true` —
+        mohno, `false` — nelza. Eta vozmohnost zavisit ot kategorii tovara
+
+        '
+      example: true
+    Date:
+      type: string
+      example: '2022-08-21T22:00:13+02:00'
+      format: date
+      pattern: YYYY-MM-DDTHH:MM:SSZ
+      description: Data i vrema, kogda zagruzka sozdana
+    Date1:
+      type: string
+      example: '2022-08-21T22:00:13+02:00'
+      format: date
+      pattern: YYYY-MM-DDTHH:MM:SSZ
+      description: Data i vrema, kogda zagruzka otpravlaetsa v obrabotku
+    TaskStatus:
+      description: "Status zagruzki: \n  * `3` — obrabotana, v tovarah net ohibok,\
+        \ ceny i skidki obnovilis\n  * `4` — otmenena\n  * `5` — obrabotana, no v tovarah\
+        \ est ohibki. Dla tovarov bez ohibok ceny i skidki obnovilis, a ohibki v ostalnyh\
+        \ tovarah mohno poluhit s pomohu metoda [Detalizacia obrabotannoi zagruzki](#tag/Istoriya-zagruzok/paths/~1api~1v2~1history~1goods~1task/get)\n\
+        \  * `6` — obrabotana, no vo vseh tovarah est ohibki. Ih tohe mohno poluhit\
+        \ s pomohu metoda [Detalizacia obrabotannoi zagruzki](#tag/Istoriya-zagruzok/paths/~1api~1v2~1history~1goods~1task/get)\n"
+      type: integer
+      example: 3
+    TaskStatusBuffer:
+      description: 'Status zagruzki: `1` — v obrabotke
+
+        '
+      type: integer
+      example: 1
+    GoodStatus:
+      description: "Status tovara: \n  * `2` — tovar bez ohibok, cena i/ili skidka\
+        \ obnovilas\n  * `3` — est ohibki, dannye ne obnovilis\n"
+      type: integer
+      example: 1
+    GoodStatusBuffer:
+      description: 'Status tovara: `1` — v obrabotke
+
+        '
+      type: integer
+      example: 1
+    User:
+      properties:
+        firstName:
+          type: string
+          example: Ima
+        secondName:
+          type: string
+          example: Familia
+        id:
+          type: integer
+          example: 123
+          description: Identifikator polzovatela
+        isOwner:
+          type: boolean
+          example: false
+          description: 'Polzovatel avlaetsa vladelcem lihnogo kabineta: `true`
+            - da, `false` - net
+
+            '
+        phone:
+          type: string
+          example: '71111111100000'
+          description: Nomer telefona polzovatela
+  examples:
+    TokenMissing:
+      description: Token otsutstvuet
+      value: 'proxy: unauthorized'
+    TokenInvalid:
+      description: Token nedeistvitelen
+      value: 'proxy: invalid token'
+    TokenNotFound:
+      description: Token udalen
+      value: 'proxy: not found'
+    InvalidCurrency:
+      description: Nepravilnaa valuta
+      value:
+        data:
+          type: object
+          nullable: true
+        error: true
+        errorText: Invalid currency
+    InvalidQueryParams:
+      description: Nepravilnye parametry zaprosa
+      value:
+        data:
+          type: object
+          nullable: true
+        error: true
+        errorText: Invalid query params
+    GoodsNumberLimitExceeded:
+      description: V zaprose slihkom mnogo tovarov
+      value:
+        data:
+          type: object
+          nullable: true
+        error: true
+        errorText: Goods number limit exceeded
+    TaskAlreadyExists:
+      description: 'Takaa zagruzka uhe suhestvuet
+
+        '
+      value:
+        data:
+          type: object
+          nullable: true
+        error: true
+        errorText: '1'
+    DuplicatedNmIdInTask:
+      description: V zaprose neskolko odinakovyh `nmid`
+      value:
+        data:
+          type: object
+          nullable: true
+        error: true
+        errorText: Duplicated nm_id in task
+    NoGoodsForProcess:
+      description: ceny i skidki takie he, kak seihas
+      value:
+        data:
+          type: object
+          nullable: true
+        error: true
+        errorText: No goods for process
+    FailedToParseData:
+      description: Ne udalos obrabotat dannye, proverte, hto zapros pravilnyi
+      value:
+        data:
+          type: object
+          nullable: true
+        error: true
+        errorText: Failed to parse data
+    PriceHasDecimalPlaces:
+      description: U ceny drobnoe znahenie, ispravte na celoe
+      value:
+        data:
+          type: object
+          nullable: true
+        error: true
+        errorText: Price has decimal places
+    WrongPriceValue:
+      description: Nekorrektnaa cena
+      value:
+        data:
+          type: object
+          nullable: true
+        error: true
+        errorText: Wrong price value
+    WrongDiscountValue:
+      description: Nekorrektnaa skidka
+      value:
+        data:
+          type: object
+          nullable: true
+        error: true
+        errorText: Wrong discount value
+    WrongNmValue:
+      description: Nepravilnyi `nmID`
+      value:
+        data:
+          type: object
+          nullable: true
+        error: true
+        errorText: Wrong nm value
+    BothDiscountAndPriceAreNotSet:
+      description: cena i skidka ne ustanovleny
+      value:
+        data:
+          type: object
+          nullable: true
+        error: true
+        errorText: Both discount and price are not set
+    PriceNotSet:
+      description: cena ne ustanovlena
+      value:
+        data:
+          type: object
+          nullable: true
+        error: true
+        errorText: Both discount and price are not set
+    EmptyData:
+      description: Net dannyh
+      value:
+        data:
+          type: object
+          nullable: true
+        error: true
+        errorText: Empty data
+    InvalidActivationDate:
+      description: Nepravilnaa data i vrema, kogda zagruzka otpravlaetsa v obrabotku
+      value:
+        data:
+          type: object
+          nullable: true
+        error: true
+        errorText: Invalid activation date
+    NoValidGoodsInTask:
+      description: Takih tovarov ili razmerov net (naprimer, ih udalili)
+      value:
+        data:
+          type: object
+          nullable: true
+        error: true
+        errorText: No valid goods in task
+    DuplicatedSizeIdInTask:
+      description: V zaprose neskolko odinakovyh `sizeID`
+      value:
+        data:
+          type: object
+          nullable: true
+        error: true
+        errorText: Duplicated size_id in task
+    NoValidDiscountsToCancel:
+      description: Net skidok, kotorye mohno otmenit
+      value:
+        data:
+          type: object
+          nullable: true
+        error: true
+        errorText: No valid discounts to cancel
+    SortError:
+      description: Mohno sortirovat libo po cene, libo po skidke
+      value:
+        data:
+          type: object
+          nullable: true
+        error: true
+        errorText: Can sort only by price or discount at the same time
+    BadQueryParams:
+      description: Nekorrektnye parametry zaprosa
+      value:
+        errors:
+          - Invalid query params
+        error_code: 1
+    NumberLimitExceeded:
+      description: Prevyhen limit kolihestva tovarov v zaprose
+      value:
+        errors:
+          - Goods number limit exceeded
+        error_code: 1
+  parameters:
+    quantity:
+      in: query
+      name: quantity
+      description: '`1` - tovar s nenulevym ostatkom, `0` - tovar s lubym ostatkom'
+      schema:
+        type: integer
+        enum:
+          - 0
+          - 1
+    uploadID:
+      in: query
+      name: uploadID
+      description: ID zagruzki
+      required: true
+      schema:
+        type: integer
+        example: 146
+    limit:
+      in: query
+      name: limit
+      description: 'Skolko elementov vyvesti na odnoi stranice (paginacia). Maksimum
+        1 000 elementov
+
+        '
+      schema:
+        type: integer
+        format: uint
+        example: 10
+      required: true
+    offset:
+      in: query
+      name: offset
+      description: Skolko elementov propustit
+      schema:
+        type: integer
+        format: uint
+        example: 0
+    nmID:
+      in: query
+      name: nmID
+      description: Artikul Wildberries
+      schema:
+        type: integer
+        example: 1
+      required: true
+    filterNmID:
+      in: query
+      description: 'Artikul Wildberries, po kotoromu iskat tovar
+
+        '
+      name: filterNmID
+      schema:
+        type: integer
+      example: 44589768676
+    sortPrice:
+      in: query
+      description: Sortirovka po cene
+      name: sortPrice
+      schema:
+        type: boolean
+      example: true
+    sortPriceValue:
+      in: query
+      description: Poradok sortirovki po cene (`1` - po vozrastaniu, `0` - po ubyvaniu)
+      name: sortPriceValue
+      schema:
+        type: integer
+      example: 0
+    sortDiscount:
+      in: query
+      description: Sortirovka po skidke
+      name: sortDiscount
+      schema:
+        type: boolean
+      example: true
+    sortDiscountValue:
+      in: query
+      description: Poradok sortirovki po skidke (`1` - po ubyvaniu, `0` - po vozrastaniu)
+      name: sortDiscountValue
+      schema:
+        type: integer
+      example: 1
+    activateFrom:
+      description: Data aktivacii skidki v formate `YYYY-MM-DD` ili `YYYY-MM-DD HH:MM:SS`.
+        Esli ne ukazyvat, skidka nahnet deistvovat srazu.
+      in: query
+      name: activateFrom
+      schema:
+        type: string
+  responses:
+    ResponseGoodsLists:
+      description: Tovary
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                properties:
+                  listGoods:
+                    description: Informacia o tovarah
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GoodsList'
+    ResponseGoodBuffer:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                properties:
+                  uploadID:
+                    type: integer
+                    description: ID zagruzki
+                    example: 323
+                  bufferGoods:
+                    type: array
+                    description: Informacia o tovarah v zagruzke
+                    items:
+                      $ref: '#/components/schemas/GoodHistory'
+              error:
+                type: boolean
+                description: Flag ohibki
+                example: false
+              errorText:
+                type: string
+                description: Tekst ohibki
+                example: ''
+    ResponseGoodHistories:
+      description: Informacia o tovarah v zagruzke
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                properties:
+                  uploadID:
+                    type: integer
+                    description: ID zagruzki
+                    example: 3235236546
+                  historyGoods:
+                    type: array
+                    description: Informacia o tovarah v zagruzke
+                    items:
+                      $ref: '#/components/schemas/GoodHistory'
+    ResponseGoodBufferHistories:
+      description: Informacia o tovarah v zagruzke
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                properties:
+                  uploadID:
+                    type: integer
+                    description: ID zagruzki
+                    example: 3235236546
+                  bufferGoods:
+                    type: array
+                    description: Informacia o tovarah v zagruzke
+                    items:
+                      $ref: '#/components/schemas/GoodBufferHistory'
+              error:
+                type: boolean
+                description: Flag ohibki
+                example: false
+              errorText:
+                type: string
+                description: Tekst ohibki
+                example: ''
+    ResponseTaskHistory:
+      description: Sostoanie zagruzki
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/SupplierTaskMetadata'
+              error:
+                type: boolean
+                description: Flag ohibki
+                example: false
+              errorText:
+                description: Tekst ohibki
+                type: string
+                example: ''
+    ResponseTaskBuffer:
+      description: Sostoanie zagruzki
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/SupplierTaskMetadataBuffer'
+              error:
+                type: boolean
+                description: Flag ohibki
+                example: false
+              errorText:
+                type: string
+                description: Tekst ohibki
+                example: ''
+    ResponseSizeLists:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                properties:
+                  listGoods:
+                    description: Razmery tovara
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SizeGood'
+              error:
+                description: Flag ohibki
+                type: boolean
+                example: true
+              errorText:
+                description: Tekst ohibki
+                type: string
+    SuccessTaskResponse:
+      description: Uspehno
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskCreated'
+    Responses401:
+      description: ''
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponseError'
+          examples:
+            AuthorizationError:
+              description: Ohibka avtorizacii
+              value:
+                data:
+                  type: object
+                  nullable: true
+                error: true
+                errorText: Authorization error
+            UnknownMethod:
+              description: Neizvestnyi metod
+              value:
+                data:
+                  type: object
+                  nullable: true
+                error: true
+                errorText: Unknown method
+            AccessDenied:
+              description: Dostup zaprehen
+              value:
+                data:
+                  type: object
+                  nullable: true
+                error: true
+                errorText: Access denied
+    Responses500:
+      description: Vnutrennaa ohibka servisa
+    ExceededLimitRequests429:
+      description: Slihkom mnogo zaprosov
+    Responses208:
+      description: ''
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskAlreadyExistsError'
+          examples:
+            TaskAlreadyExists:
+              description: 'Takaa zagruzka uhe est
+
+                '
+              value:
+                data:
+                  id: 1111111
+                  alreadyExists: true
+                error: false
+                errorText: Task already exists
+    ErrorResponse:
+      description: Drugie ohibki
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                nullable: true
+              error:
+                type: boolean
+              errorText:
+                type: string
+                example: Unknown error
+    ErrorInternalResponse:
+      description: Prohie ohibki
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                nullable: true
+              error:
+                type: boolean
+              errorText:
+                type: string
+                example: Internal server error
+    ErrorUnknownUser:
+      description: Ohibka avtorizacii
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                nullable: true
+              error:
+                type: boolean
+                example: true
+              errorText:
+                type: string
+                example: Unknown user
+    ErrorFailedParseData:
+      description: Ohibka obrabotki dannyh
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                nullable: true
+              error:
+                type: boolean
+                example: true
+              errorText:
+                type: string
+                example: Failed to parse data
+    ErrorWrongParameters:
+      description: Nepravilnyi zapros
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                nullable: true
+              error:
+                type: boolean
+                example: true
+              errorText:
+                type: string
+                example: Invalid query params
+  requestBodies:
+    SupplierTaskRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/Goods'
+    CancelTaskDiscountRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/CancelGoods'
+    SupplierTaskRequestSize:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/SizeGoodsBody'
+    NomenclatureArray:
+      description: Perehen nomenklatur
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                discount:
+                  type: integer
+                  description: Razmer skidki
+                  example: 15
+                nm:
+                  type: integer
+                  description: Artikul WB
+                  example: 1234567
+      required: true
+    NomenclatureArray2:
+      description: Perehen nomenklatur
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                promoCode:
+                  type: integer
+                  description: Promokod
+                  example: 15
+                nm:
+                  type: integer
+                  description: Artikul WB
+                  example: 1234567
+      required: true
+paths:
+  /public/api/v1/updateDiscounts:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      deprecated: true
+      security:
+        - HeaderApiKey: []
+      summary: Ustanovka skidok
+      description: 'Ustanovka skidok dla nomenklatur. Maksimalnoe kolihestvo nomenklatur
+        na zapros - 1000.<br> Esli, ukazav `activateFrom` bolhe tekuhei daty, Vy
+        poluhaete ohibku vida `{"errors": [ "Invalid activation date"], "error_code":
+        1}`, znahit, Vah akkaunt pereveden na sistemu <b>ceny i skidki NEW</b>, i
+        eta opcia bolee ne dostupna.<br> Otpravte zapros, ukazav nastoahuu datu.
+
+        '
+      tags:
+        - Promokody i skidki
+      parameters:
+        - $ref: '#/components/parameters/activateFrom'
+      requestBody:
+        $ref: '#/components/requestBodies/NomenclatureArray'
+      responses:
+        200:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+        400:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+              examples:
+                InvalidActivationDate:
+                  description: Nedeistvitelnaa data aktivacii
+                  value:
+                    error:
+                      - Invalid activation date
+                    error_code: 1
+                NoGoodsForProcess:
+                  description: Vse peredavaemye skidki uhe ustanovleny
+                  value:
+                    error:
+                      - No goods for process
+                    error_code: 1
+                WrongNmValue:
+                  description: Nekorrektnoe znahenie nmID
+                  value:
+                    error:
+                      - Wrong discount value
+                    error_code: 1
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+  /public/api/v1/revokeDiscounts:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      deprecated: true
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Promokody i skidki
+      summary: Sbros skidok dla nomenklatur
+      description: 'Sbros skidok dla nomenklatur. V otvete vernetsa nomer zagruzki,
+        po kotoromu v lihnom kabinete mohno posmotret detali operacii.
+
+        '
+      requestBody:
+        required: true
+        description: Spisok artikulov WB, po kotorym neobhodimo sbrosit skidku
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+              example:
+                - 12345678
+                - 81234567
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uploadId:
+                    type: integer
+                    description: Nomer zagruzki na sbros skidki
+              example:
+                uploadId: 123456789
+        400:
+          description: Nekorrektnyi zapros
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                NoValidDiscountsToCancel:
+                  $ref: '#/components/examples/NoValidDiscountsToCancel'
+                FailedToParseData:
+                  $ref: '#/components/examples/FailedToParseData'
+                NoGoodsForProcess:
+                  description: Po vsem peredavaemym artikulam otmena skidok uhe proizvoditsa/proizvedena.
+                  value:
+                    error:
+                      - No goods for process
+                    error_code: 1
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+  /public/api/v1/updatePromocodes:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      deprecated: true
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Promokody i skidki
+      summary: Ustanovka promokodov dla nomenklatur
+      description: 'Ustanovka promokodov dla nomenklatur. <br> Maksimalnoe kolihestvo
+        nomenklatur na zapros - 1000
+
+        '
+      parameters:
+        - description: Data aktivacii promokada v formate `YYYY-MM-DD` ili `YYYY-MM-DD
+            HH:MM:SS`. Esli ne ukazyvat, promokod nahnet deistvovat srazu
+          in: query
+          name: activateFrom
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/NomenclatureArray2'
+      responses:
+        200:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+  /public/api/v1/revokePromocodes:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      deprecated: true
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Promokody i skidki
+      description: Sbros promokodov dla nomenklatur
+      summary: Sbros promokodov dla nomenklatur
+      requestBody:
+        required: true
+        description: Perehen nomenklatur k otmene promokodov
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+              example:
+                - 12345678
+                - 81234567
+      responses:
+        200:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+  /api/v2/upload/task:
+    servers:
+      - url: https://discounts-prices-api.wb.ru
+    post:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Ustanovka cen i skidok
+      summary: Ustanovit ceny i skidki
+      description: 'Ustanavlivaet ceny i skidki dla tovarov
+
+        '
+      requestBody:
+        $ref: '#/components/requestBodies/SupplierTaskRequest'
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessTaskResponse'
+        208:
+          $ref: '#/components/responses/Responses208'
+        400:
+          description: Nepravilnyi zapros
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+              examples:
+                GoodsNumberLimitExceeded:
+                  $ref: '#/components/examples/GoodsNumberLimitExceeded'
+                DuplicatedNmIdInTask:
+                  $ref: '#/components/examples/DuplicatedNmIdInTask'
+                NoGoodsForProcess:
+                  $ref: '#/components/examples/NoGoodsForProcess'
+                FailedToParseData:
+                  $ref: '#/components/examples/FailedToParseData'
+                PriceHasDecimalPlaces:
+                  $ref: '#/components/examples/PriceHasDecimalPlaces'
+                WrongPriceValue:
+                  $ref: '#/components/examples/WrongPriceValue'
+                WrongNmValue:
+                  $ref: '#/components/examples/WrongNmValue'
+                BothDiscountAndPriceAreNotSet:
+                  $ref: '#/components/examples/PriceNotSet'
+                EmptyData:
+                  $ref: '#/components/examples/EmptyData'
+                NoValidGoodsInTask:
+                  $ref: '#/components/examples/NoValidGoodsInTask'
+        401:
+          $ref: '#/components/responses/Responses401'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests429'
+        500:
+          $ref: '#/components/responses/Responses500'
+  /api/v2/upload/task/size:
+    servers:
+      - url: https://discounts-prices-api.wb.ru
+    post:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Ustanovka cen i skidok
+      summary: Ustanovit ceny dla razmerov
+      description: "Ustanavlivaet ceny otdelno dla razmerov. Rabotaet tolko dla\
+        \ tovarov iz kategorii, gde mohno ustanavlivat ceny otdelno dla raznyh razmerov.\
+        \ Dla takih tovarov v otvete metoda [Poluhit tovary po artikulam](./#tag/Spiski-tovarov/paths/~1api~1v2~1list~1goods~1size~1nm/get)\
+        \ `editableSizePrice: true`.    \n"
+      requestBody:
+        $ref: '#/components/requestBodies/SupplierTaskRequestSize'
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessTaskResponse'
+        208:
+          $ref: '#/components/responses/Responses208'
+        400:
+          description: Nepravilnyi zapros
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+              examples:
+                GoodsNumberLimitExceeded:
+                  $ref: '#/components/examples/GoodsNumberLimitExceeded'
+                DuplicatedNmIdInTask:
+                  $ref: '#/components/examples/DuplicatedNmIdInTask'
+                NoGoodsForProcess:
+                  $ref: '#/components/examples/NoGoodsForProcess'
+                FailedToParseData:
+                  $ref: '#/components/examples/FailedToParseData'
+                PriceHasDecimalPlaces:
+                  $ref: '#/components/examples/PriceHasDecimalPlaces'
+                WrongPriceValue:
+                  $ref: '#/components/examples/WrongPriceValue'
+                WrongNmValue:
+                  $ref: '#/components/examples/WrongNmValue'
+                BothDiscountAndPriceAreNotSet:
+                  $ref: '#/components/examples/BothDiscountAndPriceAreNotSet'
+                EmptyData:
+                  $ref: '#/components/examples/EmptyData'
+                NoValidGoodsInTask:
+                  $ref: '#/components/examples/NoValidGoodsInTask'
+        401:
+          $ref: '#/components/responses/Responses401'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests429'
+        500:
+          $ref: '#/components/responses/Responses500'
+  /public/api/v1/prices:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    post:
+      deprecated: true
+      security:
+        - HeaderApiKey: []
+      summary: Zagruzka cen
+      description: Zagruzka cen. Za raz mohno zagruzit ne bolee 1000 nomenklatur.
+      tags:
+        - ceny
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  nmId:
+                    type: integer
+                    description: Nomenklatura
+                    example: 1234567
+                  price:
+                    type: number
+                    description: cena (ukazyvat bez kopeek)
+                    example: 1000
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Successful'
+              examples:
+                Successful:
+                  description: Zagruzka prohla uspehno
+                  value:
+                    uploadId: 612455
+        400:
+          description: ''
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ResponseError'
+              examples:
+                NoGoodsForProcess:
+                  description: Vse peredavaemye ceny/skidki uhe ustanovleny
+                  value:
+                    error:
+                      - No goods for process
+                    error_code: 1
+                InvalidQueryParams:
+                  $ref: '#/components/examples/BadQueryParams'
+                GoodsNumberLimitExceeded:
+                  $ref: '#/components/examples/NumberLimitExceeded'
+                DuplicatedNmIdInTask:
+                  $ref: '#/components/examples/DuplicatedNmIdInTask'
+                FailedToParseData:
+                  $ref: '#/components/examples/FailedToParseData'
+                PriceHasDecimalPlaces:
+                  $ref: '#/components/examples/PriceHasDecimalPlaces'
+                WrongPriceValue:
+                  $ref: '#/components/examples/WrongPriceValue'
+                WrongNmValue:
+                  $ref: '#/components/examples/WrongNmValue'
+                EmptyData:
+                  $ref: '#/components/examples/EmptyData'
+                NoValidGoodsInTask:
+                  $ref: '#/components/examples/NoValidGoodsInTask'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+  /api/v2/list/goods/filter:
+    servers:
+      - url: https://discounts-prices-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Spiski tovarov
+      summary: Poluhit tovary
+      description: Vozvrahaet informaciu o tovare po ego artikulu. htoby poluhit
+        informaciu obo vseh tovarah, ostavte artikul pustym
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/filterNmID'
+      responses:
+        200:
+          $ref: '#/components/responses/ResponseGoodsLists'
+        400:
+          description: Nepravilnyi zapros
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+              examples:
+                SortError:
+                  $ref: '#/components/examples/SortError'
+                InvalidQueryParams:
+                  $ref: '#/components/examples/InvalidQueryParams'
+        401:
+          $ref: '#/components/responses/Responses401'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests429'
+        500:
+          $ref: '#/components/responses/Responses500'
+  /api/v2/list/goods/size/nm:
+    servers:
+      - url: https://discounts-prices-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Spiski tovarov
+      summary: Poluhit razmery tovara
+      description: 'Vozvrahaet informaciu o vseh razmerah odnogo tovara. Rabotaet
+        tolko dla tovarov iz kategorii, gde mohno ustanavlivat ceny otdelno dla
+        raznyh razmerov. Dla takih tovarov v otvete metoda [Poluhit tovary po artikulam](./#tag/Spiski-tovarov/paths/~1api~1v2~1list~1goods~1size~1nm/get)
+        `editableSizePrice: true`.
+
+        '
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/nmID'
+      responses:
+        200:
+          $ref: '#/components/responses/ResponseSizeLists'
+        400:
+          description: Nepravilnyi zapros
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+              examples:
+                InvalidQueryParams:
+                  $ref: '#/components/examples/InvalidQueryParams'
+        401:
+          $ref: '#/components/responses/Responses401'
+        429:
+          $ref: '#/components/responses/ExceededLimitRequests429'
+        500:
+          $ref: '#/components/responses/Responses500'
+  /public/api/v1/info:
+    servers:
+      - url: https://suppliers-api.wildberries.ru
+    get:
+      deprecated: true
+      security:
+        - HeaderApiKey: []
+      description: Poluhenie informacii po nomenklaturam, ih cenam, skidkam i promokodam.
+        Esli ne ukazyvat filtry, vernetsa ves tovar.
+      summary: Poluhenie informacii o cenah.
+      tags:
+        - ceny
+      parameters:
+        - $ref: '#/components/parameters/quantity'
+      responses:
+        200:
+          description: Informacia o cenah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nmId:
+                    type: integer
+                    description: Artikul WB
+                    example: 1234567
+                  price:
+                    type: number
+                    description: cena
+                    example: 1000
+                  discount:
+                    type: integer
+                    description: Skidka
+                    example: 10
+                  promoCode:
+                    type: number
+                    description: Promokod
+                    example: 5
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+  /api/v2/history/tasks:
+    servers:
+      - url: https://discounts-prices-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sostoania zagruzok
+      summary: Sostoanie obrabotannoi zagruzki
+      description: Vozvrahaet informaciu pro obrabotannuu zagruzku
+      parameters:
+        - $ref: '#/components/parameters/uploadID'
+      responses:
+        '200':
+          $ref: '#/components/responses/ResponseTaskHistory'
+        '400':
+          $ref: '#/components/responses/ErrorWrongParameters'
+        '401':
+          $ref: '#/components/responses/ErrorUnknownUser'
+        4XX:
+          $ref: '#/components/responses/ErrorResponse'
+        5XX:
+          $ref: '#/components/responses/ErrorInternalResponse'
+  /api/v2/history/goods/task:
+    servers:
+      - url: https://discounts-prices-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sostoania zagruzok
+      summary: Detalizacia obrabotannoi zagruzki
+      description: Vozvrahaet informaciu o tovarah v obrabotannoi zagruzke, v tom
+        hisle, ob ohibkah v nih
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/uploadID'
+      responses:
+        '200':
+          $ref: '#/components/responses/ResponseGoodHistories'
+        '400':
+          $ref: '#/components/responses/ErrorWrongParameters'
+        '401':
+          $ref: '#/components/responses/ErrorUnknownUser'
+        4XX:
+          $ref: '#/components/responses/ErrorResponse'
+        5XX:
+          $ref: '#/components/responses/ErrorInternalResponse'
+  /api/v2/buffer/tasks:
+    servers:
+      - url: https://discounts-prices-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sostoania zagruzok
+      summary: Sostoanie neobrabotannoi zagruzki
+      description: Vozvrahaet informaciu pro zagruzku v obrabotke
+      parameters:
+        - $ref: '#/components/parameters/uploadID'
+      responses:
+        '200':
+          $ref: '#/components/responses/ResponseTaskBuffer'
+        '400':
+          $ref: '#/components/responses/ErrorWrongParameters'
+        '401':
+          $ref: '#/components/responses/ErrorUnknownUser'
+        4XX:
+          $ref: '#/components/responses/ErrorResponse'
+        5XX:
+          $ref: '#/components/responses/ErrorInternalResponse'
+  /api/v2/buffer/goods/task:
+    servers:
+      - url: https://discounts-prices-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      tags:
+        - Sostoania zagruzok
+      summary: Detalizacia neobrabotannoi zagruzki
+      description: Vozvrahaet informaciu o tovarah iz zagruzki v obrabotke, v tom
+        hisle, ob ohibkah v nih
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/uploadID'
+      responses:
+        '200':
+          $ref: '#/components/responses/ResponseGoodBufferHistories'
+        '400':
+          $ref: '#/components/responses/ErrorWrongParameters'
+        '401':
+          $ref: '#/components/responses/ErrorUnknownUser'
+        4XX:
+          $ref: '#/components/responses/ErrorResponse'
+        5XX:
+          $ref: '#/components/responses/ErrorInternalResponse'

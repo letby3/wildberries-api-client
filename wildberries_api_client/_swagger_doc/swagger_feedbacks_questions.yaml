@@ -1,0 +1,3016 @@
+openapi: 3.0.1
+info:
+  title: Opisanie API Voprosov i Otzyvov
+  version: '3.0'
+  description: '`Vahno!` Dopuskaetsa 1 zapros v sekundu na metody voprosov i otzyvov
+    v celom. Pri prevyhenii limita do 3 zaprosov v sekundu posleduet blokirovka na
+    60 sekund.
+
+    '
+security:
+  - HeaderApiKey: []
+x-tagGroups:
+  - name: Voprosy
+    tags:
+      - Voprosy
+  - name: Otzyvy
+    tags:
+      - Otzyvy
+  - name: hablony dla voprosov i otzyvov
+    tags:
+      - hablony dla voprosov i otzyvov
+tags:
+  - name: hablony dla voprosov i otzyvov
+    description: 'Dannyi razdel soderhit metody, kotorye pozvolaut sozdavat, poluhat,
+      redaktirovat i udalat hablony otvetov na voprosy i otzyvy.<br> <br> `Vahno!`
+      Differenciacia bolhei hasti otvetov po status-kodu ne predusmotrena. <br> Na
+      nekorrektnyi zapros Vy poluhite otvet so status-kodom 200 i opisaniem ohibki.
+
+      '
+components:
+  securitySchemes:
+    HeaderApiKey:
+      type: apiKey
+      name: Authorization
+      in: header
+  examples:
+    TokenMissing:
+      description: Token otsutstvuet
+      value: 'proxy: unauthorized'
+    TokenInvalid:
+      description: Token nedeistvitelen
+      value: 'proxy: invalid token'
+    TokenNotFound:
+      description: Token udalen
+      value: 'proxy: not found'
+    FeedbackErr400:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Something went wrong
+        additionalErrors: null
+        requestId: 734c9ea8-39e5-45c9-8cad-f03c13f733e9
+    FeedbackErr403:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Ohibka avtorizacii
+        additionalErrors: null
+        requestId: 734c9ea8-39e5-45c9-8cad-f03c13f733e9
+    FeedbackErr404:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Ne naiden otzyv id
+        additionalErrors: null
+        requestId: 734c9ea8-39e5-45c9-8cad-f03c13f733e9
+    CouldNotFixFeedback:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Ne udalos ispravit otzyv
+        additionalErrors: null
+        requestId: 734c9ea8-39e5-45c9-8cad-f03c13f733e9
+    responseInaccessibleBackGoodError422:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Zapros na vozvrat pokupok nedostupen
+        additionalErrors: null
+        requestId: f551e94d-9bd5-431d-a4b6-b78106fe6348
+    responseUnsuccessfullyBackGoodError422:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Ne udalos vypolnit zapros na vozvrat pokupok
+        additionalErrors: null
+        requestId: 93ea349d-d0ec-41b0-aaac-a8f5f137a109
+    responseDoNotGetFeedback400:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Ne udalos poluhit otzyv
+        additionalErrors: null
+        requestId: 958d9676-b50c-41d6-b7ce-3c9f0bc3b822
+    ReviewRatingNotAvailable:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Ocenka otzyva nedostupna
+        additionalErrors: null
+        requestId: 9e414d33-5cdd-44e6-8283-321c5cfecf63
+    EmptyFieldsInRequest:
+      description: Otsutstvuut pola ocenok v zaprose
+      value:
+        data: null
+        error: true
+        errorText: Pustye pola v zaprose
+        additionalErrors: null
+        requestId: f538dc5b-bb66-45d0-b9dd-ac11087029e1
+    unknownEstimate:
+      description: ''
+      value:
+        data: null
+        error: true
+        errorText: Neizvestnaa ocenka, vyberite dostupnuu iz spiska
+        additionalErrors: null
+        requestId: 32e010ea-3294-4047-a41b-e6f1f82c7916
+    EmptyAuthHeader:
+      summary: EmptyAuthHeader
+      description: Pustoi zagolovok Authorization
+      value: 'Error ae394f96-e258-432d-af13-a53a3d31f8b0: request rejected, unathorized:
+        1; empty Authorization header'
+    TokenScopeNotAllowed:
+      summary: TokenScopeNotAllowed
+      description: Tip ispolzuemogo tokena ne podhodit dla etogo metoda
+      value: 'Error ae394f96-e258-432d-af13-a53a3d31f8b0: request rejected, unathorized:
+        token scope not allowed for this API route'
+    Response200:
+      description: Uspehno
+      value:
+        data:
+          templates:
+            - id: id
+              name: name
+              text: text
+        error: false
+        errorText: ''
+        additionalErrors: {}
+    IncorrectTemplateType:
+      description: Nevernyi tip hablona
+      value:
+        data: null
+        error: true
+        errorText: Neizvestnyi tip hablona
+        additionalErrors: null
+    TemplateLimitExceeded:
+      description: Prevyhen limit hablonov
+      value:
+        data: null
+        error: true
+        errorText: Prevyhen limit hablonov
+        additionalErrors: null
+    InvalidTemplateNameLen:
+      description: Nedopustimaa dlina nazvania hablona
+      value:
+        data: null
+        error: true
+        errorText: Dopustimaa dlina nazvania hablona ot 1 do 100 simvolov
+        additionalErrors: null
+    InvalidCommentLenTemplate:
+      description: Nedopustimaa dlina kommentaria v hablone
+      value:
+        data: null
+        error: true
+        errorText: Dopustimaa dlina kommentaria v hablone ot 2 do 1000 simvolov
+        additionalErrors: null
+    InvalidRequest:
+      description: Nevernyi zapros
+      value:
+        data: null
+        error: true
+        errorText: Nevernyi zapros
+        additionalErrors: null
+    EditTemplateError:
+      description: Ne udalos otredaktirovat hablon
+      value:
+        data: null
+        error: true
+        errorText: Ne udalos otredaktirovat hablon
+        additionalErrors: null
+    PostTemplateOK:
+      description: Uspehno
+      value:
+        data:
+          id: '1234'
+        error: false
+        errorText: ''
+        additionalErrors: null
+    PatchDelRespOK:
+      description: Uspehno
+      value:
+        data: true
+        error: false
+        errorText: ''
+        additionalErrors: null
+    ErrorDeleteBD:
+      description: Ohibka udalenia hablona iz bazy dannyh
+      value:
+        data: null
+        error: true
+        errorText: Ohibka udalenia hablona iz bazy dannyh
+        additionalErrors: null
+  schemas:
+    responsefeedbackErr:
+      type: object
+      properties:
+        data:
+          type: object
+          nullable: true
+        error:
+          description: Est li ohibka
+          type: boolean
+        errorText:
+          description: Opisanie ohibki
+          type: string
+        additionalErrors:
+          description: Dopolnitelnye ohibki
+          nullable: true
+          type: array
+          items:
+            type: string
+        requestId:
+          description: ''
+          type: string
+    productRating:
+      type: object
+      properties:
+        nmId:
+          type: integer
+          description: Artikul WB
+        imtId:
+          type: integer
+          description: Identifikator kartohki tovara
+        valuationsSum:
+          type: integer
+          description: Summa ocenok
+        feedbacksCount:
+          type: integer
+          description: Kolihestvo otzyvov
+        valuation:
+          type: number
+          description: Srednaa ocenka
+        productName:
+          type: string
+          nullable: true
+          description: Nazvanie tovara
+        supplierArticle:
+          type: string
+          description: Artikul prodavca
+        brandName:
+          type: string
+          description: Brend tovara
+    responseFeadback:
+      description: Massiv struktur otzyvov
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            description: Id otzyva
+          userName:
+            type: string
+            description: Ima avtora otzyva
+          matchingSize:
+            type: string
+            description: "<dl> <dt>\n  Sootvetstvie zaavlennogo razmera realnomu.\n\
+              \  <br>Vozmohnye znahenia:\n</dt> <dd>\"\" - dla bezrazmernyh tovarov,</dd>\
+              \ <dd>\"ok\" - sootvetstvuet razmeru,</dd> <dd>\"smaller\" - malomerit,</dd>\
+              \ <dd>\"bigger\" - bolhemerit</dd>               </dl>            \
+              \          \n"
+          text:
+            type: string
+            description: Tekst otzyva
+          productValuation:
+            type: integer
+            description: Ocenka tovara ot pokupatela
+          createdDate:
+            type: string
+            format: date-time
+            description: Data i vrema sozdania otzyva
+          state:
+            type: string
+            description: '<dt>Status otzyva:</dt> <dd>`none` - ne obrabotan (novyi)</dd>
+              <dd>`wbRu` - obrabotan</dd>
+
+              '
+          answer:
+            type: object
+            description: Struktura otveta
+            properties:
+              text:
+                type: string
+                description: Tekst otveta
+              state:
+                type: string
+                description: '<dt>Status:</dt> <dd>`none` - novyi</dd> <dd>`wbRu`
+                  - otobrahaetsa na saite</dd> <dd>`reviewRequired` - otvet prohodit
+                  proverku</dd> <dd>`rejected` - otvet otklonen</dd>
+
+                  '
+          productDetails:
+            description: Struktura tovara
+            type: object
+            properties:
+              nmId:
+                type: integer
+                description: Artikul WB
+              imtId:
+                type: integer
+                description: Identifikator kartohki tovara
+              productName:
+                type: string
+                description: Nazvanie tovara
+              supplierArticle:
+                type: string
+                nullable: true
+                description: Artikul prodavca
+              supplierName:
+                type: string
+                nullable: true
+                description: Ima prodavca
+              brandName:
+                type: string
+                nullable: true
+                description: Brend tovara
+              size:
+                type: string
+                description: Razmer tovara (`techSize` v KT)
+          photoLinks:
+            description: Massiv struktur fotografii
+            type: array
+            items:
+              type: object
+              properties:
+                fullSize:
+                  type: string
+                  description: Adres fotografii polnogo razmera
+                miniSize:
+                  type: string
+                  description: Adres fotografii malenkogo razmera
+          video:
+            description: Struktura video
+            type: object
+            properties:
+              previewImage:
+                type: string
+                description: Ssylka na oblohku video
+              link:
+                type: string
+                description: Ssylka na fail pleilista video (dostupno po protokolu
+                  hls)
+              duration_sec:
+                type: integer
+                description: Obhaa prodolhitelnost video
+          wasViewed:
+            type: boolean
+            description: Prosmotren li otzyv
+          isAbleSupplierFeedbackValuation:
+            description: Dostupna li prodavcu ocenka otzyva (`true` - dostupna, `false`
+              - ne dostupna)
+            type: boolean
+          supplierFeedbackValuation:
+            description: Ocenka otzyva, ostavlennaa prodavcom
+            type: integer
+          isAbleSupplierProductValuation:
+            description: Dostupna li prodavcu ocenka tovara (`true` - dostupna, `false`
+              - ne dostupna)
+            type: boolean
+          supplierProductValuation:
+            description: Ocenka tovara, ostavlennaa prodavcom
+            type: integer
+          isAbleReturnProductOrders:
+            description: Dostupna li tovaru opcia vozrata (`fase` - net, `true` -
+              da)
+            type: boolean
+          returnProductOrdersDate:
+            description: Data i vrema, kogda na zapros vozvrata byl poluhen otvet
+              so status-kodom 200.
+            type: string
+          bables:
+            description: Cpisok tegov pokupatela
+            type: array
+            items:
+              type: string
+    Response200:
+      description: ''
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            templates:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Identifikator hablona
+                  name:
+                    type: string
+                    description: Nazvanie hablona
+                  text:
+                    type: string
+                    description: Tekst hablona
+        error:
+          type: boolean
+          description: Est li ohibka
+        errorText:
+          type: string
+          description: Opisanie ohibki
+        additionalErrors:
+          type: object
+          description: Dopolnitelnye ohibki
+    PostTemplateOK:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              description: Identifikator hablona
+              type: string
+        error:
+          type: boolean
+          description: Est li ohibka
+        errorText:
+          type: string
+          description: Opisanie ohibki
+        additionalErrors:
+          nullable: true
+          description: Dopolnitelnye ohibki
+          type: array
+          items:
+            type: string
+    PatchDelRespOK:
+      type: object
+      properties:
+        data:
+          type: boolean
+          nullable: true
+        error:
+          type: boolean
+          description: Est li ohibka
+        errorText:
+          type: string
+          description: Opisanie ohibki
+        additionalErrors:
+          description: Dopolnitelnye ohibki
+          nullable: true
+          type: array
+          items:
+            type: string
+    ResponseErrorTemplate:
+      type: object
+      properties:
+        data:
+          type: object
+          nullable: true
+        error:
+          type: boolean
+          description: Est li ohibka
+        errorText:
+          type: string
+          description: Opisanie ohibki
+        additionalErrors:
+          description: Dopolnitelnye ohibki
+          nullable: true
+          type: array
+          items:
+            type: string
+paths:
+  /api/v1/questions/count-unanswered:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Neotvehennye voprosy
+      description: Metod pozvolaet poluhit kolihestvo neotvehennyh voprosov za segodna
+        i za vse vrema.
+      tags:
+        - Voprosy
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      countUnanswered:
+                        type: integer
+                        description: Kolihestvo neotvehennyh voprosov
+                        example: 24
+                      countUnansweredToday:
+                        type: integer
+                        description: Kolihestvo neotvehennyh voprosov za segodna
+                        example: 0
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                    example: false
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+                    example: null
+        400:
+          description: Ohibka peredannyh parametrov
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr400:
+                  $ref: '#/components/examples/FeedbackErr400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+  /api/v1/new-feedbacks-questions:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Neprosmotrennye otzyvy i voprosy
+      description: Metod otobrahaet informaciu o nalihii u prodavca neprosmotrennyh
+        otzyvov i voprosov.
+      tags:
+        - Voprosy
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      hasNewQuestions:
+                        type: boolean
+                        description: Est li neprosmotrennye voprosy (`true` est,
+                          `false` net)
+                        example: true
+                      hasNewFeedbacks:
+                        type: boolean
+                        description: Est li neprosmotrennye otzyvy (`true` est,
+                          `false` net)
+                        example: false
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                    example: false
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+                    example: null
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Ohibka avtorizacii
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr403:
+                  $ref: '#/components/examples/FeedbackErr403'
+  /api/v1/questions/products/rating:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: hasto sprahivaemye tovary
+      description: Metod pozvolaet poluhit tovary, pro kotorye hahe vsego sprahivaut.
+      tags:
+        - Voprosy
+      parameters:
+        - name: size
+          in: query
+          description: Kolihestvo zaprahivaemyh tovarov (max. 100)
+          schema:
+            type: integer
+            example: 1
+          required: true
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      products:
+                        description: Massiv struktur tovarov
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            nmId:
+                              type: integer
+                              description: Artikul WB
+                              example: 21573649
+                            imtId:
+                              type: integer
+                              description: Identifikator kartohki tovara
+                              example: 15384080
+                            productName:
+                              type: string
+                              description: Nazvanie tovara
+                              example: hehol dla telefona iPhone 11
+                            brandName:
+                              type: string
+                              description: Brend tovara
+                              example: Case
+                            questionsCount:
+                              type: string
+                              description: Kolihestvo voprosov
+                              example: 11
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                    example: false
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+                    example: null
+        400:
+          description: Ohibka peredannyh parametrov
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr400:
+                  $ref: '#/components/examples/FeedbackErr400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Ohibka avtorizacii
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr400:
+                  $ref: '#/components/examples/FeedbackErr403'
+  /api/v1/questions:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Spisok voprosov
+      description: 'Metod pozvolaet poluhit spisok voprosov po zadannym parametram
+        s paginaciei i sortirovkoi.<br> Za odin zapros mohno poluhit 10 000 voprosov,
+        maksimum.
+
+        '
+      tags:
+        - Voprosy
+      parameters:
+        - name: isAnswered
+          in: query
+          description: 'Otvehennye voprosy (`true`) ili neotvehennye voprosy(`false`)
+
+            '
+          schema:
+            type: boolean
+          required: true
+        - name: nmId
+          in: query
+          description: Artikul WB
+          schema:
+            type: integer
+        - name: take
+          in: query
+          description: 'Kolihestvo zaprahivaemyh voprosov (maksimalno dopustimoe
+            znahenie dla parametra - 10 000,  pri etom summa znahenii parametrov `take`
+            i `skip` ne dolhna prevyhat 10 000)
+
+            '
+          schema:
+            type: integer
+          required: true
+        - name: skip
+          in: query
+          description: 'Kolihestvo voprosov dla propuska (maksimalno dopustimoe znahenie
+            dla parametra - 10 000,  pri etom summa znahenii parametrov `take` i `skip`
+            ne dolhna prevyhat 10 000)
+
+            '
+          schema:
+            type: integer
+          required: true
+        - name: order
+          in: query
+          description: Sortirovka voprosov po date (`dateAsc`/`dateDesc`)
+          schema:
+            type: string
+        - name: dateFrom
+          in: query
+          description: Data nahala perioda v formate Unix timestamp
+          schema:
+            type: integer
+            example: 1688465092
+        - name: dateTo
+          in: query
+          description: Data konca perioda v formate Unix timestamp
+          schema:
+            type: integer
+            example: 1688465092
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      countUnanswered:
+                        type: integer
+                        description: Kolihestvo neobrabotannyh voprosov
+                      countArchive:
+                        type: integer
+                        description: Kolihestvo obrabotannyh voprosov
+                      questions:
+                        description: Massiv struktur voprosov
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: id voprosa
+                            text:
+                              type: string
+                              description: Tekst voprosa
+                            createdDate:
+                              type: string
+                              format: date-time
+                              description: Data i vrema sozdania voprosa
+                            state:
+                              type: string
+                              description: '<dt>Status voprosa:</dt> <dd>`none` -
+                                vopros otklonen prodavcom (takoi vopros ne otobrahaetsa
+                                na portale pokupatelei)</dd> <dd>`wbRu` - otvet predostavlen,
+                                vopros otobrahaetsa na saite pokupatelei</dd> <dd>`suppliersPortalSynch`
+                                - novyi vopros</dd>
+
+                                '
+                            answer:
+                              description: Struktura otveta
+                              type: object
+                              properties:
+                                text:
+                                  type: string
+                                  description: Tekst otveta
+                                editable:
+                                  type: boolean
+                                  description: Mohno li otredaktirovat otvet (`false`
+                                    - nelza, `true` - mohno)
+                                createDate:
+                                  type: string
+                                  format: date-time
+                                  description: Data i vrema sozdania otveta
+                            productDetails:
+                              type: object
+                              description: Struktura tovara
+                              properties:
+                                nmId:
+                                  type: integer
+                                  description: Artikul WB
+                                imtId:
+                                  type: integer
+                                  description: Identifikator kartohki tovara
+                                productName:
+                                  type: string
+                                  description: Nazvanie tovara
+                                supplierArticle:
+                                  type: string
+                                  description: Artikul prodavca
+                                supplierName:
+                                  type: string
+                                  description: Ima prodavca
+                                brandName:
+                                  type: string
+                                  description: Nazvanie brenda
+                            wasViewed:
+                              type: boolean
+                              description: Prosmotren li vopros
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                    example: false
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+              example:
+                data:
+                  countUnanswered: 24
+                  countArchive: 508
+                  questions:
+                    - id: 2ncBtX4B9I0UHoornoqG
+                      text: Tekst voprosa
+                      createdDate: '2022-02-01T11:18:08.769513469Z'
+                      state: suppliersPortalSynch
+                      answer: null
+                      productDetails:
+                        imtId: 11157265
+                        nmId: 14917842
+                        productName: Kofe
+                        supplierArticle: '123401'
+                        supplierName: ' GP Reklama i uslugi'
+                        brandName: Nescofe
+                      wasViewed: false
+                      isOverdue: true
+                error: false
+                errorText: ''
+                additionalErrors: null
+        400:
+          description: Ohibka peredannyh parametrov
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr400:
+                  $ref: '#/components/examples/FeedbackErr400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Ohibka avtorizacii
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr400:
+                  $ref: '#/components/examples/FeedbackErr403'
+    patch:
+      security:
+        - HeaderApiKey: []
+      summary: Rabota s voprosami
+      description: '<dl> <dt>V zavisimosti ot tela zaprosa mohno:</dt> <dd>Prosmotret
+        vopros.</dd> <dd>Otklonit vopros.</dd> <dd>Otvetit na vopros ili otredaktirovat
+        otvet.</dd> </dl> <b>Otredaktirovat otvet na vopros mohno v tehenie 2 mesacev
+        (60 dnei), posle predostavlenia otveta i tolko 1 raz.</b>
+
+        '
+      tags:
+        - Voprosy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required:
+                    - id
+                    - wasViewed
+                  properties:
+                    id:
+                      description: Id voprosa
+                      type: string
+                      example: n5um6IUBQOOSTxXoo0gV
+                    wasViewed:
+                      description: Prosmotren (`true`), ne prosmotren (`false`)
+                      type: boolean
+                      example: true
+                - type: object
+                  required:
+                    - id
+                    - answer
+                    - state
+                  properties:
+                    id:
+                      type: string
+                      description: Id voprosa
+                      example: n5um6IUBQOOSTxXoo0gV
+                    answer:
+                      type: object
+                      required:
+                        - text
+                      properties:
+                        text:
+                          type: string
+                          description: Tekst otveta
+                          example: tekst otveta
+                    state:
+                      type: string
+                      description: 'Status voprosa (none) - vopros otklonen prodavcom
+                        (takoi vopros ne otobrahaetsa na portale pokupatelei).<br>
+                        Status voprosa (wbRu) - otvet predostavlen, vopros otobrahaetsa
+                        na saite pokupatelei.
+
+                        '
+            examples:
+              ViewQuestion:
+                description: Prosmotret vopros
+                value:
+                  id: n5um6IUBQOOSTxXoo0gV
+                  wasViewed: true
+              RejectQuestion:
+                description: Otklonit vopros
+                value:
+                  id: n5um6IUBQOOSTxXoo0gV
+                  answer:
+                    text: tekst otveta
+                  state: none
+              AnswerQuestionOrEditAnswer:
+                description: Otvetit na vopros ili otredaktirovat otvet
+                value:
+                  id: n5um6IUBQOOSTxXoo0gV
+                  answer:
+                    text: tekst otveta
+                  state: wbRu
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    nullable: true
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+              example:
+                data: null
+                error: false
+                errorText: ''
+                additionalErrors: null
+        400:
+          description: Ohibka peredannyh parametrov
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr400:
+                  $ref: '#/components/examples/FeedbackErr400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Ohibka avtorizacii
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr403:
+                  $ref: '#/components/examples/FeedbackErr403'
+        404:
+          description: Ohibka - ne naideno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr404:
+                  $ref: '#/components/examples/FeedbackErr404'
+  /api/v1/questions/report:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Poluhenie voprosov v formate XLSX
+      description: Metod pozvolaet poluhit XLSX fail s voprosami v kodirovke BASE64.
+      tags:
+        - Voprosy
+      parameters:
+        - name: isAnswered
+          in: query
+          description: 'Obrabotannye voprosy (`true`) ili neobrabotannye voprosy(`false`)
+
+            '
+          schema:
+            type: boolean
+            example: false
+          required: true
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      fileName:
+                        type: string
+                        description: Ima faila
+                        example: report.xlsx
+                      file:
+                        type: string
+                        format: binary
+                        description: Fail
+                        example: UEsDBBQAC ... CAADMdQAAAAA=
+                      contentType:
+                        type: string
+                        description: Tip kontenta
+                        example: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                    example: false
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+                    example: null
+        400:
+          description: Ohibka peredannyh parametrov
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr400:
+                  $ref: '#/components/examples/FeedbackErr400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Ohibka avtorizacii
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr403:
+                  $ref: '#/components/examples/FeedbackErr403'
+  /api/v1/questions/count:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Kolihestvo voprosov
+      description: Metod pozvolaet poluhit kolihestvo voprosov.
+      tags:
+        - Voprosy
+      parameters:
+        - name: dateFrom
+          in: query
+          description: Data nahala perioda v formate Unix timestamp
+          schema:
+            type: integer
+            example: 1688465092
+        - name: dateTo
+          in: query
+          description: Data konca perioda v formate Unix timestamp
+          schema:
+            type: integer
+            example: 1688465092
+        - name: isAnswered
+          in: query
+          description: 'Obrabotannye voprosy(`true`) ili neobrabotannye voprosy(`false`).<br>
+            Esli ne ukazat, vernutsa obrabotannye voprosy.
+
+            '
+          schema:
+            type: boolean
+            example: false
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: integer
+                    description: Kolihestvo voprosov
+                    example: 77
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                    example: false
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+                    example: null
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Ohibka avtorizacii
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr403:
+                  $ref: '#/components/examples/FeedbackErr403'
+  /api/v1/question:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Poluhit vopros po Id
+      description: Metod pozvolaet poluhit vopros po ego Id. <br>
+      tags:
+        - Voprosy
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: Identifikator voprosa
+          schema:
+            type: string
+            example: K40ZY1kBHA64Ev-ch5bd
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: id voprosa
+                      text:
+                        type: string
+                        description: Tekst voprosa
+                      createdDate:
+                        type: string
+                        format: date-time
+                        description: Data i vrema sozdania voprosa
+                      state:
+                        type: string
+                        description: '<dt>Status voprosa:</dt>  <dd>`none` - vopros
+                          otklonen prodavcom (takoi vopros ne otobrahaetsa na portale
+                          pokupatelei)</dd>  <dd>`wbRu` - otvet predostavlen, vopros
+                          otobrahaetsa na saite pokupatelei</dd>  <dd>`suppliersPortalSynch`
+                          - novyi vopros</dd>
+
+                          '
+                      answer:
+                        description: Struktura otveta
+                        type: object
+                        properties:
+                          text:
+                            type: string
+                            description: Tekst otveta
+                          editable:
+                            type: boolean
+                            description: Mohno li otredaktirovat otvet (`false` -
+                              nelza, `true` - mohno)
+                          createDate:
+                            type: string
+                            format: date-time
+                            description: Data i vrema sozdania otveta
+                      productDetails:
+                        type: object
+                        description: Struktura tovara
+                        properties:
+                          nmId:
+                            type: integer
+                            description: Artikul WB
+                          imtId:
+                            type: integer
+                            description: Identifikator kartohki tovara
+                          productName:
+                            type: string
+                            description: Nazvanie tovara
+                          supplierArticle:
+                            type: string
+                            description: Artikul prodavca
+                          supplierName:
+                            type: string
+                            description: Ima prodavca
+                          brandName:
+                            type: string
+                            description: Nazvanie brenda
+                      wasViewed:
+                        type: boolean
+                        description: Prosmotren li vopros
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                    example: false
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+                    example: null
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+  /api/v1/feedbacks/count-unanswered:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Neobrabotannye otzyvy
+      description: Metod pozvolaet poluhit kolihestvo neobrabotannyh otzyvov za segodna,
+        za vse vrema, i srednuu ocenku vseh otzyvov.
+      tags:
+        - Otzyvy
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      countUnanswered:
+                        type: integer
+                        description: Kolihestvo neobrabotannyh otzyvov
+                        example: 1
+                      countUnansweredToday:
+                        type: integer
+                        description: Kolihestvo neobrabotannyh otzyvov za segodna
+                        example: 0
+                      valuation:
+                        type: string
+                        description: Srednaa ocenka vseh otzyvov
+                        example: '4.7'
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                    example: false
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+                    example: null
+        400:
+          description: Ohibka peredannyh parametrov
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr400:
+                  $ref: '#/components/examples/FeedbackErr400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+  /api/v1/parent-subjects:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Roditelskie kategorii tovarov
+      description: Metod pozvolaet poluhit spisok roditelskih kategorii tovarov,
+        kotorye est u prodavca.
+      tags:
+        - Otzyvy
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        subjectId:
+                          type: integer
+                          description: Id kategorii tovara
+                          example: 1162
+                        subjectName:
+                          type: string
+                          description: Nazvanie kategorii tovara
+                          example: Stroitelnye instrumenty
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                    example: false
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+                    example: null
+        400:
+          description: Ohibka peredannyh parametrov
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr400:
+                  $ref: '#/components/examples/FeedbackErr400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Ohibka avtorizacii
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr403:
+                  $ref: '#/components/examples/FeedbackErr403'
+  /api/v1/feedbacks/products/rating:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Srednaa ocenka tovarov po roditelskoi kategorii
+      description: Metod pozvolaet poluhit srednuu ocenku tovarov po roditelskoi
+        kategorii.
+      tags:
+        - Otzyvy
+      parameters:
+        - name: subjectId
+          in: query
+          required: true
+          description: id kategorii tovara
+          schema:
+            type: integer
+            example: 3109
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        valuation:
+                          type: string
+                          description: Srednaa ocenka tovarov
+                          example: '4.8'
+                        feedbacksCount:
+                          type: integer
+                          description: Kolihestvo otzyvov po zaprahivaemoi kategorii
+                          example: 277
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                    example: false
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+                    example: null
+        400:
+          description: Ohibka peredannyh parametrov
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr400:
+                  $ref: '#/components/examples/FeedbackErr400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Ohibka avtorizacii
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr403:
+                  $ref: '#/components/examples/FeedbackErr403'
+  /api/v1/feedbacks/products/rating/top:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Tovary s naibolhei i naimenhei srednei ocenkoi po roditelskoi kategorii
+      description: Metod pozvolaet poluhit spisok iz dvuh tovarov, s naibolhei i
+        naimenhei srednei ocenkoi, po roditelskoi kategorii.
+      tags:
+        - Otzyvy
+      parameters:
+        - name: subjectId
+          in: query
+          required: true
+          description: id kategorii tovara
+          schema:
+            type: integer
+            example: 3109
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        productMaxRating:
+                          $ref: '#/components/schemas/productRating'
+                        productMinRating:
+                          $ref: '#/components/schemas/productRating'
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+              example:
+                data:
+                  productMaxRating:
+                    nmId: 14917842
+                    imtId: 11157265
+                    subjectId: 5135
+                    valuationsSum: 1260
+                    feedbacksCount: 252
+                    valuation: 5
+                    productName: Kofe
+                    supplierArticle: '123401'
+                    brandName: Nescafe
+                  productMinRating:
+                    nmId: 14917846
+                    imtId: 11157269
+                    subjectId: 5134
+                    valuationsSum: 4
+                    feedbacksCount: 2
+                    valuation: 2
+                    productName: Kofe
+                    supplierArticle: '425501'
+                    brandName: Nescafe
+                error: false
+                errorText: ''
+                additionalErrors: null
+        400:
+          description: Ohibka peredannyh parametrov
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr400:
+                  $ref: '#/components/examples/FeedbackErr400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Ohibka avtorizacii
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr403:
+                  $ref: '#/components/examples/FeedbackErr403'
+  /api/v1/feedbacks:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Spisok otzyvov
+      description: Metod pozvolaet poluhit spisok otzyvov po zadannym parametram
+        s paginaciei i sortirovkoi.
+      tags:
+        - Otzyvy
+      parameters:
+        - name: isAnswered
+          in: query
+          required: true
+          description: Obrabotannye otzyvy (`true`) ili neobrabotannye otzyvy(`false`)
+          schema:
+            type: boolean
+            example: false
+        - name: nmId
+          in: query
+          description: Artikul WB
+          schema:
+            type: integer
+            example: 5870243
+        - name: take
+          in: query
+          required: true
+          description: Kolihestvo otzyvov (max. 5 000)
+          schema:
+            type: integer
+            example: 1
+        - name: skip
+          in: query
+          required: true
+          description: Kolihestvo otzyvov dla propuska (max. 199990)
+          schema:
+            type: integer
+            example: 0
+        - name: order
+          in: query
+          description: Sortirovka otzyvov po date (dateAsc/dateDesc)
+          schema:
+            type: string
+            enum:
+              - dateAsc
+              - dateDesc
+        - name: dateFrom
+          in: query
+          description: Data nahala perioda v formate Unix timestamp
+          schema:
+            type: integer
+            example: 1688465092
+        - name: dateTo
+          in: query
+          description: Data konca perioda v formate Unix timestamp
+          schema:
+            type: integer
+            example: 1688465092
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      countUnanswered:
+                        type: integer
+                        description: Kolihestvo neobrabotannyh otzyvov
+                      countArchive:
+                        type: integer
+                        description: Kolihestvo obrabotannyh otzyvov
+                      feedbacks:
+                        $ref: '#/components/schemas/responseFeadback'
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+              example:
+                data:
+                  countUnanswered: 1
+                  countArchive: 1
+                  feedbacks:
+                    - id: n5um6IUBQOOSTxXoo0gV
+                      imtId: 4702466
+                      nmId: 5870243
+                      subjectId: 390
+                      userName: userName
+                      text: Great product. Thank you
+                      productValuation: 5
+                      createdDate: '2023-01-25T11:18:33Z'
+                      updatedDate: '2023-01-26T11:09:54Z'
+                      answer: null
+                      state: none
+                      productDetails:
+                        imtId: 4702466
+                        nmId: 5870243
+                        productName: Case for phone
+                        supplierArticle: 41058/transparent
+                        supplierName: GP Reklama i uslugi
+                        brandName: 1000 Catalog
+                        size: size
+                      photoLinks:
+                        - fullSize: feedbacks/470/4702466/2dc59933-00b5-4ba5-a11a-96312ef179f1_fs.jpg
+                          miniSize: feedbacks/470/4702466/2dc59933-00b5-4ba5-a11a-96312ef179f1_ms.jpg
+                      video: null
+                      wasViewed: true
+                error: false
+                errorText: ''
+                additionalErrors: null
+        400:
+          description: Ohibka peredannyh parametrov
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr400:
+                  $ref: '#/components/examples/FeedbackErr400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Ohibka avtorizacii
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr403:
+                  $ref: '#/components/examples/FeedbackErr403'
+    patch:
+      security:
+        - HeaderApiKey: []
+      summary: Rabota s otzyvom
+      description: '<dl> <dt>V zavisimosti ot tela zaprosa mohno:</dt> <dd>Prosmotret
+        otzyv.</dd> <dd>Otvetit na otzyv, ili otredaktirovat otvet.</dd>         <dd>Ocenit
+        otzyv i/ili tovar.  </dd>        </dl> <b>Otredaktirovat otvet na otzyv mohno
+        v tehenie 2 mesacev (60 dnei), posle predostavlenia otveta i tolko 1 raz.
+
+        '
+      tags:
+        - Otzyvy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required:
+                    - id
+                    - wasViewed
+                  properties:
+                    id:
+                      type: string
+                      description: Id otzyva
+                      example: n5um6IUBQOOSTxXoo0gV
+                    wasViewed:
+                      type: boolean
+                      description: Prosmotren (`true`) ili ne prosmotren (`false`)
+                      example: true
+                - type: object
+                  required:
+                    - id
+                    - text
+                  properties:
+                    id:
+                      type: string
+                      description: Id otzyva
+                      example: n5um6IUBQOOSTxXoo0gV
+                    text:
+                      type: string
+                      description: Tekst otveta (max. 1000 simvolov)
+                      example: tekst otveta
+                - type: object
+                  required:
+                    - id
+                  properties:
+                    id:
+                      description: Identifikator otzyva
+                      type: string
+                    supplierFeedbackValuation:
+                      description: Ocenka otzyva. Mohno poluhit metodom <b>Poluhit
+                        spisok ocenok</b>
+                      type: integer
+                    supplierProductValuation:
+                      description: Ocenka tovara. Mohno poluhit metodom <b>Poluhit
+                        spisok ocenok</b>
+                      type: integer
+            examples:
+              ViewFeedback:
+                description: Prosmotret otzyv
+                value:
+                  id: n5um6IUBQOOSTxXoo0gV
+                  wasViewed: true
+              AnswerFeedbackOrEditAnswer:
+                description: Otvetit na otzyv, ili otredaktirovat otvet
+                value:
+                  id: n5um6IUBQOOSTxXoo0gV
+                  text: tekst otveta
+              RateFeedbackAndProduct:
+                description: Ocenit tovar i/ili otzyv
+                value:
+                  id: a2X3e4wB-uQDHp63D36M
+                  supplierFeedbackValuation: 1
+                  supplierProductValuation: 1
+      responses:
+        200:
+          description: Uspehno
+        400:
+          description: Ohibka peredannyh parametrov
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr400:
+                  $ref: '#/components/examples/FeedbackErr400'
+                ReviewRatingNotAvailable:
+                  $ref: '#/components/examples/ReviewRatingNotAvailable'
+                EmptyFieldsInRequest:
+                  $ref: '#/components/examples/EmptyFieldsInRequest'
+                unknownEstimate:
+                  $ref: '#/components/examples/unknownEstimate'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Ohibka avtorizacii
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr403:
+                  $ref: '#/components/examples/FeedbackErr403'
+        404:
+          description: Ohibka - ne naideno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr404:
+                  $ref: '#/components/examples/FeedbackErr404'
+        422:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                CouldNotFixFeedback:
+                  $ref: '#/components/examples/CouldNotFixFeedback'
+  /api/v1/supplier-valuations:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Poluhit spisok ocenok
+      description: Metod pozvolaet poluhat spisok znahenii dla ocenki otzyva/tovara.
+      tags:
+        - Otzyvy
+      parameters:
+        - name: X-Locale
+          in: header
+          schema:
+            type: string
+            example: ru
+          description: Vybor azyka znahenii polei otveta (`ru` - russkii, `en` - angliiskii,
+            `zh` - kitaiskii)
+      responses:
+        200:
+          description: Spisok ocenok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    description: Dannye
+                    type: object
+                    properties:
+                      feedbackValuations:
+                        description: Ocenki dla otzyva. Sm. Response samples
+                        type: object
+                        properties:
+                          '1':
+                            type: string
+                          '2':
+                            type: string
+                          '3':
+                            type: string
+                          '4':
+                            type: string
+                          '5':
+                            type: string
+                          '6':
+                            type: string
+                          '7':
+                            type: string
+                      productValuations:
+                        description: Ocenki dla tovara Sm. Response samples
+                        type: object
+                        properties:
+                          '1':
+                            type: string
+                          '2':
+                            type: string
+                          '3':
+                            type: string
+                          '4':
+                            type: string
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+              example:
+                data:
+                  feedbackValuations:
+                    '1': Otzyv ne otnositsa k tovaru
+                    '2': Otzyv ostavili konkurenty
+                    '3': Spam
+                    '4': Necenzurnoe soderhimoe v foto
+                    '5': Necenzurnaa leksika
+                    '6': Foto ne imeet otnohenia k tovaru
+                    '7': Otzyv s politiheskim kontekstom
+                  productValuations:
+                    '1': Povredili pri dostavke
+                    '2': Tovar podmenili
+                    '3': Sluhaino otpravil ne tot tovar i hohu ego vernut
+                    '4': Tovar vernuli posle ekspluatacii
+                error: false
+                errorText: ''
+                additionalErrors: null
+  /api/v1/feedbacks/order/return:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    post:
+      security:
+        - HeaderApiKey: []
+      summary: Vozvrat tovara po ID otzyva
+      description: "Metod pozvolaet zaprosit na vozvrat tovar, po kotoromu ostavlen\
+        \ otzyv.  <br> Vozrat dostupen dla otzyvov s  <code>\"isAbleReturnProductOrders\"\
+        : true</code> \n"
+      tags:
+        - Otzyvy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                feedbackId:
+                  type: string
+                  description: Identifikator otzyva
+            example:
+              feedbackId: absdfgerrrfff1234
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: null
+                    nullable: true
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+        422:
+          description: Ohibka
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                responseInaccessibleBackGoodError422:
+                  $ref: '#/components/examples/responseInaccessibleBackGoodError422'
+                responseUnsuccessfullyBackGoodError422:
+                  $ref: '#/components/examples/responseUnsuccessfullyBackGoodError422'
+        400:
+          description: Ohibka peredannyh parametrov
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr400:
+                  $ref: '#/components/examples/responseDoNotGetFeedback400'
+  /api/v1/feedbacks/report:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Poluhenie otzyvov v formate XLSX
+      description: 'Metod pozvolaet poluhit XLSX fail s otzyvami v kodirovke BASE64.
+        <br> Za odin zapros mohno poluhit 5000 otzyvov. <br>
+
+        '
+      tags:
+        - Otzyvy
+      parameters:
+        - name: isAnswered
+          in: query
+          description: Neobrabotannyi(`false`) ili v arhive(`true`)
+          schema:
+            type: boolean
+            enum:
+              - true
+              - false
+          required: true
+          deprecated: false
+        - name: skip
+          in: query
+          description: Parametr paginacii, ukazyvaet skolko otzyvov propustit (max.
+            20 000)
+          schema:
+            type: integer
+            example: 1
+        - name: dateFrom
+          description: Data nahala perioda v formate Unix timestamp <br>
+          in: query
+          schema:
+            type: integer
+            example: 1696226971
+        - name: dateTo
+          description: Data konca perioda v formate Unix timestamp <br>
+          in: query
+          schema:
+            type: integer
+            example: 1698916171
+        - name: order
+          description: Sortirovka otzyvov po date (dateAsc/dateDesc) <br>
+          in: query
+          schema:
+            type: string
+            example: dateDesc
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      fileName:
+                        type: string
+                        description: Ima faila
+                      file:
+                        type: string
+                        format: binary
+                        description: Fail
+                      contentType:
+                        type: string
+                        description: Tip kontenta
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+              example:
+                data:
+                  fileName: report.xlsx
+                  file: UEsDBBQA ... ACAADxGgAAAAA=
+                  contentType: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+                error: false
+                errorText: ''
+                additionalErrors: null
+        400:
+          description: Ohibka peredannyh parametrov
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr400:
+                  $ref: '#/components/examples/FeedbackErr400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Ohibka avtorizacii
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr403:
+                  $ref: '#/components/examples/FeedbackErr403'
+  /api/v1/feedbacks/archive:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Spisok arhivnyh otzyvov
+      description: 'Metod pozvolaet poluhit spisok arhivnyh otzyvov. <br> Otzyv stanovitsa
+        arhivnym esli na nego predostavlen otvet ili otvet ne predostavlen v tehenie
+        30 dnei so dna ego publikacii.
+
+        '
+      tags:
+        - Otzyvy
+      parameters:
+        - name: nmId
+          in: query
+          description: Artikul WB
+          schema:
+            type: integer
+            example: 14917842
+        - name: take
+          in: query
+          required: true
+          description: Kolihestvo otzyvov (max. 5 000)
+          schema:
+            type: integer
+            example: 1
+        - name: skip
+          in: query
+          required: true
+          description: Kolihestvo otzyvov dla propuska
+          schema:
+            type: integer
+            example: 0
+        - name: order
+          in: query
+          description: Sortirovka otzyvov po date (dateAsc/dateDesc)
+          schema:
+            type: string
+            enum:
+              - dateAsc
+              - dateDesc
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      feedbacks:
+                        $ref: '#/components/schemas/responseFeadback'
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+              example:
+                data:
+                  feedbacks:
+                    - id: z0fuK3wBIAjWoLmLkJKo
+                      imtId: 11157265
+                      nmId: 14917842
+                      subjectId: 5135
+                      userName: userName
+                      text: Vse otlihno.Podaril tehe. Krasivoe!
+                      productValuation: 5
+                      createdDate: '2011-11-01T16:41:39+04:00'
+                      updatedDate: '2022-06-21T12:02:42Z'
+                      answer:
+                        text: super-puper
+                        state: wbRu
+                        editable: false
+                      state: wbRu
+                      productDetails:
+                        imtId: 11157265
+                        nmId: 14917842
+                        productName: Kofe
+                        supplierArticle: '123401'
+                        supplierName: test
+                        brandName: Nescafe
+                        size: size
+                      photoLinks:
+                        - fullSize: feedbacks/470/4702466/2dc59933-00b5-4ba5-a11a-96312ef179f1_fs.jpg
+                          miniSize: feedbacks/470/4702466/2dc59933-00b5-4ba5-a11a-96312ef179f1_ms.jpg
+                      video: null
+                      wasViewed: true
+                error: false
+                errorText: ''
+                additionalErrors: null
+        400:
+          description: Ohibka peredannyh parametrov
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr400:
+                  $ref: '#/components/examples/FeedbackErr400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Ohibka avtorizacii
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr403:
+                  $ref: '#/components/examples/FeedbackErr403'
+  /api/v1/feedbacks/products/rating/nmid:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Srednaa ocenka tovara po artikulu WB
+      description: Metod pozvolaet poluhit srednuu ocenku tovara po ego artikulu
+        WB.
+      tags:
+        - Otzyvy
+      parameters:
+        - name: nmId
+          in: query
+          description: Artikul WB
+          schema:
+            type: integer
+            example: 14917842
+          required: true
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      valuation:
+                        type: string
+                        description: Srednaa ocenka tovara
+                        example: '4.3'
+                      feedbacksCount:
+                        type: integer
+                        description: Kolihestvo otzyvov na dannyi tovar
+                        example: 16
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                    example: false
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+                    example: null
+        400:
+          description: Ohibka peredannyh parametrov
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr400:
+                  $ref: '#/components/examples/FeedbackErr400'
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Ohibka avtorizacii
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr403:
+                  $ref: '#/components/examples/FeedbackErr403'
+  /api/v1/feedbacks/count:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Kolihestvo otzyvov
+      description: Metod pozvolaet poluhit kolihestvo otzyvov.
+      tags:
+        - Otzyvy
+      parameters:
+        - name: dateFrom
+          in: query
+          description: Data nahala perioda v formate Unix timestamp
+          schema:
+            type: integer
+            example: 1688465092
+        - name: dateTo
+          in: query
+          description: Data konca perioda v formate Unix timestamp
+          schema:
+            type: integer
+            example: 1688465092
+        - name: isAnswered
+          in: query
+          description: 'Obrabotannye otzyvy(`true`) ili neobrabotannye otzyvy(`false`).<br>
+            Esli ne ukazat, vernutsa obrabotannye otzyvy.
+
+            '
+          schema:
+            type: boolean
+            example: false
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: integer
+                    description: Kolihestvo otzyvov
+                    example: 724583
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                    example: false
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                    example: ''
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+                    example: null
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+        403:
+          description: Ohibka avtorizacii
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsefeedbackErr'
+              examples:
+                FeedbackErr403:
+                  $ref: '#/components/examples/FeedbackErr403'
+  /api/v1/feedback:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Poluhit otzyv po Id
+      description: Metod pozvolaet poluhit otzyv po ego Id.
+      tags:
+        - Otzyvy
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: Identifikator otzyva
+          schema:
+            type: string
+            example: G7Y9Y1kBAtKOitoBT_lV
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: Identifikator otzyva
+                      userName:
+                        type: string
+                        description: Ima avtora otzyva
+                      matchingSize:
+                        type: string
+                        description: "<dl> <dt>\n  Sootvetstvie zaavlennogo razmera\
+                          \ realnomu.\n  <br>Vozmohnye znahenia:\n</dt> <dd>\"\"\
+                          \ - dla bezrazmernyh tovarov,</dd> <dd>\"ok\" - sootvetstvuet\
+                          \ razmeru,</dd> <dd>\"smaller\" - malomerit,</dd> <dd>\"\
+                          bigger\" - bolhemerit</dd>               </dl> \n"
+                      text:
+                        type: string
+                        description: Tekst otzyva
+                      productValuation:
+                        type: integer
+                        description: Ocenka tovara
+                      createdDate:
+                        type: string
+                        format: date-time
+                        description: Data i vrema sozdania otzyva
+                      state:
+                        type: string
+                        description: "<dt>Status otzyva:</dt>  <dd>`none` - ne obrabotan\
+                          \ (novyi)</dd> <dd>`wbRu` - obrabotan</dd> \n"
+                      answer:
+                        type: object
+                        description: Struktura otveta
+                        properties:
+                          text:
+                            type: string
+                            description: Tekst otveta
+                          state:
+                            type: string
+                            description: '<dt>Status:</dt> <dd>`none` - novyi</dd>  <dd>`wbRu`-
+                              otobrahaetsa na saite</dd>  <dd>`reviewRequired` - otvet
+                              prohodit proverku</dd> <dd>`rejected` - otvet otklonen</dd>
+
+                              '
+                      productDetails:
+                        description: Struktura tovara
+                        type: object
+                        properties:
+                          nmId:
+                            type: integer
+                            description: Artikul WB
+                          imtId:
+                            type: integer
+                            description: Identifikator kartohki tovara
+                          productName:
+                            type: string
+                            description: Nazvanie tovara
+                          supplierArticle:
+                            type: string
+                            nullable: true
+                            description: Artikul prodavca
+                          supplierName:
+                            type: string
+                            nullable: true
+                            description: Ima prodavca
+                          brandName:
+                            type: string
+                            nullable: true
+                            description: Brend tovara
+                          size:
+                            type: string
+                            description: Razmer tovara (`techSize` v KT)
+                      photoLinks:
+                        description: Massiv struktur fotografii
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            fullSize:
+                              type: string
+                              description: Adres fotografii polnogo razmera
+                            miniSize:
+                              type: string
+                              description: Adres fotografii malenkogo razmera
+                      video:
+                        description: Struktura video
+                        type: object
+                        properties:
+                          previewImage:
+                            type: string
+                            description: Ssylka na oblohku video
+                          link:
+                            type: string
+                            description: Ssylka na fail pleilista video (dostupno
+                              po protokolu hls)
+                          duration_sec:
+                            type: integer
+                            description: Obhaa prodolhitelnost video
+                      wasViewed:
+                        type: boolean
+                        description: Prosmotren li otzyv
+                      isAbleSupplierFeedbackValuation:
+                        description: Dostupna li prodavcu ocenka otzyva (`true` -
+                          dostupna, `false` - ne dostupna)
+                        type: boolean
+                      supplierFeedbackValuation:
+                        description: Ocenka otzyva, ostavlennaa prodavcom
+                        type: integer
+                      isAbleSupplierProductValuation:
+                        description: Dostupna li prodavcu ocenka tovara (`true` -
+                          dostupna, `false` - ne dostupna)
+                        type: boolean
+                      supplierProductValuation:
+                        description: Ocenka tovara, ostavlennaa prodavcom
+                        type: integer
+                      isAbleReturnProductOrders:
+                        description: Dostupna li tovaru opcia vozrata (`fase` - net,
+                          `true` - da)
+                        type: boolean
+                      returnProductOrdersDate:
+                        description: Data i vrema, kogda na zapros vozvrata byl poluhen
+                          otvet so status-kodom 200.
+                        type: string
+                      bables:
+                        description: Cpisok tegov pokupatela
+                        type: array
+                        items:
+                          type: string
+                  error:
+                    type: boolean
+                    description: Est li ohibka
+                  errorText:
+                    type: string
+                    description: Opisanie ohibki
+                  additionalErrors:
+                    description: Dopolnitelnye ohibki
+                    nullable: true
+                    type: array
+                    items:
+                      type: string
+              example:
+                data:
+                  id: n5um6IUBQOOSTxXoo0gV
+                  imtId: 4702466
+                  nmId: 5870243
+                  subjectId: 390
+                  userName: ImaPokupatela
+                  text: horohii keis. Spasibo
+                  productValuation: 5
+                  createdDate: '2023-01-25T11:18:33Z'
+                  answer: null
+                  state: none
+                  productDetails:
+                    imtId: 4702466
+                    nmId: 5870243
+                    productName: hehol dla telefona
+                    supplierArticle: 41058/transparent
+                    supplierName: GP Reklama i uslugi
+                    brandName: 1000 Katalog
+                    size: size
+                  photoLinks:
+                    - fullSize: feedbacks/470/4702466/2dc59933-00b5-4ba5-a11a-96312ef179f1_fs.jpg
+                      miniSize: feedbacks/470/4702466/2dc59933-00b5-4ba5-a11a-96312ef179f1_ms.jpg
+                  video: null
+                  wasViewed: true
+                error: false
+                errorText: ''
+                additionalErrors: null
+        401:
+          description: Ne avtorizovan
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                TokenMissing:
+                  $ref: '#/components/examples/TokenMissing'
+                TokenInvalid:
+                  $ref: '#/components/examples/TokenInvalid'
+                TokenNotFound:
+                  $ref: '#/components/examples/TokenNotFound'
+  /api/v1/templates:
+    servers:
+      - url: https://feedbacks-api.wildberries.ru
+      - url: https://feedbacks-api.wb.ru
+    get:
+      security:
+        - HeaderApiKey: []
+      summary: Poluhit hablony otvetov
+      description: Metod pozvolaet poluhit hablony otvetov na otzyvy/voprosy.
+      tags:
+        - hablony dla voprosov i otzyvov
+      parameters:
+        - name: templateType
+          in: query
+          schema:
+            type: integer
+            example: 1
+          description: '`1` - hablony dla otzyvov<br> `2` - hablony dla voprosov
+
+            '
+          required: true
+      responses:
+        200:
+          description: Uspehno
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Response200'
+                  - $ref: '#/components/schemas/ResponseErrorTemplate'
+              examples:
+                Response200:
+                  $ref: '#/components/examples/Response200'
+                IncorrectTemplateType:
+                  $ref: '#/components/examples/IncorrectTemplateType'
+        401:
+          description: Ne avtorizovan
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+              examples:
+                EmptyAuthHeader:
+                  $ref: '#/components/examples/EmptyAuthHeader'
+                TokenScopeNotAllowed:
+                  $ref: '#/components/examples/TokenScopeNotAllowed'
+    post:
+      security:
+        - HeaderApiKey: []
+      summary: Sozdat hablon
+      description: 'Metod pozvolaet sozdat hablon otveta na otzyv/vopros. <br> Vsego
+        mohno sozdat 20 hablonov. 10 na otzyvy i 10 na voprosy.<br> Dopustimy lubye
+        simvoly.
+
+        '
+      tags:
+        - hablony dla voprosov i otzyvov
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - templateType
+                - text
+              properties:
+                name:
+                  type: string
+                  description: Nazvanie hablona (ot 1 do 100 simvolov)
+                templateType:
+                  type: integer
+                  description: 'Tip hablona <br> `1` - hablon dla otzyvov <br> `2`
+                    - hablon dla voprosov
+
+                    '
+                text:
+                  type: string
+                  description: Tekst hablona (ot 2 do 1000 simvolov)
+              example:
+                name: name
+                templateType: 1
+                text: text
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/PostTemplateOK'
+                  - $ref: '#/components/schemas/ResponseErrorTemplate'
+              examples:
+                PostTemplateOK:
+                  $ref: '#/components/examples/PostTemplateOK'
+                TemplateLimitExceeded:
+                  $ref: '#/components/examples/TemplateLimitExceeded'
+                InvalidTemplateNameLen:
+                  $ref: '#/components/examples/InvalidTemplateNameLen'
+                InvalidCommentLenTemplate:
+                  $ref: '#/components/examples/InvalidCommentLenTemplate'
+                InvalidRequest:
+                  $ref: '#/components/examples/InvalidRequest'
+        401:
+          description: Ne avtorizovan
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+              examples:
+                EmptyAuthHeader:
+                  $ref: '#/components/examples/EmptyAuthHeader'
+                TokenScopeNotAllowed:
+                  $ref: '#/components/examples/TokenScopeNotAllowed'
+    patch:
+      security:
+        - HeaderApiKey: []
+      summary: Redaktirovat hablon
+      description: 'Metod pozvolaet otredaktirovat hablon. <br> Dopustimy lubye simvoly.
+
+        '
+      tags:
+        - hablony dla voprosov i otzyvov
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - templateID
+                - text
+              properties:
+                name:
+                  type: string
+                  description: Nazvanie hablona (ot 1 do 100 simvolov)
+                templateID:
+                  type: integer
+                  description: Identifikator hablona
+                text:
+                  type: string
+                  description: Tekst hablona (ot 2 do 1000 simvolov)
+              example:
+                name: newname
+                templateID: 1234
+                text: newtext
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/PatchDelRespOK'
+                  - $ref: '#/components/schemas/ResponseErrorTemplate'
+              examples:
+                PatchDelRespOK:
+                  $ref: '#/components/examples/PatchDelRespOK'
+                EditTemplateError:
+                  $ref: '#/components/examples/EditTemplateError'
+                InvalidRequest:
+                  $ref: '#/components/examples/InvalidRequest'
+                InvalidTemplateNameLen:
+                  $ref: '#/components/examples/InvalidTemplateNameLen'
+                InvalidCommentLenTemplate:
+                  $ref: '#/components/examples/InvalidCommentLenTemplate'
+        401:
+          description: Ne avtorizovan
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+              examples:
+                EmptyAuthHeader:
+                  $ref: '#/components/examples/EmptyAuthHeader'
+                TokenScopeNotAllowed:
+                  $ref: '#/components/examples/TokenScopeNotAllowed'
+    delete:
+      security:
+        - HeaderApiKey: []
+      summary: Udalit hablon
+      description: 'Metod pozvolaet udalit hablon. <br>
+
+        '
+      tags:
+        - hablony dla voprosov i otzyvov
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - templateID
+              properties:
+                templateID:
+                  type: integer
+                  description: Identifikator hablona (max. 1)
+            example:
+              templateID: 1234
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/PatchDelRespOK'
+                  - $ref: '#/components/schemas/ResponseErrorTemplate'
+              examples:
+                PatchDelRespOK:
+                  $ref: '#/components/examples/PatchDelRespOK'
+                InvalidRequest:
+                  $ref: '#/components/examples/InvalidRequest'
+                ErrorDeleteBD:
+                  $ref: '#/components/examples/ErrorDeleteBD'
+        401:
+          description: Ne avtorizovan
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                type: string
+              examples:
+                EmptyAuthHeader:
+                  $ref: '#/components/examples/EmptyAuthHeader'
+                TokenScopeNotAllowed:
+                  $ref: '#/components/examples/TokenScopeNotAllowed'

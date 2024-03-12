@@ -1,0 +1,358 @@
+openapi: 3.0.0
+info:
+  title: Tarify
+  version: 1.0.0
+  description: <p>Tarify na logistiku i hranenie na sklade. Tarify mohno poluhit
+    s lubym tokenom, u kotorogo ne vybrana opcia Testovyi kontur.</p>
+servers:
+  - url: https://common-api.wildberries.ru
+security:
+  - HeaderApiKey: []
+x-tagGroups:
+  - name: Tarify
+    tags:
+      - Koefficienty skladov
+      - Stoimost vozvrata prodavcu
+paths:
+  /api/v1/tariffs/box:
+    get:
+      summary: Tarify dla korobov
+      tags:
+        - Koefficienty skladov
+      description: "<p>Dla tovarov, kotorye postavlautsa na sklad v korobah (korobkah),\
+        \ vozvrahaet stoimost:</p> <ul>\n  <li>dostavki so sklada ili punkta priema\
+        \ do pokupatela;</li>\n  <li>dostavki ot pokupatela do punkta priema;</li>\n\
+        \  <li>hranenia na sklade Wildberries.</li>\n</ul> <p>Maksimum — 60 zaprosov\
+        \ v minutu.</p>\n"
+      parameters:
+        - $ref: '#/components/parameters/Date'
+      responses:
+        200:
+          description: Tarify dla korobov (korobok)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TariffsBoxResponse'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v1/tariffs/pallet:
+    get:
+      summary: Tarify dla monopalet
+      tags:
+        - Koefficienty skladov
+      description: "<p>Dla tovarov, kotorye postavlautsa na sklad Wildberries na monopaletah,\
+        \ vozvrahaet stoimost:</p> <ul>\n  <li>dostavki so sklada do pokupatela;</li>\n\
+        \  <li>dostavki ot pokupatela do sklada;</li>\n  <li>hranenia na sklade Wildberries.</li>\n\
+        </ul> <p>Maksimum — 60 zaprosov v minutu.</p>\n"
+      parameters:
+        - $ref: '#/components/parameters/Date'
+      responses:
+        200:
+          description: Tarify dla monopalet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TariffsPalletResponse'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /api/v1/tariffs/return:
+    get:
+      summary: Tarify na vozvrat
+      tags:
+        - Stoimost vozvrata prodavcu
+      description: <p>Vozvrahaet tarify:</p> <ul> <li>na perevozku tovarov so sklada
+        Wildberries ili iz punkta priema do prodavca;</li> <li>na obratnuu perevozku
+        vozvratov, kotorye ne zabral prodavec.</li> </ul> <p>Maksimum — 60 zaprosov
+        v minutu.</p>
+      parameters:
+        - $ref: '#/components/parameters/Date'
+      responses:
+        200:
+          description: Tarify na vozvrat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnTariffsResponse'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/AccessDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+components:
+  securitySchemes:
+    HeaderApiKey:
+      type: apiKey
+      name: Authorization
+      in: header
+  parameters:
+    Date:
+      in: query
+      name: date
+      required: true
+      description: Data v formate YYYY-MM-DD
+      schema:
+        type: string
+  schemas:
+    models.TariffsBoxResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/models.WarehousesBoxRates'
+    models.WarehousesBoxRates:
+      type: object
+      properties:
+        dtFromMin:
+          type: string
+          description: Data nahala tarifa
+          example: 2024-01-23
+        dtNextBox:
+          type: string
+          description: Data nahala sleduuhego tarifa
+          example: 2024-02-01
+        dtTillMax:
+          type: string
+          description: Data okonhania tarifa
+          example: 2024-01-31
+        warehouseList:
+          type: array
+          items:
+            $ref: '#/components/schemas/models.WarehouseBoxRates'
+          nullable: true
+          description: Tarify dla korobov, sgruppirovannye po skladam
+    models.WarehouseBoxRates:
+      type: object
+      properties:
+        boxDeliveryAndStorageExpr:
+          type: string
+          description: Koefficient, %. Na nego umnohaetsa stoimost dostavki i hranenia.
+            Vo vseh tarifah etot koefficient uhe uhten
+          example: 20
+        boxDeliveryBase:
+          type: string
+          description: Dostavka 1 litra, ₽
+          example: 150
+        boxDeliveryLiter:
+          type: string
+          description: Dostavka kahdogo dopolnitelnogo litra, ₽
+          example: 10
+        boxStorageBase:
+          type: string
+          description: hranenie 1 litra, ₽
+          example: 100
+        boxStorageLiter:
+          type: string
+          description: hranenie kahdogo dopolnitelnogo litra, ₽
+          example: 10
+        warehouseName:
+          type: string
+          description: Nazvanie sklada
+          example: Koledino
+    models.TariffsPalletResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/models.WarehousesPalletRates'
+    models.WarehousesPalletRates:
+      type: object
+      properties:
+        dtFromMin:
+          type: string
+          description: Data nahala tarifa
+          example: 2024-01-23
+        dtNextPallet:
+          type: string
+          description: Data nahala sleduuhego tarifa
+          example: 2024-02-01
+        dtTillMax:
+          type: string
+          description: Data okonhania tarifa
+          example: 2024-01-31
+        warehouseList:
+          type: array
+          items:
+            $ref: '#/components/schemas/models.WarehousePalletRates'
+          nullable: true
+          description: Tarify dla monopalet, sgruppirovannye po skladam
+    models.WarehousePalletRates:
+      type: object
+      properties:
+        palletDeliveryExpr:
+          type: string
+          description: Koefficient dostavki, %. Na nego umnohaetsa stoimost dostavki.
+            Vo vseh tarifah etot koefficient uhe uhten
+          example: 20
+        palletDeliveryValueBase:
+          type: string
+          description: Dostavka 1 litra, ₽
+          example: 150
+        palletDeliveryValueLiter:
+          type: string
+          description: Dostavka kahdogo dopolnitelnogo litra, ₽
+          example: 50
+        palletStorageExpr:
+          type: string
+          description: Koefficient hranenia, %. Na nego umnohaetsa stoimost hranenia.
+            Vo vseh tarifah etot koefficient uhe uhten
+          example: 20
+        palletStorageValueExpr:
+          type: string
+          description: hranenie 1 monopalety, ₽
+          example: 200
+        warehouseName:
+          type: string
+          description: Nazvanie sklada
+          example: Koledino
+    models.ReturnTariffsResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/models.WarehousesReturnRates'
+    models.WarehousesReturnRates:
+      type: object
+      properties:
+        dtNextDeliveryDumpKgt:
+          type: string
+          description: Data nahala sleduuhego tarifa pri gruzovoi dostavke
+          example: 2024-02-01
+        dtNextDeliveryDumpSrg:
+          type: string
+          description: Data nahala sleduuhego tarifa dla neopoznannyh tovarov
+          example: 2024-02-01
+        dtNextDeliveryDumpSup:
+          type: string
+          description: Data nahala sleduuhego tarifa pri obyhnoi dostavke
+          example: 2024-02-01
+        warehouseList:
+          type: array
+          items:
+            $ref: '#/components/schemas/models.WarehouseReturnRates'
+          nullable: true
+          description: "<p>Tarify na vozvrat, sgruppirovannye po skladam:</p> <ul>\n\
+            \  <li>stoimost vozvrata braka i vozvrata po iniciative prodavca pri\
+            \ gruzovoi dostavke;</li>\n  <li>stoimost vozvrata neopoznannogo skladom\
+            \ tovara;</li>\n  <li>stoimost vozvrata braka i vozvrata po iniciative\
+            \ prodavca (v punkt vydahi i obratno).</li>\n</ul> <p>Mohno poluhit stoimost\
+            \ vozvrata v punkt vydahi (PVZ) i obratnoi logistiki — esli prodavec ne\
+            \ zabral tovary iz punkta vydahi za 7 dnei.</p>\n"
+    models.WarehouseReturnRates:
+      type: object
+      properties:
+        deliveryDumpKgtOfficeBase:
+          type: string
+          description: "<p><b>Stoimost vozvrata pri gruzovoi dostavke, dostavka na PVZ\
+            \ (bazovaa cena za 1 l), ₽</b></p> <p>Primenaetsa dla krupnogabaritnyh\
+            \ tovarov, kogda:<p> <ul>\n  <li>prodavec hohet vyvezti tovary so sklada\
+            \ Wildberries;</li>\n  <li>na sklade obnaruhili brakovannye tovary;</li>\n\
+            \  <li>pokupatel vozvrahaet tovar, no ego nelza vernut v prodahu.</li>\n\
+            </ul>\n"
+          example: 100
+        deliveryDumpKgtOfficeLiter:
+          type: string
+          description: '<p><b>Stoimost vozvrata pri gruzovoi dostavke, dostavka na PVZ
+            (dop. litr), ₽</b></p> <p>Stoimost za kahdyi dopolnitelnyi litr.</p>
+
+            '
+          example: 30
+        deliveryDumpKgtReturnExpr:
+          type: string
+          description: '<p><b>Stoimost vozvrata pri gruzovoi dostavke, obratnaa logistika
+            nevostrebovannogo vozvrata, ₽</b><p> <p>Gruzovaa dostavka nevostrebovannogo
+            vozvrata obratno na sklad Wildberries. Za edinicu tovara.</p>
+
+            '
+          example: 200
+        deliveryDumpSrgOfficeExpr:
+          type: string
+          description: '<p><b>Stoimost vozvrata neopoznannogo skladom tovara za kahduu
+            edinicu, dostavka na PVZ, ₽</b></p> <p>Primenaetsa dla tovarov, kotorye
+            ne smogli prinat na sklade</p>.
+
+            '
+          example: 200
+        deliveryDumpSrgReturnExpr:
+          type: string
+          description: <p><b>Stoimost vozvrata neopoznannogo skladom tovara za kahduu
+            edinicu, obratnaa logistika nevostrebovannogo vozvrata</b></p> <p>Dostavka
+            nevostrebovannogo vozvrata obratno na sklad Wildberries.</p>
+          example: 200
+        deliveryDumpSupCourierBase:
+          type: string
+          description: Stoimost vozvrata, dostavka kurerom (bazovaa cena za 1 l).
+            Seihas etot tarif ne primenaetsa
+        deliveryDumpSupCourierLiter:
+          type: string
+          description: Stoimost vozvrata, dostavka kurerom (dop. l). Seihas etot
+            tarif ne primenaetsa
+        deliveryDumpSupOfficeBase:
+          type: string
+          description: <p><b>Stoimost vozvrata, dostavka na PVZ (bazovaa cena za 1 l),
+            ₽</b></p> <p>Primenaetsa, kogda:<p> <ul> <li>prodavec hohet vyvezti tovary
+            so sklada Wildberries;</li> <li>na sklade obnaruhili brakovannye tovary;</li>
+            <li>pokupatel vozvrahaet tovar, no ego nelza vernut v prodahu.</li>
+            </ul>
+          example: 200
+        deliveryDumpSupOfficeLiter:
+          type: string
+          description: <p><b>Stoimost vozvrata, dostavka na PVZ (dop. litr), ₽</b></p>
+            <p>Stoimost za kahdyi dopolnitelnyi litr</p>
+          example: 50
+        deliveryDumpSupReturnExpr:
+          type: string
+          description: '<p><b>Stoimost vozvrata, obratnaa logistika nevostrebovannogo
+            vozvrata, za edinicu tovara, ₽</b></p>
+
+            '
+          example: 200
+        warehouseName:
+          type: string
+          description: Nazvanie sklada
+          example: Koledino
+    TariffsBoxResponse:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/models.TariffsBoxResponse'
+    TariffsPalletResponse:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/models.TariffsPalletResponse'
+    ReturnTariffsResponse:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/models.ReturnTariffsResponse'
+  responses:
+    BadRequest:
+      description: Nepravilnyi zapros, naprimer, data ukazana ne polnostu
+    NotFound:
+      description: Takoi adres ne naiden
+    Unauthorized:
+      description: Polzovatel ne avtorizovan
+    ExceededLimitRequests:
+      description: Prevyhen limit po zaprosam
+    AccessDenied:
+      description: Dostup zaprehen
+    InternalServerError:
+      description: Vnutrennaa ohibka servisa
